@@ -1,0 +1,9 @@
+include LICENSE
+include README.md
+include requirements.txt
+recursive-include AgentSystem/config *.template
+recursive-include AgentSystem/data *
+recursive-exclude AgentSystem/data *.pyc
+recursive-exclude AgentSystem/data __pycache__
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

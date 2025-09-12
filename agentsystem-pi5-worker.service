@@ -1,0 +1,74 @@
+[Unit]
+Description=AgentSystem Pi5 Celery Worker
+Documentation=https://github.com/your-repo/AgentSystem
+After=network.target redis.service
+Wants=network.target
+Requires=network.target
+
+[Service]
+Type=exec
+User=agentsystem
+Group=agentsystem
+WorkingDirectory=/opt/agentsystem
+Environment=PATH=/opt/agentsystem/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=VIRTUAL_ENV=/opt/agentsystem/venv
+Environment=CELERY_APP=AgentSystem.pi5_worker:app
+Environment=PYTHONPATH=/opt/agentsystem
+EnvironmentFile=/opt/agentsystem/.env
+
+# Main command to run the Celery worker
+ExecStart=/opt/agentsystem/venv/bin/celery -A AgentSystem.pi5_worker worker \
+    --loglevel=info \
+    --hostname=pi5_worker@%%h \
+    --concurrency=2 \
+    --prefetch-multiplier=1 \
+    --max-tasks-per-child=1000 \
+    --time-limit=300 \
+    --soft-time-limit=240
+
+# Graceful shutdown
+ExecStop=/bin/kill -TERM $MAINPID
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Resource limits (Pi5 optimized)
+LimitNOFILE=65536
+LimitNPROC=4096
+LimitMEMLOCK=infinity
+# Memory limit: 4GB (adjust based on your Pi5 RAM)
+MemoryMax=4G
+# CPU limit: 80% of total CPU
+CPUQuota=320%
+
+# Security settings
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/agentsystem/data /opt/agentsystem/logs /tmp/agentsystem
+PrivateTmp=true
+PrivateDevices=false
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RemoveIPC=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=agentsystem-pi5-worker
+
+# Health check integration
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

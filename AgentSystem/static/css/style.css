@@ -1,0 +1,148 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+header h1 {
+    color: #1a73e8;
+    margin-bottom: 10px;
+}
+
+section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+section h2 {
+    margin-bottom: 15px;
+    color: #1a73e8;
+}
+
+section h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #444;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #1a73e8;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1557b0;
+}
+
+.btn-secondary {
+    background-color: #34a853;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #2e7d32;
+}
+
+.hidden {
+    display: none;
+}
+
+#tasksList {
+    margin-top: 15px;
+}
+
+.task-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.task-item h4 {
+    margin-bottom: 5px;
+}
+
+.task-status {
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: white;
+}
+
+.status-pending {
+    background-color: #f29900;
+}
+
+.status-running {
+    background-color: #1a73e8;
+}
+
+.status-completed {
+    background-color: #34a853;
+}
+
+.status-failed {
+    background-color: #ea4335;
+}

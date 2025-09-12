@@ -1,0 +1,140 @@
+# Pi5 Optimized Dependencies for AgentSystem Worker
+# Optimized for Raspberry Pi 5 with AI HAT+ (ARM64 architecture)
+# This file contains only essential dependencies for the Pi5 worker role
+
+# ========================================================================
+# Core Dependencies (Essential)
+# ========================================================================
+python-dotenv>=0.19.0
+pyyaml>=6.0
+requests>=2.28.0
+
+# ========================================================================
+# Distributed Computing (Required for Celery Worker)
+# ========================================================================
+celery[redis]>=5.3.0     # Celery with Redis extras
+redis>=4.5.0             # Redis client
+kombu>=5.3.0             # Celery dependency (explicit for ARM compatibility)
+
+# ========================================================================
+# AI Providers (Lightweight Set)
+# ========================================================================
+openai>=1.0.0            # Primary AI provider - works well on Pi5
+google-generativeai>=0.3.0  # Gemini API (lightweight alternative)
+
+# AI HAT+ Integration (Pi5 Specific)
+# hailo-platform>=4.0.0   # Uncomment if using Hailo AI HAT+
+# onnxruntime>=1.16.0     # ONNX runtime for local inference
+
+# ========================================================================
+# System Monitoring and Health Checks
+# ========================================================================
+psutil>=5.9.0            # System monitoring (CPU, memory, etc.)
+GPUtil>=1.4.0            # GPU monitoring (if applicable)
+
+# ========================================================================
+# Data Processing (Lightweight)
+# ========================================================================
+numpy>=1.22.0            # Essential for array processing (ARM64 optimized)
+pillow>=9.0.0            # Image processing (ARM64 compatible)
+
+# ========================================================================
+# Sensory Input (Pi5 Optimized)
+# ========================================================================
+# OpenCV for Pi5 (use pip install opencv-python-headless for lighter version)
+opencv-python-headless>=4.6.0  # Headless version for Pi5 (no GUI dependencies)
+
+# Audio processing (if audio tasks are required)
+# pyaudio>=0.2.12         # Uncomment if audio processing needed
+# SpeechRecognition>=3.9.0 # Uncomment if speech recognition needed
+
+# ========================================================================
+# Web Processing (Lightweight)
+# ========================================================================
+beautifulsoup4>=4.11.0   # For web scraping tasks
+lxml>=4.9.0              # Fast XML/HTML parser
+
+# ========================================================================
+# Storage and Database (Lightweight)
+# ========================================================================
+sqlalchemy>=2.0.0        # Database ORM (for knowledge storage)
+sqlite3                  # Built-in with Python (lightweight database)
+
+# ========================================================================
+# Natural Language Processing (Essential Only)
+# ========================================================================
+# Note: Full NLTK can be heavy on Pi5, install only required corpora
+nltk>=3.7.0              # For basic NLP tasks
+# spacy>=3.4.0           # Uncomment if advanced NLP needed (heavier)
+
+# ========================================================================
+# Machine Learning (Lightweight)
+# ========================================================================
+scikit-learn>=1.1.0      # For TF-IDF and basic ML (ARM64 compatible)
+
+# ========================================================================
+# Task Scheduling
+# ========================================================================
+APScheduler>=3.10.0       # For background task scheduling
+
+# ========================================================================
+# Networking and Communication
+# ========================================================================
+paramiko>=3.0.0          # For SSH connections (if needed)
+paho-mqtt>=1.6.0         # MQTT client for IoT communication
+
+# ========================================================================
+# Security and Authentication
+# ========================================================================
+cryptography>=3.4.8     # For secure communications
+pyjwt>=2.6.0             # JWT token handling
+
+# ========================================================================
+# Utilities
+# ========================================================================
+python-dateutil>=2.8.2  # Date/time utilities
+pytz>=2022.1             # Timezone handling
+
+# ========================================================================
+# Development and Testing (Optional - remove in production)
+# ========================================================================
+# pytest>=7.0.0          # Uncomment for testing
+# pytest-cov>=4.0.0      # Uncomment for coverage testing
+
+# ========================================================================
+# Pi5 Hardware Integration (Optional)
+# ========================================================================
+# RPi.GPIO>=0.7.1         # Uncomment for GPIO access
+# gpiozero>=1.6.2         # Uncomment for simplified GPIO interface
+# picamera2>=0.3.0        # Uncomment for Pi Camera v2/v3 support
+
+# ========================================================================
+# Performance Optimization
+# ========================================================================
+# Note: These can help with Pi5 performance
+# uvloop>=0.17.0          # Faster event loop (Unix only)
+# orjson>=3.8.0           # Faster JSON processing
+
+# ========================================================================
+# Browser Automation (Lightweight Alternative)
+# ========================================================================
+# playwright>=1.30.0     # Full browser automation (heavy - consider removing)
+# selenium>=4.8.0         # Alternative browser automation
+# requests-html>=0.10.0   # Lightweight alternative for simple scraping
+
+# ========================================================================
+# Optional Heavy Dependencies (Comment out if not needed)
+# ========================================================================
+# torch>=1.13.0          # PyTorch (very heavy on Pi5)
+# tensorflow>=2.11.0     # TensorFlow (very heavy on Pi5)
+# transformers>=4.20.0   # HuggingFace transformers (heavy)
+# anthropic>=0.5.0       # Claude API (optional if using OpenAI only)
+
+# ========================================================================
+# Installation Notes for Pi5:
+# ========================================================================
+# 1. Some packages may need ARM64-specific wheels
+# 2. Consider using --no-cache-dir to save space
+# 3. Install scipy from apt if needed: sudo apt install python3-scipy
+# 4. For OpenCV: sudo apt install python3-opencv (system package might be faster)
+# 5. Consider virtual environment with --system-site-packages for system libs

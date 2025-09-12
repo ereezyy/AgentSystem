@@ -1,0 +1,200 @@
+# AgentSystem Pi5 Environment Variables Template
+# IMPORTANT: Copy this file to .env and replace with actual values
+# NEVER commit the actual .env file to version control
+# 
+# This configuration is optimized for Raspberry Pi 5 with AI HAT+
+# functioning as a Celery worker in a distributed AgentSystem setup
+
+# ========================================================================
+# Pi5 Worker Configuration
+# ========================================================================
+
+# Celery Configuration
+CELERY_BROKER_URL=redis://your_main_server_ip:6379/0
+CELERY_RESULT_BACKEND=redis://your_main_server_ip:6379/0
+CELERY_WORKER_NAME=pi5_worker_${HOSTNAME}
+CELERY_WORKER_LOGLEVEL=INFO
+CELERY_WORKER_CONCURRENCY=2
+CELERY_WORKER_PREFETCH_MULTIPLIER=1
+CELERY_TASK_SERIALIZER=json
+CELERY_RESULT_SERIALIZER=json
+CELERY_ACCEPT_CONTENT=json
+
+# Worker Role Configuration
+WORKER_MODE=pi5_worker
+WORKER_ID=pi5_${HOSTNAME}
+ENABLE_MAIN_ORCHESTRATOR=false
+ENABLE_WEB_INTERFACE=false
+
+# Main Server Connection
+MAIN_SERVER_HOST=your_main_server_ip
+MAIN_SERVER_PORT=8000
+MAIN_SERVER_API_KEY=your_main_server_api_key
+
+# ========================================================================
+# Pi5 Hardware Specific Settings
+# ========================================================================
+
+# AI HAT+ Configuration
+ENABLE_AI_HAT=true
+AI_HAT_MODEL_PATH=/opt/models/
+AI_HAT_INFERENCE_ENGINE=hailo
+AI_HAT_MAX_BATCH_SIZE=1
+AI_HAT_OPTIMIZATION_LEVEL=3
+
+# Resource Constraints for Pi5
+MAX_MEMORY_USAGE=6GB
+MAX_CPU_USAGE=80
+ENABLE_GPU_ACCELERATION=false
+THREAD_POOL_SIZE=4
+
+# Performance Optimizations
+ENABLE_MEMORY_OPTIMIZATION=true
+ENABLE_CPU_OPTIMIZATION=true
+GARBAGE_COLLECTION_INTERVAL=300
+CACHE_SIZE_LIMIT=512MB
+
+# ========================================================================
+# Essential AI Services (Minimal Set for Pi5)
+# ========================================================================
+
+# Primary AI Provider (choose one that works best on Pi5)
+# OpenAI (recommended for Pi5 workers)
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_ORG_ID=your_openai_org_id_here
+
+# Google AI (Gemini) - Good fallback option
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# HuggingFace (for local models if using AI HAT+)
+HUGGINGFACE_TOKEN=your_huggingface_token_here
+
+# ========================================================================
+# Server Settings (Pi5 Optimized)
+# ========================================================================
+
+PORT=8001
+HOST=0.0.0.0
+DEBUG=false
+SECRET_KEY=generate_a_secure_random_string_here
+LOG_LEVEL=INFO
+
+# Storage Settings (optimized for SD card)
+DATA_DIR=/opt/agentsystem/data
+LOGS_DIR=/opt/agentsystem/logs
+MODELS_DIR=/opt/agentsystem/models
+TEMP_DIR=/tmp/agentsystem
+
+# Database Settings (lightweight for Pi5)
+USE_SQLITE=true
+DATABASE_PATH=/opt/agentsystem/data/agent.db
+DATABASE_POOL_SIZE=2
+DATABASE_TIMEOUT=30
+
+# ========================================================================
+# Sensory Input Module Settings (Pi5 Optimized)
+# ========================================================================
+
+# Audio Settings (reduced for Pi5 performance)
+ENABLE_AUDIO_PROCESSING=true
+AUDIO_DEVICE_INDEX=0
+AUDIO_SAMPLE_RATE=16000
+AUDIO_CHUNK_SIZE=512
+AUDIO_RECORD_TIMEOUT=1.0
+AUDIO_PHRASE_TIMEOUT=2.0
+SPEECH_THRESHOLD=0.4
+SPEECH_MINIMUM_LENGTH=0.3
+
+# Video Settings (reduced for Pi5 performance)
+ENABLE_VIDEO_PROCESSING=true
+VIDEO_DEVICE_INDEX=0
+VIDEO_RESOLUTION=320x240
+VIDEO_FPS=15
+VIDEO_PROCESSING_INTERVAL=1.0
+ENABLE_FACE_DETECTION=true
+ENABLE_OBJECT_DETECTION=true
+FACE_DETECTION_CONFIDENCE=0.6
+SAVE_PROCESSED_FRAMES=false
+FRAMES_OUTPUT_DIR=/opt/agentsystem/data/frames
+
+# ========================================================================
+# Continuous Learning Module Settings (Pi5 Optimized)
+# ========================================================================
+
+# Knowledge Base Settings
+KNOWLEDGE_DB_PATH=/opt/agentsystem/data/knowledge.db
+ENABLE_BACKGROUND_RESEARCH=true
+ENABLE_AUTO_RESEARCH=false
+RESEARCH_INTERVAL=7200
+RESEARCH_DEPTH=1
+RESEARCH_MAX_RESULTS=2
+
+# Web Research Settings (limited for Pi5)
+RESEARCH_RATE_LIMIT=1
+RESEARCH_USER_AGENT=Mozilla/5.0 AgentSystem Pi5 Worker
+RESEARCH_CACHE_EXPIRY=7200
+RESEARCH_MAX_PAGES_PER_TOPIC=3
+FACT_EXTRACTION_CONFIDENCE=0.7
+
+# Learning Settings
+LEARNING_ENABLED=true
+MAX_KNOWLEDGE_ITEMS=5000
+KNOWLEDGE_CLEANUP_INTERVAL=172800
+MIN_FACT_CONFIDENCE=0.6
+
+# ========================================================================
+# Pi5 System Monitoring
+# ========================================================================
+
+# Health Check Settings
+ENABLE_HEALTH_CHECKS=true
+HEALTH_CHECK_INTERVAL=60
+CPU_TEMP_THRESHOLD=75
+MEMORY_THRESHOLD=85
+DISK_THRESHOLD=90
+
+# Logging Settings
+LOG_ROTATION_SIZE=10MB
+LOG_RETENTION_DAYS=7
+ENABLE_SYSLOG=true
+SYSLOG_FACILITY=local0
+
+# ========================================================================
+# Security Settings
+# ========================================================================
+
+# Pi5 Security
+ENABLE_FIREWALL_INTEGRATION=true
+ALLOWED_HOSTS=your_main_server_ip,localhost,127.0.0.1
+ENABLE_SSL=false
+REQUIRE_AUTH_TOKEN=true
+
+# Worker Authentication
+WORKER_AUTH_TOKEN=generate_secure_worker_token_here
+API_KEY_HEADER=X-API-Key
+
+# ========================================================================
+# Development/Testing (Set to false in production)
+# ========================================================================
+
+DEVELOPMENT_MODE=false
+ENABLE_DEBUGGING=false
+ENABLE_PROFILING=false
+MOCK_HARDWARE=false
+
+# ========================================================================
+# Optional Services (Disable unnecessary ones for Pi5)
+# ========================================================================
+
+# Communication Services (optional)
+ENABLE_TWILIO=false
+ENABLE_TWITTER=false
+
+# E-commerce (usually not needed on Pi5 worker)
+ENABLE_STRIPE=false
+ENABLE_SHOPIFY=false
+
+# External Integrations (optional)
+ENABLE_FIREBASE=false
+ENABLE_MAKE=false
+ENABLE_GOOGLE_CLOUD=false

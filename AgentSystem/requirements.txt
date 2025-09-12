@@ -1,0 +1,40 @@
+# Core dependencies
+python-dotenv>=0.19.0
+pyyaml>=6.0
+
+# AI Providers
+openai>=1.0.0
+anthropic>=0.5.0   # For Claude models
+# llama-cpp-python>=0.2.0  # Optional for local models
+
+# Browser Automation
+playwright>=1.30.0
+
+# Email functionality
+# (using built-in libraries)
+
+# Server mode
+bottle>=0.12.25
+
+# Optional enhancements
+sqlalchemy>=2.0.0  # For advanced memory storage
+pillow>=9.0.0      # For image processing
+requests>=2.28.0   # For API interactions
+
+# Sensory Input Module dependencies
+opencv-python>=4.6.0    # For video processing
+numpy>=1.22.0           # For array processing
+pyaudio>=0.2.12         # For audio capture
+SpeechRecognition>=3.9.0 # For speech recognition
+
+# Continuous Learning Module dependencies
+beautifulsoup4>=4.11.0  # For web scraping
+nltk>=3.7.0             # For natural language processing
+scikit-learn>=1.1.0     # For TF-IDF and ML algorithms
+
+# Distributed Computing and Task Queue dependencies
+celery>=5.3.0           # For distributed task processing
+redis>=4.5.0            # For Celery broker and backend
+paramiko>=3.0.0         # For SSH connections to Pi 5
+psutil>=5.9.0           # For system monitoring
+APScheduler>=3.10.0     # For task scheduling

@@ -1,0 +1,36 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+numReplicas = 1
+
+[environments.production]
+variables = {
+  NODE_ENV = "production",
+  LOG_LEVEL = "info",
+  ENABLE_METRICS = "true",
+  ENABLE_PERFORMANCE_MONITORING = "true"
+}
+
+[services.web]
+source = "."
+build.command = "pip install -r requirements.txt && pip install -r requirements-prod.txt"
+start.command = "python -m AgentSystem.main --mode server --host 0.0.0.0 --port $PORT"
+healthcheck.path = "/health"
+healthcheck.interval = 30
+healthcheck.timeout = 10
+
+[services.worker]
+source = "."
+build.command = "pip install -r requirements.txt && pip install -r requirements-prod.txt"
+start.command = "celery -A AgentSystem.celery_app worker --loglevel=info --concurrency=2"
+
+[services.scheduler]
+source = "."
+build.command = "pip install -r requirements.txt && pip install -r requirements-prod.txt"
+start.command = "celery -A AgentSystem.celery_app beat --loglevel=info"

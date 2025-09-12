@@ -1,0 +1,420 @@
+version: '3.8'
+
+services:
+  # Agent Orchestrator - Main coordination service
+  agent-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.orchestrator
+    container_name: agentsystem-orchestrator
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_NAME=orchestrator
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/agentsystem
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - agentsystem-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # AI Provider Service - Handles all AI provider interactions
+  ai-provider-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai-provider
+    container_name: agentsystem-ai-provider
+    ports:
+      - "8001:8001"
+    environment:
+      - SERVICE_NAME=ai-provider
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - XAI_API_KEY=${XAI_API_KEY}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    depends_on:
+      - redis
+    networks:
+      - agentsystem-network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # Task Processor - Handles background task processing
+  task-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.task-processor
+    container_name: agentsystem-task-processor
+    environment:
+      - SERVICE_NAME=task-processor
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/agentsystem
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - CELERY_WORKER_CONCURRENCY=4
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - agentsystem-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+  # Notification Service - Handles alerts and notifications
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.notification
+    container_name: agentsystem-notification
+    ports:
+      - "8002:8002"
+    environment:
+      - SERVICE_NAME=notification
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - WEBHOOK_URLS=${WEBHOOK_URLS}
+    depends_on:
+      - redis
+    networks:
+      - agentsystem-network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  # Analytics Service - Handles predictive analytics and monitoring
+  analytics-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics
+    container_name: agentsystem-analytics
+    ports:
+      - "8003:8003"
+    environment:
+      - SERVICE_NAME=analytics
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/agentsystem
+      - PROMETHEUS_GATEWAY=http://prometheus:9090
+    depends_on:
+      - redis
+      - postgres
+      - prometheus
+    networks:
+      - agentsystem-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./models:/app/models
+    restart: unless-stopped
+
+  # Streaming Service - Handles real-time streaming
+  streaming-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.streaming
+    container_name: agentsystem-streaming
+    ports:
+      - "8004:8004"
+    environment:
+      - SERVICE_NAME=streaming
+      - REDIS_URL=redis://redis:6379
+      - WEBSOCKET_PORT=8004
+    depends_on:
+      - redis
+    networks:
+      - agentsystem-network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  # Load Balancer - HAProxy for service load balancing
+  load-balancer:
+    image: haproxy:2.8
+    container_name: agentsystem-loadbalancer
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # HAProxy stats
+    volumes:
+      - ./config/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./ssl:/etc/ssl/certs:ro
+    depends_on:
+      - agent-orchestrator
+      - ai-provider-service
+      - notification-service
+      - analytics-service
+      - streaming-service
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Redis - In-memory data store and message broker
+  redis:
+    image: redis:7-alpine
+    container_name: agentsystem-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL - Primary database
+  postgres:
+    image: postgres:15-alpine
+    container_name: agentsystem-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=agentsystem
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./config/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: agentsystem-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Grafana - Monitoring dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: agentsystem-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Elasticsearch - Log aggregation and search
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: agentsystem-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Kibana - Log visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: agentsystem-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Logstash - Log processing
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: agentsystem-logstash
+    volumes:
+      - ./config/logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logs:/usr/share/logstash/logs
+    depends_on:
+      - elasticsearch
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Flower - Celery monitoring
+  flower:
+    image: mher/flower:latest
+    container_name: agentsystem-flower
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin}
+    depends_on:
+      - redis
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Nginx - Reverse proxy and static file serving
+  nginx:
+    image: nginx:alpine
+    container_name: agentsystem-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/usr/share/nginx/html/static
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - load-balancer
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Vector Database - ChromaDB for semantic search
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: agentsystem-chromadb
+    ports:
+      - "8005:8000"
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    volumes:
+      - chromadb-data:/chroma/chroma
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+  # Auto-scaler - Custom service for dynamic scaling
+  auto-scaler:
+    build:
+      context: .
+      dockerfile: Dockerfile.autoscaler
+    container_name: agentsystem-autoscaler
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - PROMETHEUS_URL=http://prometheus:9090
+      - SCALING_RULES_CONFIG=/app/config/scaling-rules.yml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/scaling-rules.yml:/app/config/scaling-rules.yml
+    depends_on:
+      - prometheus
+    networks:
+      - agentsystem-network
+    restart: unless-stopped
+
+networks:
+  agentsystem-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  chromadb-data:
+    driver: local
+
+# Health check and monitoring
+x-healthcheck-defaults: &healthcheck-defaults
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+# Resource limits
+x-resource-defaults: &resource-defaults
+  deploy:
+    resources:
+      limits:
+        memory: 1G
+      reservations:
+        memory: 512M
+
+# Logging configuration
+x-logging-defaults: &logging-defaults
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
