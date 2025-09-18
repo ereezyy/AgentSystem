@@ -16,6 +16,7 @@ from collections import defaultdict
 import aioredis
 import asyncpg
 from contextlib import asynccontextmanager
+from ..usage.overage_billing import OverageBilling
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -189,9 +190,10 @@ class UsageEvent:
 class UsageTracker:
     """Real-time usage tracking system"""
 
-    def __init__(self, db_pool: asyncpg.Pool, redis_client: aioredis.Redis):
+    def __init__(self, db_pool: asyncpg.Pool, redis_client: aioredis.Redis, overage_billing: Optional[OverageBilling] = None):
         self.db_pool = db_pool
         self.redis = redis_client
+        self.overage_billing = overage_billing
         self.buffer = defaultdict(list)  # Buffered events for batch processing
         self.buffer_size = 100  # Events before batch write
         self.flush_interval = 30  # Seconds between flushes
@@ -233,6 +235,7 @@ class UsageTracker:
         self.buffer[event.tenant_id].append(event)
 
         # Real-time metrics update in Redis
+        # Real-time metrics update in Redis
         await self._update_realtime_metrics(event)
 
         # Check if we should flush this tenant's buffer
@@ -242,6 +245,11 @@ class UsageTracker:
         # Check rate limits
         rate_limit_info = await self._check_rate_limits(event.tenant_id, event.service_type)
 
+        # Track overage for tasks if on Pro plan
+        if event.event_type in ["agent_execution", "workflow_run"] and self.overage_billing:
+            plan_type = rate_limit_info.get('plan_type', '')
+            if plan_type == 'Pro':
+                await self.overage_billing.track_overage_task(event.tenant_id, event.request_id, plan_type)
         return {
             'event_id': event.request_id,
             'provider_cost': float(provider_cost),
@@ -609,3 +617,4 @@ __all__ = [
     'UsageTracker', 'UsageEvent', 'ServiceType', 'ProviderCosts', 'PROVIDER_COSTS',
     'track_ai_request', 'track_usage_decorator'
 ]
+

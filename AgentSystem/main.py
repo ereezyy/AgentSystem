@@ -31,6 +31,8 @@ from AgentSystem.services.streaming_service import streaming_service
 from AgentSystem.monitoring.realtime_dashboard import dashboard_service
 from AgentSystem.analytics.predictive_analytics import analytics_engine
 from AgentSystem.scaling.auto_scaler import auto_scaler
+from AgentSystem.scaling.advanced_load_balancer import advanced_load_balancer
+from AgentSystem.usage.overage_billing import OverageBilling
 
 # Set up logger
 logger = get_logger(__name__)
@@ -82,6 +84,35 @@ def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
             "capabilities": ["browser", "email", "coding", "ai"],
             "max_iterations": 100,
             "timeout_seconds": 300
+        },
+        "pricing": {
+            "tiers": {
+                "Starter": {
+                    "base_price": 49,
+                    "discount": 0.10,  # 10% discount for acquisition
+                    "features": ["Basic AI Agents", "Limited API Calls"]
+                },
+                "Pro": {
+                    "base_price": 199,
+                    "discount": 0.0,
+                    "features": ["Advanced AI Agents", "Increased API Calls", "Basic Integrations"],
+                    "overage_model": {
+                        "type": "credits-per-task",
+                        "cost_per_credit": 0.99,  # Cost per task resolution
+                        "description": "Additional tasks beyond plan limits charged per resolution"
+                    }
+                },
+                "Enterprise": {
+                    "base_price": 999,
+                    "discount": 0.0,
+                    "features": ["Full AI Agent Suite", "Unlimited API Calls", "Enterprise Integrations", "White-Label Branding"]
+                },
+                "Custom": {
+                    "base_price": 0,  # Quote-based
+                    "discount": 0.0,
+                    "features": ["Custom Solutions", "Dedicated Support"]
+                }
+            }
         },
         "browser": {
             "headless": True,
@@ -818,6 +849,57 @@ def run_server_mode(agent: Agent, host: str, port: int):
         response.content_type = 'application/json'
         return {"insights": [{"id": i.id, "category": i.category, "title": i.title, "description": i.description, "impact": i.impact, "recommendations": i.recommendations} for i in insights]}
 
+    # Industry Pack Endpoints - E-commerce Churn Prevention
+    @app.route('/industry/ecommerce/churn/analyze', method='POST')
+    async def analyze_churn():
+        data = request.json
+        if not data or 'tenant_id' not in data or 'customer_data' not in data:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"detail": "Tenant ID and customer data are required"}
+
+        # Check if tenant has the e-commerce churn prevention pack (placeholder logic)
+        async with dashboard_service.db_pool.acquire() as conn:
+            has_pack = await conn.fetchval(
+                "SELECT COUNT(*) > 0 FROM tenant_management.tenants WHERE id = $1 AND industry_pack = 'ecommerce_churn_prevention'",
+                data['tenant_id']
+            )
+            if not has_pack:
+                response.status = 403
+                response.content_type = 'application/json'
+                return {"detail": "Industry pack not enabled for this tenant"}
+
+        result = await churn_prevention.analyze_churn_risk(data['tenant_id'], data['customer_data'])
+
+        response.content_type = 'application/json'
+        return result
+
+    @app.route('/industry/ecommerce/churn/intervention', method='POST')
+    async def execute_intervention_endpoint():
+        data = request.json
+        if not data or 'tenant_id' not in data or 'customer_id' not in data or 'intervention' not in data:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"detail": "Tenant ID, Customer ID, and intervention details are required"}
+
+        # Check if tenant has the e-commerce churn prevention pack (placeholder logic)
+        async with dashboard_service.db_pool.acquire() as conn:
+            has_pack = await conn.fetchval(
+                "SELECT COUNT(*) > 0 FROM tenant_management.tenants WHERE id = $1 AND industry_pack = 'ecommerce_churn_prevention'",
+                data['tenant_id']
+            )
+            if not has_pack:
+                response.status = 403
+                response.content_type = 'application/json'
+                return {"detail": "Industry pack not enabled for this tenant"}
+
+        result = await churn_prevention.execute_intervention(
+            data['tenant_id'], data['customer_id'], data['intervention']
+        )
+
+        response.content_type = 'application/json'
+        return result
+
     # SCALING ENDPOINTS
 
     @app.route('/scaling/status')
@@ -845,6 +927,78 @@ def run_server_mode(agent: Agent, host: str, port: int):
         response.content_type = 'application/json'
         return {"success": success}
 
+    # Customer Support Endpoints
+    @app.route('/support/chat', method='POST')
+    def handle_chat():
+        data = request.json
+        if not data or 'tenant_id' not in data or 'user_id' not in data or 'message' not in data:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"detail": "Tenant ID, User ID, and message are required"}
+
+        import asyncio
+        result = asyncio.run(customer_support.handle_chat_request(
+            data['tenant_id'],
+            data['user_id'],
+            data['message']
+        ))
+
+        response.content_type = 'application/json'
+        return result
+
+    @app.route('/support/ticket', method='POST')
+    def create_ticket():
+        data = request.json
+        if not data or 'tenant_id' not in data or 'user_id' not in data or 'issue' not in data:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"detail": "Tenant ID, User ID, and issue description are required"}
+
+        import asyncio
+        result = asyncio.run(customer_support.create_support_ticket(
+            data['tenant_id'],
+            data['user_id'],
+            data['issue'],
+            data.get('priority', 'medium')
+        ))
+
+        response.content_type = 'application/json'
+        return result
+
+    @app.route('/support/tutorial', method='GET')
+    def get_tutorial():
+        tenant_id = request.query.get('tenant_id')
+        user_id = request.query.get('user_id')
+        topic = request.query.get('topic', 'getting_started')
+
+        if not tenant_id or not user_id:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"detail": "Tenant ID and User ID are required"}
+
+        import asyncio
+        result = asyncio.run(customer_support.get_onboarding_tutorial(tenant_id, user_id, topic))
+
+        response.content_type = 'application/json'
+        return result
+
+    # Overage Billing Endpoints
+    @app.route('/billing/overage/summary')
+    def get_overage_summary():
+        tenant_id = request.query.get('tenant_id')
+        period = request.query.get('period', 'current_month')
+
+        if not tenant_id:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"detail": "Tenant ID required"}
+
+        import asyncio
+        summary = asyncio.run(overage_billing.get_overage_summary(tenant_id, period))
+
+        response.content_type = 'application/json'
+        return summary
+
     # Start server
     print(f"\n=== {agent.config.name} SUPERCHARGED Server Mode ===")
     print(f"🚀 Multi-Modal AI: Vision, Audio, Code Generation")
@@ -852,6 +1006,9 @@ def run_server_mode(agent: Agent, host: str, port: int):
     print(f"⚡ Real-time Streaming: Live AI responses")
     print(f"📊 Predictive Analytics: AI-powered insights")
     print(f"🔄 Auto-scaling: Dynamic load balancing")
+    print(f"💳 Overage Billing: Credits-per-task model for Pro tier")
+    print(f"📚 Automated Documentation: User guides and API docs")
+    print(f"🛠️ Customer Support: 24/7 AI chatbots and ticketing")
     print(f"Starting server at http://{host}:{port}")
     run(app, host=host, port=port)
 
@@ -904,6 +1061,34 @@ def main():
 
     # Set up agent
     agent = setup_agent(config, args)
+
+    # Start dashboard metrics collection, analytics, and auto-scaling
+    try:
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(asyncio.ensure_future(dashboard_service.metrics_collector.start_metrics_collection()))
+        loop.run_until_complete(asyncio.ensure_future(analytics_engine.start_analytics()))
+        loop.run_until_complete(asyncio.ensure_future(auto_scaler.start_scaling()))
+        loop.run_until_complete(asyncio.ensure_future(advanced_load_balancer.initialize_advanced_balancing()))
+        # Initialize and start overage billing system
+        overage_billing = OverageBilling(dashboard_service.db_pool, dashboard_service.redis_client)
+        loop.run_until_complete(asyncio.ensure_future(overage_billing.start()))
+        # Initialize and start security automation engine with continuous scanning
+        from AgentSystem.security.security_automation_engine import SecurityAutomationEngine
+        security_engine = SecurityAutomationEngine({}, dashboard_service.db_pool, dashboard_service.redis_client)
+        loop.run_until_complete(asyncio.ensure_future(security_engine.start_continuous_scanning()))
+        # Initialize and start documentation generator
+        from AgentSystem.documentation.doc_generator import DocGenerator
+        doc_generator = DocGenerator(dashboard_service.db_pool, dashboard_service.redis_client)
+        loop.run_until_complete(asyncio.ensure_future(doc_generator.start()))
+        loop.run_until_complete(asyncio.ensure_future(doc_generator.generate_initial_docs()))
+        # Initialize and start customer support system
+        from AgentSystem.support.customer_support import CustomerSupport
+        customer_support = CustomerSupport(dashboard_service.db_pool, dashboard_service.redis_client)
+        loop.run_until_complete(asyncio.ensure_future(customer_support.start()))
+    except Exception as e:
+        logger.error(f"Error starting dashboard metrics collection, analytics, or auto-scaling: {e}")
 
     # Run in appropriate mode
     if args.mode == "interactive":

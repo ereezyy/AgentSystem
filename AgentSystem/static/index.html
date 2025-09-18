@@ -3,75 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgentSystem Control Panel</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>AgentSystem Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>AgentSystem Control Panel</h1>
-            <p id="agentDescription">Autonomous agent system</p>
+    <div class="container-fluid">
+        <header class="bg-primary text-white p-3 mb-4">
+            <h1>AgentSystem Dashboard</h1>
+            <p>Manage your AI agents and monitor system performance</p>
         </header>
 
-        <section id="agentStatus">
-            <h2>Agent Status</h2>
-            <p>Status: <span id="status">Loading...</span></p>
-            <p>Capabilities: <span id="capabilities">Loading...</span></p>
-            <div class="input-group">
-                <label for="portSelector">Server Port:</label>
-                <select id="portSelector"></select>
+        <div class="row">
+            <div class="col-md-3">
+                <nav class="nav flex-column bg-light p-3 rounded">
+                    <a class="nav-link active" href="#" onclick="showSection('dashboard')">Dashboard</a>
+                    <a class="nav-link" href="#" onclick="showSection('tasks')">Tasks</a>
+                    <a class="nav-link" href="#" onclick="showSection('agents')">Agents</a>
+                    <a class="nav-link" href="#" onclick="showSection('analytics')">Analytics</a>
+                    <a class="nav-link" href="#" onclick="showSection('scaling')">Scaling</a>
+                    <a class="nav-link" href="#" onclick="showSection('industry')">Industry Packs</a>
+                    <a class="nav-link" href="#" onclick="showSection('partnerships')">Partnerships</a>
+                    <a class="nav-link" href="#" onclick="showSection('settings')">Settings</a>
+                </nav>
             </div>
-        </section>
+            <div class="col-md-9">
+                <main id="content" class="p-4 bg-white rounded">
+                    <section id="dashboard" class="section-content">
+                        <h2>System Overview</h2>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">System Health</h5>
+                                        <p class="card-text" id="system-health">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Active Tasks</h5>
+                                        <p class="card-text" id="active-tasks">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Active Agents</h5>
+                                        <p class="card-text" id="active-agents">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">CPU Usage</h5>
+                                        <canvas id="cpu-chart" height="100"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Memory Usage</h5>
+                                        <canvas id="memory-chart" height="100"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-        <section id="taskManagement">
-            <h2>Task Management</h2>
-            <div class="input-group">
-                <label for="taskInput">New Task:</label>
-                <textarea id="taskInput" placeholder="Enter task description..." rows="3"></textarea>
-            </div>
-            <div class="input-group">
-                <label for="priorityInput">Priority (1-10):</label>
-                <input type="number" id="priorityInput" min="1" max="10" value="5">
-            </div>
-            <button id="submitTask" class="btn-primary">Submit Task</button>
+                    <section id="tasks" class="section-content" style="display:none;">
+                        <h2>Task Management</h2>
+                        <div class="mb-3">
+                            <button class="btn btn-primary" onclick="openTaskModal()">Create New Task</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="task-list">
+                                    <!-- Task data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
 
-            <h3>Active Tasks</h3>
-            <div class="refresh-container">
-                <button id="refreshTasks" class="btn-secondary">Refresh Tasks</button>
-                <p class="last-updated">Last updated: <span id="lastUpdated">Never</span></p>
-            </div>
-            <div id="tasksList">
-                <p>No tasks available. Submit a new task to get started.</p>
-            </div>
-        </section>
+                    <section id="agents" class="section-content" style="display:none;">
+                        <h2>Agent Management</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Last Activity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agent-list">
+                                    <!-- Agent data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
 
-        <section id="browserControl" class="hidden">
-            <h2>Browser Control</h2>
-            <div class="input-group">
-                <label for="urlInput">Navigate to URL:</label>
-                <input type="text" id="urlInput" placeholder="https://example.com">
-            </div>
-            <button id="navigateBrowser" class="btn-secondary">Navigate</button>
-        </section>
+                    <section id="analytics" class="section-content" style="display:none;">
+                        <h2>Analytics & Insights</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Response Time</h5>
+                                        <canvas id="response-time-chart" height="100"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">AI Provider Requests</h5>
+                                        <canvas id="provider-requests-chart" height="100"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Recent Insights</h5>
+                                <ul id="insights-list" class="list-group">
+                                    <!-- Insights data will be populated here -->
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
 
-        <section id="emailControl" class="hidden">
-            <h2>Email Control</h2>
-            <div class="input-group">
-                <label for="toInput">To:</label>
-                <input type="email" id="toInput" placeholder="recipient@example.com">
+                    <section id="scaling" class="section-content" style="display:none;">
+                        <h2>Scaling & Performance</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Service Scaling Status</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Service</th>
+                                                <th>Current Instances</th>
+                                                <th>Min Instances</th>
+                                                <th>Max Instances</th>
+                                                <th>Scaling Metric</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="scaling-status">
+                                            <!-- Scaling data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="settings" class="section-content" style="display:none;">
+                        <h2>Settings</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">System Configuration</h5>
+                                <form id="settings-form">
+                                    <div class="mb-3">
+                                        <label for="refresh-interval" class="form-label">Dashboard Refresh Interval (seconds)</label>
+                                        <input type="number" class="form-control" id="refresh-interval" value="5" min="1" max="60">
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="industry" class="section-content" style="display:none;">
+                        <h2>Industry Packs</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">E-commerce Churn Prevention</h5>
+                                <p class="card-text">Specialized AI agents and workflows to reduce customer churn in the e-commerce sector with risk analysis and personalized interventions.</p>
+                                <button class="btn btn-primary" onclick="viewIndustryPackDetails('ecommerce')">View Details</button>
+                                <button class="btn btn-success" onclick="activateIndustryPack('ecommerce')">Activate Pack</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="partnerships" class="section-content" style="display:none;">
+                        <h2>Partnerships</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Strategic Alliances</h5>
+                                <p class="card-text">We're forming partnerships with AI providers, Salesforce, HubSpot, and AWS Marketplace to enhance scalability and visibility.</p>
+                                <button class="btn btn-primary" onclick="viewPartnershipDetails()">View Strategy</button>
+                            </div>
+                        </div>
+                    </section>
+                </main>
             </div>
-            <div class="input-group">
-                <label for="subjectInput">Subject:</label>
-                <input type="text" id="subjectInput" placeholder="Email subject">
-            </div>
-            <div class="input-group">
-                <label for="bodyInput">Body:</label>
-                <textarea id="bodyInput" placeholder="Email content..." rows="5"></textarea>
-            </div>
-            <button id="sendEmail" class="btn-secondary">Send Email</button>
-        </section>
+        </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <!-- Task Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskModalLabel">Create New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeTaskModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="task-form">
+                        <div class="mb-3">
+                            <label for="task-name" class="form-label">Task Name</label>
+                            <input type="text" class="form-control" id="task-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="task-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="task-description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="task-priority" class="form-label">Priority (1-10)</label>
+                            <input type="number" class="form-control" id="task-priority" value="5" min="1" max="10">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeTaskModal()">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitTask()">Submit Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="/static/app.js"></script>
 </body>
 </html>

@@ -58,8 +58,8 @@ class MetricsCollector:
         # Prometheus metrics
         self._setup_prometheus_metrics()
 
-        # Start background collection
-        asyncio.create_task(self._collect_metrics_loop())
+        # Background collection will be started later when event loop is available
+        self._metrics_task = None
 
     def _setup_prometheus_metrics(self):
         """Set up Prometheus metrics"""
@@ -121,6 +121,14 @@ class MetricsCollector:
             except Exception as e:
                 logger.error(f"Metrics collection error: {e}")
                 await asyncio.sleep(10)
+
+    def start_metrics_collection(self):
+        """Start the metrics collection loop"""
+        if self._metrics_task is None:
+            self._metrics_task = asyncio.create_task(self._collect_metrics_loop())
+            logger.info("Started metrics collection")
+        else:
+            logger.warning("Metrics collection already started")
 
     async def _collect_system_metrics(self):
         """Collect system performance metrics"""
@@ -305,6 +313,7 @@ class DashboardService:
 
     def __init__(self):
         self.metrics_collector = MetricsCollector()
+        self._metrics_task = None
         self.dashboard_config = {
             "refresh_interval": 5,
             "chart_types": ["line", "gauge", "bar"],

@@ -51,16 +51,27 @@ class ServiceManager:
     """Manages service instances and scaling operations"""
 
     def __init__(self):
-        self.docker_client = docker.from_env()
+        self.docker_client = None
+        self.docker_available = False
         self.current_instances = defaultdict(int)
         self.last_scaling_events = {}
         self.service_configs = {}
 
-        # Initialize current instance counts
-        self._discover_current_instances()
+        # Try to initialize Docker client
+        try:
+            self.docker_client = docker.from_env()
+            self.docker_available = True
+            # Initialize current instance counts
+            self._discover_current_instance_counts()
+        except Exception as e:
+            logger.warning(f"Docker not available: {e}. Scaling functionality will be limited.")
 
-    def _discover_current_instances(self):
+    def _discover_current_instance_counts(self):
         """Discover currently running service instances"""
+        if not self.docker_available:
+            logger.warning("Cannot discover instances: Docker not available")
+            return
+
         try:
             containers = self.docker_client.containers.list()
             service_counts = defaultdict(int)
@@ -76,6 +87,7 @@ class ServiceManager:
 
         except Exception as e:
             logger.error(f"Error discovering instances: {e}")
+            self.docker_available = False
 
     def _extract_service_name(self, container) -> Optional[str]:
         """Extract service name from container"""
@@ -95,6 +107,10 @@ class ServiceManager:
 
     async def scale_service(self, service_name: str, target_instances: int) -> bool:
         """Scale a service to target number of instances"""
+        if not self.docker_available:
+            logger.warning(f"Cannot scale {service_name}: Docker not available")
+            return False
+
         try:
             current = self.current_instances[service_name]
 
@@ -116,10 +132,15 @@ class ServiceManager:
 
         except Exception as e:
             logger.error(f"Error scaling {service_name}: {e}")
+            self.docker_available = False
             return False
 
     async def _start_service_instance(self, service_name: str):
         """Start a new instance of a service"""
+        if not self.docker_available:
+            logger.warning(f"Cannot start instance of {service_name}: Docker not available")
+            return
+
         try:
             # Use docker-compose to scale up
             compose_file = "docker-compose.microservices.yml"
@@ -140,9 +161,14 @@ class ServiceManager:
 
         except Exception as e:
             logger.error(f"Error starting {service_name} instance: {e}")
+            self.docker_available = False
 
     async def _stop_service_instance(self, service_name: str):
         """Stop an instance of a service"""
+        if not self.docker_available:
+            logger.warning(f"Cannot stop instance of {service_name}: Docker not available")
+            return
+
         try:
             # Find containers for this service
             containers = self.docker_client.containers.list(
@@ -157,9 +183,12 @@ class ServiceManager:
 
         except Exception as e:
             logger.error(f"Error stopping {service_name} instance: {e}")
+            self.docker_available = False
 
     def get_service_instances(self, service_name: str) -> int:
         """Get current number of instances for a service"""
+        if not self.docker_available:
+            return 1  # Default to 1 instance when Docker is not available
         return self.current_instances.get(service_name, 0)
 
 class LoadBalancer:
@@ -328,9 +357,9 @@ class AutoScaler:
         # Load scaling rules
         self._load_scaling_rules()
 
-        # Start auto-scaling loop
-        asyncio.create_task(self._auto_scaling_loop())
-        asyncio.create_task(self._health_check_loop())
+        # Auto-scaling loop and health checks will be started later
+        self._scaling_task = None
+        self._health_task = None
 
     def _load_scaling_rules(self):
         """Load scaling rules from configuration"""
@@ -405,6 +434,17 @@ class AutoScaler:
             except Exception as e:
                 logger.error(f"Auto-scaling loop error: {e}")
                 await asyncio.sleep(60)
+
+    def start_scaling(self):
+        """Start the auto-scaling and health check loops"""
+        if self._scaling_task is None:
+            self._scaling_task = asyncio.create_task(self._auto_scaling_loop())
+            logger.info("Started auto-scaling loop")
+        if self._health_task is None:
+            self._health_task = asyncio.create_task(self._health_check_loop())
+            logger.info("Started health check loop")
+        else:
+            logger.warning("Scaling or health check loops already started")
 
     async def _health_check_loop(self):
         """Health check loop"""

@@ -1,0 +1,54 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+header {
+    background-color: #007bff;
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+nav.nav.flex-column {
+    height: 100%;
+    border-radius: 0.25rem;
+}
+
+.nav-link {
+    color: #495057;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.nav-link.active {
+    background-color: #007bff;
+    color: white;
+}
+
+main {
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card {
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-title {
+    margin-bottom: 0.75rem;
+}
+
+.table-responsive {
+    margin-bottom: 1rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+.modal-content {
+    border-radius: 0.3rem;
+}

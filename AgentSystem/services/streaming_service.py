@@ -6,6 +6,7 @@ Provides real-time token streaming, progress indicators, and interrupt/resume ca
 import asyncio
 import json
 import time
+import os
 import uuid
 from typing import Dict, List, Any, Optional, AsyncGenerator, Callable
 from dataclasses import dataclass, asdict

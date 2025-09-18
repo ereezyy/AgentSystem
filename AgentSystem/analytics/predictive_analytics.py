@@ -230,8 +230,8 @@ class AnalyticsEngine:
         # Initialize models for key metrics
         self._initialize_models()
 
-        # Start background analytics
-        asyncio.create_task(self._analytics_loop())
+        # Background analytics will be started later
+        self._analytics_task = None
 
     def _initialize_models(self):
         """Initialize predictive models for key metrics"""
@@ -263,6 +263,14 @@ class AnalyticsEngine:
             except Exception as e:
                 logger.error(f"Analytics loop error: {e}")
                 await asyncio.sleep(60)
+
+    def start_analytics(self):
+        """Start the analytics loop"""
+        if self._analytics_task is None:
+            self._analytics_task = asyncio.create_task(self._analytics_loop())
+            logger.info("Started analytics loop")
+        else:
+            logger.warning("Analytics loop already started")
 
     async def _update_models(self):
         """Update models with latest data"""
