@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentSystem Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .container-fluid {
+            padding: 2rem;
+        }
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: #6c757d;
+            margin: 0;
+        }
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+        main {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card-title {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary {
+            background: #667eea;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: #10b981;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        .section-content {
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .status-healthy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-running {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .table thead {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <header>
+            <h1>AgentSystem Dashboard</h1>
+            <p>Manage your AI agents and monitor system performance</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-3">
+                <nav class="sidebar">
+                    <a class="nav-link active" href="#" onclick="showSection('dashboard')">Dashboard</a>
+                    <a class="nav-link" href="#" onclick="showSection('tasks')">Tasks</a>
+                    <a class="nav-link" href="#" onclick="showSection('agents')">Agents</a>
+                    <a class="nav-link" href="#" onclick="showSection('analytics')">Analytics</a>
+                    <a class="nav-link" href="#" onclick="showSection('scaling')">Scaling</a>
+                    <a class="nav-link" href="#" onclick="showSection('industry')">Industry Packs</a>
+                    <a class="nav-link" href="#" onclick="showSection('partnerships')">Partnerships</a>
+                    <a class="nav-link" href="#" onclick="showSection('settings')">Settings</a>
+                </nav>
+            </div>
+            <div class="col-md-9">
+                <main>
+                    <section id="dashboard" class="section-content">
+                        <h2 class="mb-4">System Overview</h2>
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <div class="metric-label mb-2">System Health</div>
+                                        <span class="status-badge status-healthy">Healthy</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <div class="metric-label mb-2">Active Tasks</div>
+                                        <div class="metric-value">12</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <div class="metric-label mb-2">Active Agents</div>
+                                        <div class="metric-value">5</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Recent Activity</h5>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">Task #2341 completed successfully</li>
+                                            <li class="list-group-item">Agent "Sales" started new analysis</li>
+                                            <li class="list-group-item">System health check passed</li>
+                                            <li class="list-group-item">New customer onboarded</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Performance Metrics</h5>
+                                        <div class="mb-3">
+                                            <div class="metric-label mb-1">CPU Usage</div>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" style="width: 45%; background: #667eea;">45%</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="metric-label mb-1">Memory Usage</div>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" style="width: 62%; background: #10b981;">62%</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="metric-label mb-1">Disk Usage</div>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" style="width: 38%; background: #f59e0b;">38%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="tasks" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Task Management</h2>
+                        <div class="mb-3">
+                            <button class="btn btn-primary">Create New Task</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#2341</td>
+                                                <td>Customer Analysis</td>
+                                                <td>Analyze customer behavior patterns</td>
+                                                <td><span class="status-badge status-healthy">Completed</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#2342</td>
+                                                <td>Market Research</td>
+                                                <td>Research competitor pricing strategies</td>
+                                                <td><span class="status-badge status-running">Running</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#2343</td>
+                                                <td>Lead Generation</td>
+                                                <td>Identify potential customers</td>
+                                                <td><span class="status-badge status-running">Running</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="agents" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Agent Management</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Role</th>
+                                                <th>Status</th>
+                                                <th>Last Activity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#001</td>
+                                                <td>Sales Agent</td>
+                                                <td><span class="status-badge status-running">Active</span></td>
+                                                <td>2 minutes ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>#002</td>
+                                                <td>Marketing Agent</td>
+                                                <td><span class="status-badge status-running">Active</span></td>
+                                                <td>5 minutes ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>#003</td>
+                                                <td>Customer Success Agent</td>
+                                                <td><span class="status-badge status-running">Active</span></td>
+                                                <td>1 minute ago</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="analytics" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Analytics & Insights</h2>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Response Time Trends</h5>
+                                        <p class="text-muted">Average response time: <strong>1.2s</strong></p>
+                                        <p class="text-muted">98% faster than industry average</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">AI Provider Requests</h5>
+                                        <p class="text-muted">Total requests: <strong>15,234</strong></p>
+                                        <p class="text-muted">Success rate: <strong>99.7%</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Recent Insights</h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Customer engagement increased by 34% this week</li>
+                                    <li class="list-group-item">Peak usage hours: 9 AM - 11 AM EST</li>
+                                    <li class="list-group-item">Recommended: Scale up during peak hours for optimal performance</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="scaling" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Scaling & Performance</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Service Scaling Status</h5>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Service</th>
+                                                <th>Current Instances</th>
+                                                <th>Min Instances</th>
+                                                <th>Max Instances</th>
+                                                <th>Scaling Metric</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>API Server</td>
+                                                <td>3</td>
+                                                <td>2</td>
+                                                <td>10</td>
+                                                <td>CPU: 45%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Worker Pool</td>
+                                                <td>5</td>
+                                                <td>3</td>
+                                                <td>20</td>
+                                                <td>Queue: 12 tasks</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="industry" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Industry Packs</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">E-commerce Churn Prevention</h5>
+                                <p class="card-text">Specialized AI agents and workflows to reduce customer churn in the e-commerce sector with risk analysis and personalized interventions.</p>
+                                <button class="btn btn-primary me-2">View Details</button>
+                                <button class="btn btn-success">Activate Pack</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="partnerships" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Partnerships</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Strategic Alliances</h5>
+                                <p class="card-text">We're forming partnerships with AI providers, Salesforce, HubSpot, and AWS Marketplace to enhance scalability and visibility.</p>
+                                <button class="btn btn-primary">View Strategy</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="settings" class="section-content" style="display:none;">
+                        <h2 class="mb-4">Settings</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">System Configuration</h5>
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="refresh-interval" class="form-label">Dashboard Refresh Interval (seconds)</label>
+                                        <input type="number" class="form-control" id="refresh-interval" value="5" min="1" max="60">
+                                    </div>
+                                    <button type="button" class="btn btn-primary">Save Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
