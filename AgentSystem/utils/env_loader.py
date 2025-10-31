@@ -5,10 +5,11 @@ Securely loads environment variables from .env file
 Provides fallback mechanisms and validation
 """
 
-import os
+import ast
 import logging
+import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 try:
     from dotenv import load_dotenv  # type: ignore
@@ -50,6 +51,36 @@ class EnvLoader:
 
     def _load_env_file_manually(self, env_path: Path) -> None:
         """Fallback parser when python-dotenv is not installed."""
+
+        def _strip_inline_comment(raw_value: str) -> str:
+            in_single = False
+            in_double = False
+            escape = False
+
+            for index, char in enumerate(raw_value):
+                if escape:
+                    escape = False
+                    continue
+
+                if char == "\\":
+                    escape = True
+                    continue
+
+                if char == "'" and not in_double:
+                    in_single = not in_single
+                    continue
+
+                if char == '"' and not in_single:
+                    in_double = not in_double
+                    continue
+
+                if char == "#" and not in_single and not in_double:
+                    return raw_value[:index].rstrip()
+
+            return raw_value
+
+        preexisting_keys = set(os.environ.keys())
+
         try:
             with env_path.open("r", encoding="utf-8") as env_file:
                 for raw_line in env_file:
@@ -67,14 +98,29 @@ class EnvLoader:
 
                     key, value = line.split("=", 1)
                     key = key.strip()
-                    value = value.strip()
+                    value = _strip_inline_comment(value.strip())
 
-                    if (value.startswith('"') and value.endswith('"')) or (
-                        value.startswith("'") and value.endswith("'")
-                    ):
-                        value = value[1:-1]
+                    if key.startswith("export "):
+                        key = key[len("export ") :].strip()
 
-                    os.environ.setdefault(key, value)
+                    if not key:
+                        logger.debug(
+                            "Skipping environment line with empty key in %s: %s",
+                            env_path,
+                            raw_line.rstrip("\n"),
+                        )
+                        continue
+
+                    if value and value[0] == value[-1] and value[0] in {'"', "'"}:
+                        try:
+                            value = ast.literal_eval(value)
+                        except (SyntaxError, ValueError):
+                            value = value[1:-1]
+
+                    if key in preexisting_keys:
+                        continue
+
+                    os.environ[key] = value
         except OSError as exc:
             logger.error("Failed to read environment file %s: %s", env_path, exc)
         
