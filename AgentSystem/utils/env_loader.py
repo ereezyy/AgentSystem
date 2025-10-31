@@ -56,9 +56,14 @@ class EnvLoader:
             in_single = False
             in_double = False
             escape = False
+            result_chars = []
 
-            for index, char in enumerate(raw_value):
+            for char in raw_value:
                 if escape:
+                    if char == "#" and not in_single and not in_double:
+                        result_chars.append("#")
+                    else:
+                        result_chars.append("\\" + char)
                     escape = False
                     continue
 
@@ -68,16 +73,23 @@ class EnvLoader:
 
                 if char == "'" and not in_double:
                     in_single = not in_single
+                    result_chars.append(char)
                     continue
 
                 if char == '"' and not in_single:
                     in_double = not in_double
+                    result_chars.append(char)
                     continue
 
                 if char == "#" and not in_single and not in_double:
-                    return raw_value[:index].rstrip()
+                    break
 
-            return raw_value
+                result_chars.append(char)
+
+            if escape:
+                result_chars.append("\\")
+
+            return "".join(result_chars).rstrip()
 
         preexisting_keys = set(os.environ.keys())
 
@@ -88,7 +100,13 @@ class EnvLoader:
                     if not line or line.startswith("#"):
                         continue
 
-                    if "=" not in line:
+                    delimiter = None
+                    for candidate in ("=", ":"):
+                        if candidate in line:
+                            delimiter = candidate
+                            break
+
+                    if delimiter is None:
                         logger.debug(
                             "Skipping malformed environment line in %s: %s",
                             env_path,
@@ -96,7 +114,7 @@ class EnvLoader:
                         )
                         continue
 
-                    key, value = line.split("=", 1)
+                    key, value = line.split(delimiter, 1)
                     key = key.strip()
                     value = _strip_inline_comment(value.strip())
 
