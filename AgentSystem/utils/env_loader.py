@@ -40,12 +40,43 @@ class EnvLoader:
 
         if load_dotenv is None:
             logger.info(
-                "python-dotenv is not installed; skipping loading of %s", self.env_path
+                "python-dotenv is not installed; manually parsing %s", self.env_path
             )
+            self._load_env_file_manually(env_path)
             return
 
         load_dotenv(dotenv_path=self.env_path)
         logger.info(f"Loaded environment from {self.env_path}")
+
+    def _load_env_file_manually(self, env_path: Path) -> None:
+        """Fallback parser when python-dotenv is not installed."""
+        try:
+            with env_path.open("r", encoding="utf-8") as env_file:
+                for raw_line in env_file:
+                    line = raw_line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+
+                    if "=" not in line:
+                        logger.debug(
+                            "Skipping malformed environment line in %s: %s",
+                            env_path,
+                            raw_line.rstrip("\n"),
+                        )
+                        continue
+
+                    key, value = line.split("=", 1)
+                    key = key.strip()
+                    value = value.strip()
+
+                    if (value.startswith('"') and value.endswith('"')) or (
+                        value.startswith("'") and value.endswith("'")
+                    ):
+                        value = value[1:-1]
+
+                    os.environ.setdefault(key, value)
+        except OSError as exc:
+            logger.error("Failed to read environment file %s: %s", env_path, exc)
         
     def get(self, key: str, default: Any = None, required: bool = False) -> Any:
         """
