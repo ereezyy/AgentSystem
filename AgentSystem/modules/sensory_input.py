@@ -10,7 +10,8 @@ import threading
 import queue
 import json
 import base64
-from typing import Dict, List, Any, Optional, Callable, Union
+from collections import deque
+from typing import Dict, List, Any, Optional, Callable, Union, Iterable
 from datetime import datetime
 
 # Local imports
@@ -87,6 +88,115 @@ class VideoCaptureBackend:
         """Return available camera descriptions."""
         return []
 
+
+class SyntheticAudioBackend(AudioCaptureBackend):
+    """Feed audio data from a predefined iterable for simulations."""
+
+    def __init__(self, chunks: Optional[Iterable[bytes]] = None) -> None:
+        self._chunks = deque(chunks or [])
+        self._active = False
+
+    @property
+    def is_available(self) -> bool:
+        return True
+
+    def start(self, sample_rate: int, chunk_size: int, device_index: Optional[int] = None) -> bool:
+        self._active = True
+        return True
+
+    def read_chunk(self, chunk_size: int) -> bytes:
+        if not self._active or not self._chunks:
+            return b""
+        return self._chunks.popleft()
+
+    def stop(self) -> None:
+        self._active = False
+
+
+class SyntheticVideoBackend(VideoCaptureBackend):
+    """Provide synthetic frames for testing or simulation feeds."""
+
+    def __init__(self, frames: Optional[Iterable[Any]] = None) -> None:
+        self._frames = deque(frames or [])
+        self._active = False
+
+    @property
+    def is_available(self) -> bool:
+        return True
+
+    def start(self, camera_index: int, width: int, height: int, fps: int) -> bool:
+        self._active = True
+        return True
+
+    def read_frame(self) -> Optional[Any]:  # type: ignore[override]
+        if not self._active or not self._frames:
+            return None
+        return self._frames.popleft()
+
+    def stop(self) -> None:
+        self._active = False
+
+
+class MultimodalFusionEngine:
+    """Fuse vision, audio, and optional text into a shared embedding."""
+
+    def __init__(self) -> None:
+        self._history: deque = deque(maxlen=100)
+
+    def fuse(
+        self,
+        audio_event: Optional[Dict[str, Any]] = None,
+        video_event: Optional[Dict[str, Any]] = None,
+        text: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        features: Dict[str, Any] = {"timestamp": time.time()}
+        if audio_event:
+            raw = audio_event.get("raw_data")
+            features["audio_energy"] = len(raw) if isinstance(raw, (bytes, bytearray)) else 0
+            features["audio_label"] = audio_event.get("type")
+        if video_event:
+            features["visual_objects"] = video_event.get("objects", [])
+            features["frame_shape"] = video_event.get("frame_shape")
+        if text:
+            features["text"] = text
+        features["embedding"] = self._build_signature(features)
+        self._history.append(features)
+        return features
+
+    def _build_signature(self, features: Dict[str, Any]) -> List[float]:
+        signature = [0.0, 0.0, 0.0]
+        if "audio_energy" in features:
+            signature[0] = min(1.0, features["audio_energy"] / 10000.0)
+        if features.get("visual_objects"):
+            signature[1] = min(1.0, len(features["visual_objects"]))
+        if features.get("text"):
+            signature[2] = min(1.0, len(str(features["text"])) / 200.0)
+        return signature
+
+    def recent_history(self) -> List[Dict[str, Any]]:
+        return list(self._history)
+
+
+class CrossModalReasoner:
+    """Perform lightweight reasoning across fused sensory channels."""
+
+    def __init__(self, fusion_engine: MultimodalFusionEngine) -> None:
+        self.fusion_engine = fusion_engine
+
+    def infer_context(self, fused_event: Dict[str, Any]) -> Dict[str, Any]:
+        audio_energy = fused_event.get("audio_energy", 0)
+        objects = fused_event.get("visual_objects", [])
+        context = "unknown"
+        if audio_energy and objects:
+            if "water" in objects or "pool" in objects:
+                context = "water_scene" if audio_energy > 0 else "still_water"
+            elif "person" in objects:
+                context = "conversation" if audio_energy > 0 else "observation"
+        elif objects:
+            context = "visual_only"
+        elif audio_energy:
+            context = "audio_only"
+        return {"context": context, "confidence": 0.6 if context != "unknown" else 0.2}
 
 
 class PyAudioCaptureBackend(AudioCaptureBackend):
@@ -756,10 +866,17 @@ class SensoryInputModule:
         # Event processing thread
         self.processing_thread = None
         self.is_processing = False
-        
+
         # Event buffer for batch processing
         self.event_buffer = []
         self.buffer_lock = threading.Lock()
+
+        # Multimodal grounding helpers
+        self.fusion_engine = MultimodalFusionEngine()
+        self.cross_modal_reasoner = CrossModalReasoner(self.fusion_engine)
+        self._latest_audio_event: Optional[Dict[str, Any]] = None
+        self._latest_video_event: Optional[Dict[str, Any]] = None
+        self._fused_events: deque = deque(maxlen=50)
         
         logger.info(
             "Initialized SensoryInputModule (audio backend available: %s, video backend available: %s)",
@@ -854,6 +971,14 @@ class SensoryInputModule:
             "stop_event_processing": {
                 "description": "Stop continuous sensory event processing",
                 "function": self.stop_event_processing,
+                "parameters": {
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            "get_multimodal_context": {
+                "description": "Fuse recent audio/video into a unified context",
+                "function": self.get_multimodal_context,
                 "parameters": {
                     "type": "object",
                     "properties": {}
@@ -1132,7 +1257,9 @@ class SensoryInputModule:
                             # Limit buffer size
                             if len(self.event_buffer) > 100:
                                 self.event_buffer = self.event_buffer[-100:]
-                
+                        self._latest_audio_event = audio_event
+                        self._try_fuse_events()
+
                 # Get video events
                 if self.video_processor:
                     video_event = self.video_processor.get_next_video_event(timeout=0.01)
@@ -1150,6 +1277,8 @@ class SensoryInputModule:
                             # Limit buffer size
                             if len(self.event_buffer) > 100:
                                 self.event_buffer = self.event_buffer[-100:]
+                        self._latest_video_event = video_event
+                        self._try_fuse_events()
                 
                 # Short sleep to prevent tight loop
                 time.sleep(0.01)
@@ -1177,9 +1306,27 @@ class SensoryInputModule:
             "count": len(events)
         }
 
+    def get_multimodal_context(self) -> Dict[str, Any]:
+        """Return the latest fused sensory context and reasoning."""
+        if not self._fused_events:
+            return {"success": False, "error": "Insufficient data for fusion"}
+        fused_event = self._fused_events[-1]
+        reasoning = self.cross_modal_reasoner.infer_context(fused_event)
+        return {"success": True, "fused": fused_event, "reasoning": reasoning}
+
+    def _try_fuse_events(self) -> None:
+        if self._latest_audio_event is None and self._latest_video_event is None:
+            return
+        fused = self.fusion_engine.fuse(
+            audio_event=self._latest_audio_event,
+            video_event=self._latest_video_event,
+        )
+        self._fused_events.append(fused)
+
     def shutdown(self) -> None:
         """Release resources used by the sensory processors."""
         if self.audio_processor:
             self.audio_processor.shutdown()
         if self.video_processor:
             self.video_processor.shutdown()
+        self._fused_events.clear()

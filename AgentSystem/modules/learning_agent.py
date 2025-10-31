@@ -14,8 +14,10 @@ Features:
 import threading
 import queue
 import time
+import random
 from collections import deque
-from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Callable, Iterable
 from pathlib import Path
 
 from AgentSystem.utils.logger import get_logger
@@ -80,8 +82,238 @@ except ImportError:
 
 logger = get_logger("modules.learning_agent")
 
+
+@dataclass
+class ReflexRule:
+    """Map fast sensory events to immediate actions."""
+
+    trigger: str
+    action: Callable[[Dict[str, Any]], None]
+    priority: int = 0
+
+
+class ReflexLayer:
+    """Fast response layer for immediate reactions."""
+
+    def __init__(self) -> None:
+        self._rules: List[ReflexRule] = []
+
+    def register_rule(self, rule: ReflexRule) -> None:
+        self._rules.append(rule)
+        self._rules.sort(key=lambda r: r.priority, reverse=True)
+
+    def process(self, event: Dict[str, Any]) -> bool:
+        signal = event.get("type") or event.get("signal")
+        for rule in self._rules:
+            if rule.trigger == signal:
+                logger.debug("ReflexLayer matched rule %s for event %s", rule.trigger, event)
+                rule.action(event)
+                return True
+        return False
+
+
+class DeliberativeLayer:
+    """Planning layer using lightweight tree search heuristics."""
+
+    def __init__(self, evaluator: Optional[Callable[[Dict[str, Any]], float]] = None) -> None:
+        self._evaluator = evaluator or (lambda plan: float(plan.get("expected_reward", 0)))
+
+    def plan(self, goal: str, options: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Pick a plan by scoring candidate actions."""
+        best_score = float("-inf")
+        best_plan: List[Dict[str, Any]] = []
+        for idx, option in enumerate(options):
+            option = dict(option)
+            option.setdefault("steps", [option.get("action", goal)])
+            option.setdefault("expected_reward", 0.0)
+            score = self._evaluator(option) - idx * 0.01  # light tie-breaker
+            if score > best_score:
+                best_score = score
+                best_plan = list(option["steps"])
+        logger.debug("DeliberativeLayer chose plan %s for goal %s", best_plan, goal)
+        return best_plan
+
+
+class MetaCognitiveLayer:
+    """Monitors performance and updates strategies."""
+
+    def __init__(self) -> None:
+        self._history: deque = deque(maxlen=200)
+        self._active_goals: deque = deque(maxlen=20)
+
+    def record_outcome(self, feedback: Dict[str, Any]) -> None:
+        self._history.append(feedback)
+
+    def track_goal(self, goal: str) -> None:
+        if goal not in self._active_goals:
+            self._active_goals.append(goal)
+
+    def review(self) -> Dict[str, Any]:
+        if not self._history:
+            return {"status": "insufficient-data"}
+        recent_rewards = [item.get("reward", 0.0) for item in list(self._history)[-10:]]
+        average = sum(recent_rewards) / max(len(recent_rewards), 1)
+        recommendation = "maintain" if average >= 0 else "adjust-prompts"
+        return {
+            "status": "ok" if average >= 0 else "needs-adjustment",
+            "recent_average_reward": average,
+            "tracked_goals": list(self._active_goals),
+            "recommendation": recommendation,
+        }
+
+
+class CausalInferencer:
+    """Track simple cause-effect pairs to move beyond correlation."""
+
+    def __init__(self) -> None:
+        self._counts: Dict[tuple, Dict[str, int]] = {}
+
+    def observe(self, cause: str, effect: str, success: bool) -> None:
+        bucket = self._counts.setdefault((cause, effect), {"success": 0, "failure": 0})
+        bucket["success" if success else "failure"] += 1
+
+    def infer(self, cause: str) -> Optional[str]:
+        best_effect = None
+        best_ratio = 0.0
+        for (observed_cause, effect), stats in self._counts.items():
+            if observed_cause != cause:
+                continue
+            total = stats["success"] + stats["failure"]
+            if not total:
+                continue
+            ratio = stats["success"] / total
+            if ratio > best_ratio:
+                best_ratio = ratio
+                best_effect = effect
+        return best_effect
+
+
+class ReActReasoner:
+    """Blend reasoning traces with acting hooks and memory introspection."""
+
+    def __init__(self, knowledge_manager: "KnowledgeManager") -> None:
+        self.knowledge_manager = knowledge_manager
+
+    def reason(self, query: str) -> Dict[str, Any]:
+        trace: List[str] = []
+        trace.append(f"Thought: need information about {query}")
+        memory = self.knowledge_manager.fusion_search(query, limit=5)
+        trace.append(f"Retrieved {len(memory['facts'])} facts and {len(memory['episodes'])} episodes")
+        action = "act:consult_knowledge_base" if memory["facts"] else "act:web_research"
+        return {"trace": trace, "action": action, "memory": memory}
+
+
+class DistributedAgentMesh:
+    """Lightweight federated mesh for specialised agents."""
+
+    def __init__(self) -> None:
+        self._subscribers: Dict[str, Callable[[Dict[str, Any]], None]] = {}
+        self._shared_state: Dict[str, Any] = {}
+
+    def register(self, role: str, callback: Callable[[Dict[str, Any]], None]) -> None:
+        self._subscribers[role] = callback
+
+    def broadcast(self, message: Dict[str, Any]) -> None:
+        for role, callback in self._subscribers.items():
+            try:
+                callback(dict(message, target_role=role))
+            except Exception as exc:
+                logger.warning("Mesh callback for %s failed: %s", role, exc)
+
+    def update_shared_state(self, key: str, value: Any) -> None:
+        self._shared_state[key] = value
+
+    def get_shared_state(self, key: str, default: Any = None) -> Any:
+        return self._shared_state.get(key, default)
+
+
+class ResilienceManager:
+    """Monitor agent health and auto-heal where possible."""
+
+    def __init__(self) -> None:
+        self._restart_hooks: List[Callable[[], None]] = []
+
+    def register_restart(self, hook: Callable[[], None]) -> None:
+        self._restart_hooks.append(hook)
+
+    def ensure_thread(self, thread: Optional[threading.Thread], starter: Callable[[], None]) -> None:
+        if thread and thread.is_alive():
+            return
+        logger.warning("Detected inactive thread; attempting automatic restart")
+        for hook in self._restart_hooks:
+            try:
+                hook()
+            except Exception as exc:
+                logger.error("Restart hook failed: %s", exc)
+        starter()
+
+
+class InferenceRouter:
+    """Select between local and cloud inference pathways."""
+
+    def __init__(self) -> None:
+        self.local_available = False
+        self.cloud_available = True
+        self.cached_prompts: Dict[str, Dict[str, Any]] = {}
+
+    def register_local(self, available: bool) -> None:
+        self.local_available = available
+
+    def choose(self, task: str) -> str:
+        if self.local_available:
+            return "local"
+        if not self.cloud_available:
+            return "cached"
+        return "cloud"
+
+    def cache_prompt(self, key: str, payload: Dict[str, Any]) -> None:
+        self.cached_prompts[key] = payload
+
+
+class SocialIntelligenceLayer:
+    """Minimal affective computing helper."""
+
+    POSITIVE_WORDS = {"great", "good", "excellent", "awesome", "thanks"}
+    NEGATIVE_WORDS = {"bad", "terrible", "angry", "upset", "frustrated"}
+
+    def analyse(self, text: str) -> Dict[str, Any]:
+        words = {w.strip(".,!?" ).lower() for w in text.split()}
+        positivity = len(words & self.POSITIVE_WORDS)
+        negativity = len(words & self.NEGATIVE_WORDS)
+        sentiment = "neutral"
+        if positivity > negativity:
+            sentiment = "positive"
+        elif negativity > positivity:
+            sentiment = "negative"
+        return {"sentiment": sentiment, "positivity": positivity, "negativity": negativity}
+
+    def adapt_response(self, text: str, sentiment: str) -> str:
+        if sentiment == "positive":
+            return f"I'm glad to hear that! {text}"
+        if sentiment == "negative":
+            return f"I understand the concern. {text}"
+        return text
+
+
+class CognitionStack:
+    """Aggregate reflex, deliberative, and meta-cognitive layers."""
+
+    def __init__(self, meta_layer: MetaCognitiveLayer) -> None:
+        self.reflex = ReflexLayer()
+        self.deliberative = DeliberativeLayer()
+        self.meta = meta_layer
+
+    def handle_event(self, event: Dict[str, Any], planner: Callable[[str], List[str]]) -> Dict[str, Any]:
+        handled = self.reflex.process(event)
+        response: Dict[str, Any] = {"handled": handled}
+        if not handled and event.get("goal"):
+            plan = planner(event["goal"])
+            response["plan"] = plan
+        self.meta.record_outcome({"reward": event.get("reward", 0.0)})
+        return response
+
 class LearningAgent:
-    def __init__(self, 
+    def __init__(self,
                 knowledge_base_path: Optional[str] = None,
                 backup_dir: Optional[str] = None):
         """
@@ -107,7 +339,22 @@ class LearningAgent:
         self._cumulative_reward: float = 0.0
         self._task_outcomes = {"total": 0, "success": 0, "failure": 0}
         self._last_feedback: Optional[Dict[str, Any]] = None
-        
+
+        # Cognitive layers
+        self.meta_layer = MetaCognitiveLayer()
+        self.cognition = CognitionStack(self.meta_layer)
+        self.causal_inferencer = CausalInferencer()
+        self.reasoner = ReActReasoner(self.knowledge_manager)
+        self.mesh = DistributedAgentMesh()
+        self.resilience = ResilienceManager()
+        self.inference_router = InferenceRouter()
+        self.social_layer = SocialIntelligenceLayer()
+        self._prompt_versions: Dict[str, Dict[str, Any]] = {}
+        self._self_play_log: deque = deque(maxlen=50)
+
+        self.mesh.register("Observer", lambda msg: logger.debug("Observer received %s", msg))
+        self.resilience.register_restart(self.start_learning)
+
     def start_learning(self) -> None:
         """Start background learning thread"""
         with self.learning_lock:
@@ -123,7 +370,8 @@ class LearningAgent:
             )
             self.learning_thread.start()
             logger.info("Started background learning thread with thread-safe protection")
-        
+        self.meta_layer.track_goal("background_learning")
+
     def stop_learning(self) -> None:
         """Stop background learning thread"""
         with self.learning_lock:
@@ -136,11 +384,12 @@ class LearningAgent:
             self.learning_thread.join(timeout=5.0)
             if self.learning_thread.is_alive():
                 logger.warning("Learning thread did not terminate within timeout")
+                self.resilience.ensure_thread(self.learning_thread, self.start_learning)
             else:
                 logger.debug("Learning thread terminated successfully")
             self.learning_thread = None
         logger.info("Stopped background learning with thread-safe protection")
-        
+
     def _learning_loop(self) -> None:
         """Background learning thread main loop"""
         while True:
@@ -203,6 +452,11 @@ class LearningAgent:
 
                 reward = self._calculate_reward(task_type, task_success, processing_time, task_details)
                 self._record_reward(task_type, reward, task_success, processing_time, task_details)
+                if task_type:
+                    self.causal_inferencer.observe(task_type, status, task_success)
+                self.meta_layer.record_outcome({"reward": reward, "task": task_type, "success": task_success})
+                if task_type == "research" and task_success:
+                    self.mesh.broadcast({"event": "research_complete", "details": task_details})
 
             except Exception as e:
                 logger.error(f"Critical error in learning loop: {e}")
@@ -223,11 +477,12 @@ class LearningAgent:
             "topic": topic,
             "depth": depth
         })
-        
+        self.meta_layer.track_goal(f"research:{topic}")
+
     def queue_code_improvement(self, file_path: str) -> None:
         """
         Queue a code improvement task
-        
+
         Args:
             file_path: Path to file to improve
         """
@@ -235,6 +490,7 @@ class LearningAgent:
             "type": "improve_code",
             "file": file_path
         })
+        self.meta_layer.track_goal(f"improve:{file_path}")
         
     def research_topic(self, topic: str, depth: int = 1) -> List[Dict[str, Any]]:
         """
@@ -329,6 +585,124 @@ class LearningAgent:
 
         return improvements
 
+    # ------------------------------------------------------------------
+    # Advanced cognition helpers
+    # ------------------------------------------------------------------
+    def process_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
+        """Route sensory or system events through the cognition stack."""
+
+        def planner(goal: str) -> List[str]:
+            options = (
+                {
+                    "action": "research",
+                    "steps": [f"Research {goal}", "Summarise findings"],
+                    "expected_reward": 0.6,
+                },
+                {
+                    "action": "reflect",
+                    "steps": [f"Consult memories about {goal}", "Draft reflection"],
+                    "expected_reward": 0.5,
+                },
+            )
+            return self.cognition.deliberative.plan(goal, options)
+
+        response = self.cognition.handle_event(event, planner)
+        if not response.get("handled") and event.get("goal"):
+            self.learning_queue.put({"type": "research", "topic": event["goal"], "depth": 1})
+        return response
+
+    def deliberate(self, goal: str) -> List[str]:
+        """Perform a deliberate planning pass for the provided goal."""
+        options = [
+            {"action": "research", "steps": [f"Investigate {goal}"], "expected_reward": 0.5},
+            {"action": "consult", "steps": [f"Recall experiences about {goal}", "Synthesize learnings"], "expected_reward": 0.55},
+        ]
+        plan = self.cognition.deliberative.plan(goal, options)
+        self.meta_layer.track_goal(goal)
+        return plan
+
+    def meta_review(self) -> Dict[str, Any]:
+        """Expose meta-cognitive review data."""
+        return self.meta_layer.review()
+
+    def react_reason(self, query: str) -> Dict[str, Any]:
+        """Run a ReAct-style reasoning cycle."""
+        return self.reasoner.reason(query)
+
+    # ------------------------------------------------------------------
+    # Dynamic learning loop extensions
+    # ------------------------------------------------------------------
+    def simulate_self_play(self, scenario: str) -> Dict[str, Any]:
+        """Run a lightweight self-play scenario to gather experience."""
+        agent_score = random.uniform(-0.5, 1.0)
+        outcome = "win" if agent_score > 0 else "loss"
+        record = {
+            "scenario": scenario,
+            "score": agent_score,
+            "outcome": outcome,
+        }
+        self._self_play_log.append(record)
+        self.knowledge_manager.add_episode(
+            event=f"Self-play {scenario}",
+            outcome=outcome,
+            emotion="positive" if agent_score > 0 else "frustrated",
+            salience=min(1.0, max(0.1, 0.5 + agent_score / 2)),
+            context={"score": agent_score},
+        )
+        return record
+
+    def evolve_prompts(self, key: str, success: bool, notes: Optional[str] = None) -> Dict[str, Any]:
+        """Adapt prompts based on success metrics."""
+        state = self._prompt_versions.setdefault(key, {"version": 1, "history": []})
+        if not success:
+            state["version"] += 1
+        entry = {"success": success, "notes": notes, "version": state["version"]}
+        state["history"].append(entry)
+        self.inference_router.cache_prompt(key, entry)
+        return state
+
+    def distill_model(self) -> Dict[str, Any]:
+        """Placeholder for offline model distillation from interactions."""
+        distilled_examples = list(self._reward_history)[-5:]
+        return {"status": "distilled", "samples": len(distilled_examples)}
+
+    def reinforcement_feedback(self, module: str, reward: float) -> None:
+        """Record reinforcement signal for the specified module."""
+        self._record_reward(module, reward, reward >= 0, processing_time=0.0, details={"module": module})
+
+    def register_observation(self, description: str, success: bool, emotion: Optional[str] = None) -> None:
+        """Log an observation into episodic memory and cognition layers."""
+        salience = 0.9 if success else 0.4
+        self.knowledge_manager.add_episode(
+            event=description,
+            outcome="success" if success else "failure",
+            emotion=emotion,
+            salience=salience,
+        )
+        self.meta_layer.record_outcome({"reward": 1.0 if success else -0.5, "event": description})
+
+    def contextual_recall(self, cue: str) -> Dict[str, List[Dict[str, Any]]]:
+        """Fetch related facts and episodes for the provided cue."""
+        return self.knowledge_manager.fusion_search(cue)
+
+    def choose_inference_path(self, task: str) -> str:
+        """Select the inference strategy (local/cloud/cached)."""
+        return self.inference_router.choose(task)
+
+    def adapt_response_tone(self, text: str) -> Dict[str, Any]:
+        """Analyse sentiment and adapt the response tone."""
+        analysis = self.social_layer.analyse(text)
+        adapted = self.social_layer.adapt_response(text, analysis["sentiment"])
+        return {"analysis": analysis, "response": adapted}
+
+    def join_mesh(self, role: str, callback: Callable[[Dict[str, Any]], None]) -> None:
+        """Register a specialised agent callback within the distributed mesh."""
+        self.mesh.register(role, callback)
+
+    def share_mesh_state(self, key: str, value: Any) -> None:
+        """Publish shared state for other agents in the mesh."""
+        self.mesh.update_shared_state(key, value)
+
     def _calculate_reward(
         self,
         task_type: Optional[str],
@@ -383,6 +757,7 @@ class LearningAgent:
             success,
             processing_time,
         )
+        self.meta_layer.record_outcome(entry)
 
     def get_learning_feedback(self) -> Dict[str, Any]:
         """Return aggregate reward metrics for the learning loop."""
@@ -403,6 +778,7 @@ class LearningAgent:
             "total_tasks": self._task_outcomes["total"],
             "success_rate": success_rate,
             "last_feedback": self._last_feedback,
+            "meta_review": self.meta_layer.review(),
         }
 
     def submit_feedback(

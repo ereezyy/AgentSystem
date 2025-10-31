@@ -9,6 +9,7 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
+from typing import Any, Dict, List
 from unittest.mock import Mock, patch
 
 MODULE_DIR = Path(__file__).resolve().parents[1] / "modules"
@@ -28,6 +29,7 @@ learning_agent_module = _load_module("learning_agent")
 
 KnowledgeManager = knowledge_manager_module.KnowledgeManager
 LearningAgent = learning_agent_module.LearningAgent
+ReflexRule = learning_agent_module.ReflexRule
 
 try:
     web_researcher_module = _load_module("web_researcher")
@@ -91,12 +93,42 @@ class TestKnowledgeManager(unittest.TestCase):
             content="JavaScript runs in browsers",
             category="programming"
         )
-        
+
         # Search
         results = self.knowledge_manager.search_facts("Python")
-        
+
         self.assertEqual(len(results), 1)
         self.assertIn("Python", results[0]["content"])
+
+    def test_episodic_memory_and_fusion(self):
+        episode_id = self.knowledge_manager.add_episode(
+            event="Investigated water behaviour",
+            outcome="understood flow",
+            emotion="curious",
+            salience=0.9,
+            context={"topic": "water"},
+        )
+        self.assertGreater(episode_id, 0)
+
+        fused = self.knowledge_manager.fusion_search("water")
+        self.assertTrue(fused["episodes"])
+
+        promoted = self.knowledge_manager.consolidate_memories(limit=1)
+        self.assertIsInstance(promoted, list)
+
+    def test_knowledge_synthesis_and_verification(self):
+        self.knowledge_manager.add_fact("Water flows downhill", category="science")
+        self.knowledge_manager.add_fact("Water flows through rivers", category="science")
+
+        graph = self.knowledge_manager.synthesize_knowledge("water")
+        self.assertIn("nodes", graph)
+        self.assertTrue(graph["nodes"])
+
+        hypotheses = self.knowledge_manager.generate_hypotheses("water")
+        self.assertTrue(hypotheses)
+
+        verdict = self.knowledge_manager.verify_claim("Water flows")
+        self.assertIn(verdict["verdict"], {"supported", "partial", "unknown"})
 
 @unittest.skipIf(not WEB_IMPORTS_AVAILABLE, "Web researcher dependencies unavailable")
 class TestWebResearcher(unittest.TestCase):
@@ -219,6 +251,50 @@ class TestLearningAgent(unittest.TestCase):
         self.assertAlmostEqual(updated["cumulative_reward"], 0.5)
         self.assertEqual(updated["total_tasks"], 1)
         self.assertGreaterEqual(updated["success_rate"], 0.0)
+
+    def test_cognition_layers_and_meta_review(self):
+        triggered: List[Dict[str, Any]] = []
+        self.agent.cognition.reflex.register_rule(
+            ReflexRule(trigger="alert", action=lambda event: triggered.append(event))
+        )
+        response = self.agent.process_event({"type": "alert", "reward": 0.2})
+        self.assertTrue(response["handled"])
+        self.assertTrue(triggered)
+
+        planning = self.agent.process_event({"type": "observation", "goal": "research"})
+        self.assertIn("plan", planning)
+
+        review = self.agent.meta_review()
+        self.assertIn("status", review)
+
+    def test_react_reasoning_and_self_play(self):
+        self.agent.knowledge_manager.add_fact("Water analysis complete", category="research")
+        reason = self.agent.react_reason("water")
+        self.assertIn("trace", reason)
+        self.assertIn("memory", reason)
+
+        simulation = self.agent.simulate_self_play("maze-run")
+        self.assertIn(simulation["outcome"], {"win", "loss"})
+
+    def test_distributed_mesh_and_routing(self):
+        messages: List[Dict[str, Any]] = []
+        self.agent.join_mesh("Planner", lambda payload: messages.append(payload))
+        self.agent.share_mesh_state("goal", "expand-knowledge")
+        self.agent.mesh.broadcast({"event": "test"})
+        self.assertTrue(messages)
+        self.assertEqual(self.agent.mesh.get_shared_state("goal"), "expand-knowledge")
+
+        self.agent.inference_router.register_local(True)
+        self.assertEqual(self.agent.choose_inference_path("analysis"), "local")
+
+    def test_social_and_memory_enrichment(self):
+        adapted = self.agent.adapt_response_tone("This is great progress")
+        self.assertEqual(adapted["analysis"]["sentiment"], "positive")
+
+        baseline = self.agent.knowledge_manager.contextual_recall("mission")
+        self.agent.register_observation("Mission accomplished", success=True, emotion="proud")
+        recall = self.agent.knowledge_manager.contextual_recall("Mission")
+        self.assertGreaterEqual(len(recall), len(baseline))
 
 def main():
     unittest.main()

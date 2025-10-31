@@ -153,3 +153,18 @@ def test_sensory_module_accepts_synthetic_backends() -> None:
     latest = module.get_latest_sensory_events()
     assert latest["count"] >= 1
     module.shutdown()
+
+
+def test_multimodal_context_generation() -> None:
+    module = SensoryInputModule()
+    module.configure_audio_backend(DummyAudioBackend(iterations=5))
+    module.configure_video_backend(DummyVideoBackend(frames=[{"frame": 1}]))
+
+    module._latest_audio_event = {"type": "speech", "raw_data": b"hello"}
+    module._latest_video_event = {"type": "video_frame", "objects": ["pool"], "frame_shape": (64, 64, 3)}
+    module._try_fuse_events()
+
+    context = module.get_multimodal_context()
+    assert context["success"]
+    assert context["fused"]["embedding"], "Expected fused embedding values"
+    module.shutdown()
