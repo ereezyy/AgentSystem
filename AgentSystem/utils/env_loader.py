@@ -9,7 +9,11 @@ import os
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - fallback path for optional dependency
+    load_dotenv = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +37,13 @@ class EnvLoader:
         if not env_path.exists():
             logger.warning(f"Environment file not found at {self.env_path}")
             return
-        
+
+        if load_dotenv is None:
+            logger.info(
+                "python-dotenv is not installed; skipping loading of %s", self.env_path
+            )
+            return
+
         load_dotenv(dotenv_path=self.env_path)
         logger.info(f"Loaded environment from {self.env_path}")
         
