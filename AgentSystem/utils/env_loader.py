@@ -8,6 +8,8 @@ Provides fallback mechanisms and validation
 import ast
 import logging
 import os
+import re
+import warnings
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -91,6 +93,40 @@ class EnvLoader:
 
             return "".join(result_chars).rstrip()
 
+        interpolation_pattern = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+        escaped_dollar_pattern = re.compile(r"\\(\$)")
+
+        def _preserve_escaped_dollars(text: str) -> tuple[str, Dict[str, str]]:
+            placeholders: Dict[str, str] = {}
+
+            def replace(match: re.Match[str]) -> str:
+                placeholder = f"__ESCAPED_DOLLAR_{len(placeholders)}__"
+                placeholders[placeholder] = match.group(1)
+                return placeholder
+
+            return escaped_dollar_pattern.sub(replace, text), placeholders
+
+        def _restore_escaped_dollars(text: str, placeholders: Dict[str, str]) -> str:
+            for placeholder, replacement in placeholders.items():
+                text = text.replace(placeholder, replacement)
+            return text
+
+        def _interpolate_value(raw_value: str, allow_interpolation: bool) -> str:
+            working, placeholders = _preserve_escaped_dollars(raw_value)
+
+            if allow_interpolation and "${" in working:
+                previous = working
+                for _ in range(10):
+                    replaced = interpolation_pattern.sub(
+                        lambda match: os.environ.get(match.group(1), ""), previous
+                    )
+                    if replaced == previous:
+                        break
+                    previous = replaced
+                working = previous
+
+            return _restore_escaped_dollars(working, placeholders)
+
         preexisting_keys = set(os.environ.keys())
 
         try:
@@ -116,7 +152,7 @@ class EnvLoader:
 
                     key, value = line.split(delimiter, 1)
                     key = key.strip()
-                    value = _strip_inline_comment(value.strip())
+                    stripped_value = _strip_inline_comment(value.strip())
 
                     if key.startswith("export "):
                         key = key[len("export ") :].strip()
@@ -129,16 +165,31 @@ class EnvLoader:
                         )
                         continue
 
-                    if value and value[0] == value[-1] and value[0] in {'"', "'"}:
+                    is_quoted = (
+                        len(stripped_value) >= 2
+                        and stripped_value[0] == stripped_value[-1]
+                        and stripped_value[0] in {'"', "'"}
+                    )
+                    is_single_quoted = is_quoted and stripped_value[0] == "'"
+
+                    processed_value = stripped_value
+
+                    if is_quoted:
                         try:
-                            value = ast.literal_eval(value)
+                            with warnings.catch_warnings():
+                                warnings.simplefilter("ignore", DeprecationWarning)
+                                processed_value = ast.literal_eval(processed_value)
                         except (SyntaxError, ValueError):
-                            value = value[1:-1]
+                            processed_value = processed_value[1:-1]
+
+                    processed_value = _interpolate_value(
+                        str(processed_value), allow_interpolation=not is_single_quoted
+                    )
 
                     if key in preexisting_keys:
                         continue
 
-                    os.environ[key] = value
+                    os.environ[key] = processed_value
         except OSError as exc:
             logger.error("Failed to read environment file %s: %s", env_path, exc)
         

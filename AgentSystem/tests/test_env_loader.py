@@ -19,19 +19,26 @@ def restore_environment():
 def temp_env_file(tmp_path: Path) -> Path:
     env_file = tmp_path / ".env"
     env_file.write_text(
-        """
-# comment line should be ignored
-BASIC=value
-INLINE=needs_comment # trailing comment should be stripped
-WITH_COLON: colon value
-QUOTED_DOUBLE="quoted # still value"
-QUOTED_SINGLE='single # still value'
-WITH_ESCAPE=hash\\#should stay
-export EXPORTED=from_export
-PRESERVED=from_file
-OVERWRITE=first
-OVERWRITE=second
-""".strip()
+        "\n".join(
+            [
+                "# comment line should be ignored",
+                "BASIC=value",
+                "INLINE=needs_comment # trailing comment should be stripped",
+                "WITH_COLON: colon value",
+                "QUOTED_DOUBLE=\"quoted # still value\"",
+                "QUOTED_SINGLE='single # still value'",
+                "WITH_ESCAPE=hash\\#should stay",
+                "WITH_INTERPOLATION=${BASIC}_suffix",
+                "DOUBLE_INTERPOLATION=\"${BASIC}_${INLINE}\"",
+                "SINGLE_INTERPOLATION='${BASIC}_${INLINE}'",
+                "ESCAPED_INTERPOLATION=\\${INLINE}",
+                "ESCAPED_DOLLAR=\"Cost is \\$5\"",
+                "export EXPORTED=from_export",
+                "PRESERVED=from_file",
+                "OVERWRITE=first",
+                "OVERWRITE=second",
+            ]
+        )
     )
     return env_file
 
@@ -44,6 +51,11 @@ def test_manual_loader_parses_various_patterns(temp_env_file: Path) -> None:
         "QUOTED_DOUBLE": "quoted # still value",
         "QUOTED_SINGLE": "single # still value",
         "WITH_ESCAPE": "hash#should stay",
+        "WITH_INTERPOLATION": "value_suffix",
+        "DOUBLE_INTERPOLATION": "value_needs_comment",
+        "SINGLE_INTERPOLATION": "${BASIC}_${INLINE}",
+        "ESCAPED_INTERPOLATION": "${INLINE}",
+        "ESCAPED_DOLLAR": "Cost is $5",
         "EXPORTED": "from_export",
         "OVERWRITE": "second",
     }
