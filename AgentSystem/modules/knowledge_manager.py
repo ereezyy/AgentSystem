@@ -13,8 +13,12 @@ Features:
 import sqlite3
 import os
 import time
-import numpy as np
 from typing import Dict, List, Any, Optional
+
+try:
+    import numpy as np  # type: ignore
+except ImportError:
+    np = None  # type: ignore
 from datetime import datetime, timedelta
 # Optional PostgreSQL support with graceful fallback
 try:
@@ -26,7 +30,10 @@ except ImportError:
     RealDictCursor = None
     POSTGRES_AVAILABLE = False
 # RealDictCursor import moved to conditional block above
-import psutil
+try:
+    import psutil  # type: ignore
+except ImportError:
+    psutil = None  # type: ignore
 import subprocess
 
 from AgentSystem.utils.logger import get_logger
@@ -65,7 +72,10 @@ class KnowledgeManager:
         if max_usage is None:
             max_usage = self.ram_limit
             
-        ram_usage = psutil.virtual_memory().used / (1024 ** 3)  # GB
+        if psutil:
+            ram_usage = psutil.virtual_memory().used / (1024 ** 3)  # GB
+        else:
+            ram_usage = 0.0
         if ram_usage > max_usage:
             logger.warning(f"RAM usage {ram_usage:.2f}GB exceeds limit {max_usage}GB")
             return False

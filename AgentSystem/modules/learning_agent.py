@@ -14,13 +14,69 @@ Features:
 import threading
 import queue
 import time
+from collections import deque
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 
 from AgentSystem.utils.logger import get_logger
-from AgentSystem.modules.knowledge_manager import KnowledgeManager
-from AgentSystem.modules.web_researcher import WebResearcher
-from AgentSystem.modules.code_modifier import CodeModifier
+
+try:
+    from AgentSystem.modules.knowledge_manager import KnowledgeManager
+    from AgentSystem.modules.web_researcher import WebResearcher
+    from AgentSystem.modules.code_modifier import CodeModifier
+except ImportError:
+    import importlib.util
+
+    MODULE_DIR = Path(__file__).resolve().parent
+
+    def _fallback_import(module_name: str):
+        module_path = MODULE_DIR / f"{module_name}.py"
+        spec = importlib.util.spec_from_file_location(f"learning_agent_{module_name}", module_path)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        try:
+            spec.loader.exec_module(module)
+        except Exception:
+            return None
+        return module
+
+    km_module = _fallback_import("knowledge_manager")
+    if km_module and hasattr(km_module, "KnowledgeManager"):
+        KnowledgeManager = km_module.KnowledgeManager  # type: ignore[attr-defined]
+    else:  # pragma: no cover - knowledge manager is required for core operation
+        raise
+
+    wr_module = _fallback_import("web_researcher")
+    if wr_module and hasattr(wr_module, "WebResearcher"):
+        WebResearcher = wr_module.WebResearcher  # type: ignore[attr-defined]
+    else:
+        class WebResearcher:  # type: ignore[no-redef]
+            """Minimal stub used when web research dependencies are unavailable."""
+
+            def __init__(self, knowledge_manager: Any, *_, **__):
+                self.knowledge_manager = knowledge_manager
+
+            def research_topic(self, topic: str, depth: int = 1) -> List[Dict[str, Any]]:
+                return []
+
+    cm_module = _fallback_import("code_modifier")
+    if cm_module and hasattr(cm_module, "CodeModifier"):
+        CodeModifier = cm_module.CodeModifier  # type: ignore[attr-defined]
+    else:
+        class CodeModifier:  # type: ignore[no-redef]
+            """Minimal stub used when code modification dependencies are unavailable."""
+
+            def __init__(self, *_, **__):
+                pass
+
+            def analyze_code(self, file_path: str) -> Dict[str, Any]:
+                return {}
+
+            def suggest_improvements(self, file_path: str) -> List[Dict[str, Any]]:
+                return []
+
+            def modify_code(self, file_path: str, changes: Dict[str, Any]) -> bool:
+                return False
 
 logger = get_logger("modules.learning_agent")
 
@@ -45,6 +101,12 @@ class LearningAgent:
         self.learning_thread = None
         self.learning_active = False
         self.learning_lock = threading.Lock()  # Protect learning_active flag
+
+        # Reward tracking
+        self._reward_history: deque = deque(maxlen=100)
+        self._cumulative_reward: float = 0.0
+        self._task_outcomes = {"total": 0, "success": 0, "failure": 0}
+        self._last_feedback: Optional[Dict[str, Any]] = None
         
     def start_learning(self) -> None:
         """Start background learning thread"""
@@ -100,7 +162,8 @@ class LearningAgent:
                 # Process task with enhanced error recovery
                 task_type = task.get("type")
                 task_success = False
-                
+                task_details: Dict[str, Any] = {}
+
                 try:
                     if task_type == "research":
                         topic = task["topic"]
@@ -108,28 +171,39 @@ class LearningAgent:
                         logger.info(f"Starting research task: {topic} (depth={depth})")
                         results = self.research_topic(topic, depth)
                         logger.info(f"Completed research: {topic} - found {len(results)} results")
+                        task_details = {
+                            "result_count": len(results),
+                            "topic": topic
+                        }
                         task_success = True
-                        
+
                     elif task_type == "improve_code":
                         file_path = task["file"]
                         logger.info(f"Starting code improvement: {file_path}")
                         improvements = self.improve_code(file_path)
                         logger.info(f"Completed improvement: {file_path} - made {len(improvements)} improvements")
+                        task_details = {
+                            "change_count": len(improvements),
+                            "file_path": file_path
+                        }
                         task_success = True
-                        
+
                     else:
                         logger.warning(f"Unknown task type: {task_type}")
-                        
+
                 except Exception as task_error:
                     logger.error(f"Task processing failed for {task_type}: {task_error}")
                     logger.exception("Task processing error details:")
                     # Continue processing other tasks despite this failure
-                    
+
                 self.learning_queue.task_done()
                 processing_time = time.time() - start_time
                 status = "SUCCESS" if task_success else "FAILED"
                 logger.info(f"Task {status}: {task_type} in {processing_time:.2f}s | Queue: {self.learning_queue.qsize()} pending")
-                
+
+                reward = self._calculate_reward(task_type, task_success, processing_time, task_details)
+                self._record_reward(task_type, reward, task_success, processing_time, task_details)
+
             except Exception as e:
                 logger.error(f"Critical error in learning loop: {e}")
                 logger.exception("Learning loop critical error details:")
@@ -248,21 +322,124 @@ class LearningAgent:
                 "type": suggestion["type"],
                 "description": suggestion["description"]
             }
-            
+
             # Try to apply changes
             if self.code_modifier.modify_code(file_path, changes):
                 improvements.append(changes)
-                
+
         return improvements
-        
+
+    def _calculate_reward(
+        self,
+        task_type: Optional[str],
+        success: bool,
+        processing_time: float,
+        details: Dict[str, Any],
+    ) -> float:
+        """Compute a heuristic reward score for a completed task."""
+        base_reward = 1.0 if success else -1.0
+
+        if success:
+            if task_type == "research":
+                result_count = details.get("result_count", 0)
+                base_reward += min(result_count, 5) * 0.1
+            elif task_type == "improve_code":
+                change_count = details.get("change_count", 0)
+                base_reward += min(change_count, 5) * 0.2
+
+        # Penalize long running tasks slightly to encourage efficiency
+        base_reward -= min(processing_time / 60.0, 0.5)
+        return base_reward
+
+    def _record_reward(
+        self,
+        task_type: Optional[str],
+        reward: float,
+        success: bool,
+        processing_time: float,
+        details: Dict[str, Any],
+    ) -> None:
+        """Persist reward information for later introspection."""
+        entry = {
+            "task_type": task_type,
+            "reward": reward,
+            "success": success,
+            "processing_time": processing_time,
+            "details": details,
+            "timestamp": time.time(),
+        }
+        self._reward_history.append(entry)
+        self._cumulative_reward += reward
+        self._task_outcomes["total"] += 1
+        if success:
+            self._task_outcomes["success"] += 1
+        else:
+            self._task_outcomes["failure"] += 1
+        self._last_feedback = entry
+        logger.info(
+            "Recorded reward %.2f for task %s (success=%s, duration=%.2fs)",
+            reward,
+            task_type,
+            success,
+            processing_time,
+        )
+
+    def get_learning_feedback(self) -> Dict[str, Any]:
+        """Return aggregate reward metrics for the learning loop."""
+        recent = list(self._reward_history)
+        recent_average = (
+            sum(item["reward"] for item in recent) / len(recent)
+            if recent
+            else 0.0
+        )
+        success_rate = (
+            self._task_outcomes["success"] / self._task_outcomes["total"]
+            if self._task_outcomes["total"]
+            else 0.0
+        )
+        return {
+            "cumulative_reward": self._cumulative_reward,
+            "recent_average_reward": recent_average,
+            "total_tasks": self._task_outcomes["total"],
+            "success_rate": success_rate,
+            "last_feedback": self._last_feedback,
+        }
+
+    def submit_feedback(
+        self,
+        score: float,
+        note: Optional[str] = None,
+        task_type: str = "external_feedback",
+    ) -> None:
+        """Allow external systems to provide manual reward signals."""
+        feedback_entry = {
+            "task_type": task_type,
+            "reward": score,
+            "success": score >= 0,
+            "processing_time": 0.0,
+            "details": {"note": note} if note else {},
+            "timestamp": time.time(),
+        }
+        self._reward_history.append(feedback_entry)
+        self._cumulative_reward += score
+        self._task_outcomes["total"] += 1
+        if score >= 0:
+            self._task_outcomes["success"] += 1
+        else:
+            self._task_outcomes["failure"] += 1
+        self._last_feedback = feedback_entry
+        logger.info("Manual feedback recorded with reward %.2f (%s)", score, note or "no note")
+
     def get_knowledge_stats(self) -> Dict[str, Any]:
         """Get statistics about acquired knowledge"""
-        return {
+        stats = {
             "facts": len(self.knowledge_manager.search_facts("")),
             "categories": len(set(f["category"] for f in self.knowledge_manager.search_facts(""))),
             "queue_size": self.learning_queue.qsize(),
             "is_learning": bool(self.learning_thread and self.learning_thread.is_alive())
         }
+        stats["performance"] = self.get_learning_feedback()
+        return stats
         
     def shutdown(self) -> None:
         """Cleanup and shutdown agent"""

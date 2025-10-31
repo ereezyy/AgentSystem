@@ -20,21 +20,203 @@ from AgentSystem.utils.logger import get_logger
 logger = get_logger("modules.sensory_input")
 
 try:
-    import cv2
-    import numpy as np
-    import pyaudio
-    import speech_recognition as sr
-    from PIL import Image
+    import cv2  # type: ignore
+    import numpy as np  # type: ignore
+    import pyaudio  # type: ignore
+    import speech_recognition as sr  # type: ignore
+    from PIL import Image  # type: ignore
     SENSORY_IMPORTS_AVAILABLE = True
 except ImportError:
-    logger.warning("Sensory input dependencies not available. Install with: pip install opencv-python numpy pyaudio SpeechRecognition pillow")
+    cv2 = None  # type: ignore
+    np = None  # type: ignore
+    pyaudio = None  # type: ignore
+    sr = None  # type: ignore
+    Image = None  # type: ignore
+    logger.warning(
+        "Sensory input dependencies not available. Install with: pip install opencv-python numpy pyaudio SpeechRecognition pillow"
+    )
     SENSORY_IMPORTS_AVAILABLE = False
+
+
+class AudioCaptureBackend:
+    """Interface for audio capture implementations."""
+
+    @property
+    def is_available(self) -> bool:
+        return False
+
+    def start(self, sample_rate: int, chunk_size: int, device_index: Optional[int] = None) -> bool:
+        """Start the capture stream."""
+        return False
+
+    def read_chunk(self, chunk_size: int) -> bytes:
+        """Read a chunk of audio data."""
+        return b""
+
+    def stop(self) -> None:
+        """Stop the capture stream."""
+
+    def list_devices(self) -> List[Dict[str, Any]]:
+        """Return available capture devices."""
+        return []
+
+    def shutdown(self) -> None:
+        """Release backend resources."""
+        self.stop()
+
+
+class VideoCaptureBackend:
+    """Interface for video capture implementations."""
+
+    @property
+    def is_available(self) -> bool:
+        return False
+
+    def start(self, camera_index: int, width: int, height: int, fps: int) -> bool:
+        """Open the capture stream."""
+        return False
+
+    def read_frame(self) -> Optional[Any]:
+        """Read a frame from the stream."""
+        return None
+
+    def stop(self) -> None:
+        """Stop the capture stream."""
+
+    def list_cameras(self) -> List[Dict[str, Any]]:
+        """Return available camera descriptions."""
+        return []
+
+
+
+class PyAudioCaptureBackend(AudioCaptureBackend):
+    """Hardware audio capture implementation using PyAudio."""
+
+    def __init__(self) -> None:
+        self._audio = pyaudio.PyAudio() if SENSORY_IMPORTS_AVAILABLE and pyaudio else None
+        self._stream = None
+
+    @property
+    def is_available(self) -> bool:
+        return bool(self._audio)
+
+    def start(self, sample_rate: int, chunk_size: int, device_index: Optional[int] = None) -> bool:
+        if not self._audio:
+            return False
+        self._stream = self._audio.open(
+            format=pyaudio.paInt16,  # type: ignore[attr-defined]
+            channels=1,
+            rate=sample_rate,
+            input=True,
+            frames_per_buffer=chunk_size,
+            input_device_index=device_index,
+        )
+        return True
+
+    def read_chunk(self, chunk_size: int) -> bytes:
+        if not self._stream:
+            return b""
+        return self._stream.read(chunk_size, exception_on_overflow=False)
+
+    def stop(self) -> None:
+        if self._stream:
+            try:
+                self._stream.stop_stream()
+                self._stream.close()
+            finally:
+                self._stream = None
+
+    def list_devices(self) -> List[Dict[str, Any]]:
+        devices: List[Dict[str, Any]] = []
+        if not self._audio:
+            return devices
+
+        for i in range(self._audio.get_device_count()):
+            device_info = self._audio.get_device_info_by_index(i)
+            if device_info.get('maxInputChannels', 0) > 0:
+                devices.append({
+                    'index': i,
+                    'name': device_info.get('name'),
+                    'channels': device_info.get('maxInputChannels'),
+                    'sample_rate': int(device_info.get('defaultSampleRate', 0)),
+                })
+        return devices
+
+    def shutdown(self) -> None:
+        self.stop()
+        if self._audio:
+            self._audio.terminate()
+            self._audio = None
+
+
+class OpenCVCaptureBackend(VideoCaptureBackend):
+    """Hardware video capture implementation using OpenCV."""
+
+    def __init__(self) -> None:
+        self._cap = None
+
+    @property
+    def is_available(self) -> bool:
+        return cv2 is not None
+
+    def start(self, camera_index: int, width: int, height: int, fps: int) -> bool:
+        if cv2 is None:
+            return False
+
+        self._cap = cv2.VideoCapture(camera_index)
+        if not self._cap or not self._cap.isOpened():
+            self._cap = None
+            return False
+
+        self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        if fps > 0:
+            self._cap.set(cv2.CAP_PROP_FPS, fps)
+        return True
+
+    def read_frame(self) -> Optional[Any]:
+        if not self._cap:
+            return None
+        ret, frame = self._cap.read()
+        if not ret:
+            return None
+        return frame
+
+    def stop(self) -> None:
+        if self._cap:
+            self._cap.release()
+            self._cap = None
+
+    def list_cameras(self) -> List[Dict[str, Any]]:
+        cameras: List[Dict[str, Any]] = []
+        if cv2 is None:
+            return cameras
+
+        for i in range(10):
+            cap = cv2.VideoCapture(i)
+            try:
+                if cap.isOpened():
+                    cameras.append({
+                        'index': i,
+                        'name': f"Camera {i}",
+                        'width': int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                        'height': int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                        'fps': int(cap.get(cv2.CAP_PROP_FPS)),
+                    })
+            finally:
+                cap.release()
+        return cameras
 
 
 class AudioProcessor:
     """Processes audio input from microphone"""
-    
-    def __init__(self, sample_rate: int = 16000, chunk_size: int = 1024):
+
+    def __init__(
+        self,
+        sample_rate: int = 16000,
+        chunk_size: int = 1024,
+        capture_backend: Optional[AudioCaptureBackend] = None,
+    ):
         """
         Initialize the audio processor
         
@@ -47,13 +229,29 @@ class AudioProcessor:
         self.audio_queue = queue.Queue()
         self.is_recording = False
         self.recording_thread = None
-        
+
         # Speech recognition
-        self.recognizer = sr.Recognizer() if SENSORY_IMPORTS_AVAILABLE else None
-        
-        # Audio device info
-        self.audio = pyaudio.PyAudio() if SENSORY_IMPORTS_AVAILABLE else None
-        self.devices = self._get_audio_devices() if SENSORY_IMPORTS_AVAILABLE else []
+        self.recognizer = sr.Recognizer() if SENSORY_IMPORTS_AVAILABLE and sr else None
+
+        self.capture_backend: Optional[AudioCaptureBackend] = capture_backend
+        if self.capture_backend is None and SENSORY_IMPORTS_AVAILABLE and pyaudio:
+            self.capture_backend = PyAudioCaptureBackend()
+
+    @property
+    def is_available(self) -> bool:
+        return bool(self.capture_backend and self.capture_backend.is_available)
+
+    @property
+    def devices(self) -> List[Dict[str, Any]]:
+        if not self.capture_backend:
+            return []
+        return self.capture_backend.list_devices()
+
+    def use_backend(self, backend: Optional[AudioCaptureBackend]) -> None:
+        """Swap the capture backend implementation."""
+        if self.capture_backend and self.capture_backend is not backend:
+            self.capture_backend.shutdown()
+        self.capture_backend = backend
         
     def _get_audio_devices(self) -> List[Dict[str, Any]]:
         """Get available audio input devices"""
@@ -82,14 +280,14 @@ class AudioProcessor:
         Returns:
             Success flag
         """
-        if not SENSORY_IMPORTS_AVAILABLE:
-            logger.error("Audio processing dependencies not available")
+        if not self.is_available:
+            logger.error("No audio capture backend configured")
             return False
-            
+
         if self.is_recording:
             logger.warning("Already recording")
             return False
-        
+
         try:
             self.is_recording = True
             self.recording_thread = threading.Thread(
@@ -120,7 +318,10 @@ class AudioProcessor:
         if self.recording_thread:
             self.recording_thread.join(timeout=2.0)
             self.recording_thread = None
-        
+
+        if self.capture_backend:
+            self.capture_backend.stop()
+
         logger.info("Stopped audio recording")
         return True
     
@@ -131,67 +332,69 @@ class AudioProcessor:
         Args:
             device_index: Index of audio device to use
         """
-        stream = self.audio.open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=self.sample_rate,
-            input=True,
-            frames_per_buffer=self.chunk_size,
-            input_device_index=device_index
-        )
-        
+        if not self.capture_backend:
+            logger.error("No audio capture backend available")
+            self.is_recording = False
+            return
+
+        if not self.capture_backend.start(self.sample_rate, self.chunk_size, device_index=device_index):
+            logger.error("Failed to start audio backend stream")
+            self.is_recording = False
+            return
+
         # Buffer to accumulate audio chunks
-        audio_buffer = []
-        buffer_duration_sec = 0
+        audio_buffer: List[bytes] = []
+        buffer_duration_sec = 0.0
         target_duration_sec = 3  # Process in 3-second chunks
-        
-        while self.is_recording:
-            try:
-                # Read audio chunk
-                data = stream.read(self.chunk_size, exception_on_overflow=False)
-                audio_buffer.append(data)
-                
-                # Calculate buffer duration
-                buffer_duration_sec += self.chunk_size / self.sample_rate
-                
-                # If buffer reaches target duration, process it
-                if buffer_duration_sec >= target_duration_sec:
-                    # Process buffer (in a separate thread to avoid blocking)
-                    threading.Thread(
-                        target=self._process_audio_chunk,
-                        args=(b''.join(audio_buffer),),
-                        daemon=True
-                    ).start()
-                    
-                    # Clear buffer
-                    audio_buffer = []
-                    buffer_duration_sec = 0
-                    
-            except Exception as e:
-                logger.error(f"Error recording audio: {e}")
-                time.sleep(0.1)  # Prevent tight loop on errors
-        
-        # Clean up
-        stream.stop_stream()
-        stream.close()
+
+        try:
+            while self.is_recording:
+                try:
+                    data = self.capture_backend.read_chunk(self.chunk_size)
+                    if not data:
+                        time.sleep(0.01)
+                        continue
+
+                    audio_buffer.append(data)
+                    buffer_duration_sec += self.chunk_size / self.sample_rate
+
+                    if buffer_duration_sec >= target_duration_sec:
+                        threading.Thread(
+                            target=self._process_audio_chunk,
+                            args=(b''.join(audio_buffer),),
+                            daemon=True,
+                        ).start()
+
+                        audio_buffer = []
+                        buffer_duration_sec = 0.0
+
+                except Exception as e:
+                    logger.error(f"Error recording audio: {e}")
+                    time.sleep(0.1)
+        finally:
+            self.capture_backend.stop()
     
     def _process_audio_chunk(self, audio_data: bytes) -> None:
         """
         Process an audio chunk for speech recognition
-        
+
         Args:
             audio_data: Raw audio data
         """
         try:
+            if not self.recognizer or sr is None:
+                self._queue_raw_audio_event(audio_data)
+                return
+
             # Convert audio data to AudioData for speech recognition
             audio = sr.AudioData(audio_data, self.sample_rate, 2)  # 2 bytes per sample (16-bit)
-            
+
             # Try to recognize speech
             try:
                 text = self.recognizer.recognize_google(audio)
                 if text:
                     logger.debug(f"Recognized speech: {text}")
-                    
+
                     # Add to queue
                     self.audio_queue.put({
                         'type': 'speech',
@@ -204,21 +407,27 @@ class AudioProcessor:
                 self._extract_audio_features(audio_data)
             except Exception as e:
                 logger.error(f"Speech recognition error: {e}")
-                
+                self._queue_raw_audio_event(audio_data)
+
         except Exception as e:
             logger.error(f"Error processing audio chunk: {e}")
-    
+            self._queue_raw_audio_event(audio_data)
+
     def _extract_audio_features(self, audio_data: bytes) -> None:
         """
         Extract features from audio data when speech isn't detected
-        
+
         Args:
             audio_data: Raw audio data
         """
         try:
+            if np is None:
+                self._queue_raw_audio_event(audio_data)
+                return
+
             # Convert to numpy array for processing
             audio_np = np.frombuffer(audio_data, dtype=np.int16)
-            
+
             # Calculate basic audio features
             if len(audio_np) > 0:
                 rms = np.sqrt(np.mean(np.square(audio_np.astype(np.float32))))
@@ -238,6 +447,17 @@ class AudioProcessor:
                     })
         except Exception as e:
             logger.error(f"Error extracting audio features: {e}")
+            self._queue_raw_audio_event(audio_data)
+
+    def _queue_raw_audio_event(self, audio_data: bytes) -> None:
+        """Add a raw audio event to the queue for downstream processing."""
+        snippet = base64.b64encode(audio_data[: min(len(audio_data), self.chunk_size * 2)]).decode('utf-8') if audio_data else ""
+        self.audio_queue.put({
+            'type': 'audio_chunk',
+            'timestamp': datetime.now().isoformat(),
+            'sample_rate': self.sample_rate,
+            'preview': snippet,
+        })
     
     def get_next_audio_event(self, timeout: Optional[float] = 0.1) -> Optional[Dict[str, Any]]:
         """
@@ -254,11 +474,22 @@ class AudioProcessor:
         except queue.Empty:
             return None
 
+    def shutdown(self) -> None:
+        """Release backend resources."""
+        if self.capture_backend:
+            self.capture_backend.shutdown()
+
 
 class VideoProcessor:
     """Processes video input from webcam or other sources"""
-    
-    def __init__(self, width: int = 640, height: int = 480, fps: int = 5):
+
+    def __init__(
+        self,
+        width: int = 640,
+        height: int = 480,
+        fps: int = 5,
+        capture_backend: Optional[VideoCaptureBackend] = None,
+    ):
         """
         Initialize the video processor
         
@@ -276,12 +507,13 @@ class VideoProcessor:
         self.is_capturing = False
         self.capture_thread = None
         
-        # OpenCV capture object
-        self.cap = None
-        
+        self.capture_backend: Optional[VideoCaptureBackend] = capture_backend
+        if self.capture_backend is None and SENSORY_IMPORTS_AVAILABLE and cv2 is not None:
+            self.capture_backend = OpenCVCaptureBackend()
+
         # Initialize face detection if OpenCV is available
         self.face_cascade = None
-        if SENSORY_IMPORTS_AVAILABLE:
+        if SENSORY_IMPORTS_AVAILABLE and cv2 is not None:
             try:
                 # Load the pre-trained face cascade classifier
                 self.face_cascade = cv2.CascadeClassifier(
@@ -297,25 +529,10 @@ class VideoProcessor:
         Returns:
             List of camera information dictionaries
         """
-        if not SENSORY_IMPORTS_AVAILABLE:
+        if not self.capture_backend:
             return []
-            
-        cameras = []
-        for i in range(10):  # Try up to 10 camera indices
-            try:
-                cap = cv2.VideoCapture(i)
-                if cap.isOpened():
-                    cameras.append({
-                        'index': i,
-                        'name': f"Camera {i}",
-                        'width': int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                        'height': int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-                        'fps': int(cap.get(cv2.CAP_PROP_FPS))
-                    })
-                    cap.release()
-            except Exception:
-                pass
-        return cameras
+
+        return self.capture_backend.list_cameras()
     
     def start_capture(self, camera_index: int = 0) -> bool:
         """
@@ -327,25 +544,20 @@ class VideoProcessor:
         Returns:
             Success flag
         """
-        if not SENSORY_IMPORTS_AVAILABLE:
-            logger.error("Video processing dependencies not available")
+        if not self.capture_backend or not self.capture_backend.is_available:
+            logger.error("No video capture backend configured")
             return False
-            
+
         if self.is_capturing:
             logger.warning("Already capturing video")
             return False
-        
+
         try:
             # Initialize camera
-            self.cap = cv2.VideoCapture(camera_index)
-            if not self.cap.isOpened():
+            if not self.capture_backend.start(camera_index, self.width, self.height, self.fps):
                 logger.error(f"Failed to open camera {camera_index}")
                 return False
-                
-            # Set resolution
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-            
+
             # Start capture thread
             self.is_capturing = True
             self.capture_thread = threading.Thread(
@@ -359,9 +571,8 @@ class VideoProcessor:
             
         except Exception as e:
             logger.error(f"Error starting video capture: {e}")
-            if self.cap:
-                self.cap.release()
-                self.cap = None
+            if self.capture_backend:
+                self.capture_backend.stop()
             self.is_capturing = False
             return False
     
@@ -381,9 +592,8 @@ class VideoProcessor:
             self.capture_thread.join(timeout=2.0)
             self.capture_thread = None
         
-        if self.cap:
-            self.cap.release()
-            self.cap = None
+        if self.capture_backend:
+            self.capture_backend.stop()
             
         logger.info("Stopped video capture")
         return True
@@ -392,17 +602,21 @@ class VideoProcessor:
         """Thread function for continuous video capture"""
         last_frame_time = 0
         
-        while self.is_capturing and self.cap and self.cap.isOpened():
+        while self.is_capturing:
             try:
                 # Maintain target frame rate
                 current_time = time.time()
                 if current_time - last_frame_time < self.frame_interval:
                     time.sleep(0.001)  # Short sleep to prevent CPU spin
                     continue
-                
+
                 # Capture frame
-                ret, frame = self.cap.read()
-                if not ret:
+                if not self.capture_backend:
+                    logger.error("No video capture backend available during capture")
+                    break
+
+                frame = self.capture_backend.read_frame()
+                if frame is None:
                     logger.error("Failed to capture frame")
                     time.sleep(0.1)  # Prevent tight loop on errors
                     continue
@@ -410,7 +624,7 @@ class VideoProcessor:
                 # Process the frame in a separate thread
                 threading.Thread(
                     target=self._process_frame,
-                    args=(frame.copy(),),  # Copy to prevent race conditions
+                    args=(frame.copy() if hasattr(frame, 'copy') else frame,),  # Copy to prevent race conditions
                     daemon=True
                 ).start()
                 
@@ -419,73 +633,74 @@ class VideoProcessor:
             except Exception as e:
                 logger.error(f"Error in video capture: {e}")
                 time.sleep(0.1)  # Prevent tight loop on errors
-    
+
+        if self.capture_backend:
+            self.capture_backend.stop()
+
     def _process_frame(self, frame: Any) -> None:
         """
         Process a captured video frame
-        
+
         Args:
             frame: Video frame to process
         """
         try:
-            # Detect faces
-            faces = []
-            if self.face_cascade is not None:
-                # Convert to grayscale for face detection
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                
-                # Detect faces
-                detected_faces = self.face_cascade.detectMultiScale(
-                    gray, 
-                    scaleFactor=1.1, 
-                    minNeighbors=5, 
-                    minSize=(30, 30)
-                )
-                
-                # Process detected faces
-                for (x, y, w, h) in detected_faces:
-                    faces.append({
-                        'x': int(x),
-                        'y': int(y),
-                        'width': int(w),
-                        'height': int(h)
-                    })
-            
-            # Extract basic image features
-            # Calculate average brightness
-            brightness = np.mean(frame)
-            
-            # Calculate color distribution
-            if frame.shape[2] == 3:  # Check if frame has 3 color channels
-                color_means = [
-                    float(np.mean(frame[:, :, 0])),  # Blue
-                    float(np.mean(frame[:, :, 1])),  # Green
-                    float(np.mean(frame[:, :, 2]))   # Red
-                ]
+            event: Dict[str, Any]
+            if np is not None and cv2 is not None and hasattr(frame, "shape"):
+                faces = []
+                if self.face_cascade is not None:
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    detected_faces = self.face_cascade.detectMultiScale(
+                        gray,
+                        scaleFactor=1.1,
+                        minNeighbors=5,
+                        minSize=(30, 30)
+                    )
+
+                    for (x, y, w, h) in detected_faces:
+                        faces.append({
+                            'x': int(x),
+                            'y': int(y),
+                            'width': int(w),
+                            'height': int(h)
+                        })
+
+                brightness = float(np.mean(frame))
+                if len(getattr(frame, "shape", [])) >= 3 and frame.shape[2] == 3:
+                    color_means = [
+                        float(np.mean(frame[:, :, 0])),
+                        float(np.mean(frame[:, :, 1])),
+                        float(np.mean(frame[:, :, 2]))
+                    ]
+                else:
+                    color_means = [brightness]
+
+                thumbnail = cv2.resize(frame, (160, 120))
+                _, jpeg_data = cv2.imencode('.jpg', thumbnail, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                thumbnail_b64 = base64.b64encode(jpeg_data).decode('utf-8')
+                resolution = {
+                    'width': int(frame.shape[1]),
+                    'height': int(frame.shape[0])
+                }
             else:
-                color_means = [float(brightness)]
-                
-            # Create a thumbnail for visualizing
-            thumbnail = cv2.resize(frame, (160, 120))
-            _, jpeg_data = cv2.imencode('.jpg', thumbnail, [cv2.IMWRITE_JPEG_QUALITY, 70])
-            thumbnail_b64 = base64.b64encode(jpeg_data).decode('utf-8')
-            
-            # Create event object
+                faces = []
+                color_means = []
+                brightness = 0.0
+                thumbnail_b64 = None
+                resolution = {}
+
             event = {
                 'type': 'video_frame',
                 'timestamp': datetime.now().isoformat(),
                 'features': {
-                    'brightness': float(brightness),
+                    'brightness': brightness,
                     'color_means': color_means,
                     'faces': faces,
-                    'resolution': {
-                        'width': frame.shape[1],
-                        'height': frame.shape[0]
-                    }
+                    'resolution': resolution
                 },
                 'thumbnail': thumbnail_b64
             }
-            
+
             # Add to queue (non-blocking to prevent slowdowns)
             try:
                 self.video_queue.put(event, block=False)
@@ -503,7 +718,7 @@ class VideoProcessor:
     def get_next_video_event(self, timeout: Optional[float] = 0.1) -> Optional[Dict[str, Any]]:
         """
         Get the next video event from the queue
-        
+
         Args:
             timeout: Timeout in seconds (None to block indefinitely)
             
@@ -515,14 +730,25 @@ class VideoProcessor:
         except queue.Empty:
             return None
 
+    def use_backend(self, backend: Optional[VideoCaptureBackend]) -> None:
+        """Swap the capture backend implementation."""
+        if self.capture_backend and self.capture_backend is not backend:
+            self.capture_backend.stop()
+        self.capture_backend = backend
+
+    def shutdown(self) -> None:
+        """Release backend resources."""
+        if self.capture_backend:
+            self.capture_backend.stop()
+
 
 class SensoryInputModule:
     """Module for processing sensory inputs (audio, video, etc.)"""
     
     def __init__(self):
         """Initialize the sensory input module"""
-        self.audio_processor = AudioProcessor() if SENSORY_IMPORTS_AVAILABLE else None
-        self.video_processor = VideoProcessor() if SENSORY_IMPORTS_AVAILABLE else None
+        self.audio_processor = AudioProcessor()
+        self.video_processor = VideoProcessor()
         
         # Callbacks for processing events
         self.event_callbacks = []
@@ -535,7 +761,11 @@ class SensoryInputModule:
         self.event_buffer = []
         self.buffer_lock = threading.Lock()
         
-        logger.info(f"Initialized SensoryInputModule (dependencies available: {SENSORY_IMPORTS_AVAILABLE})")
+        logger.info(
+            "Initialized SensoryInputModule (audio backend available: %s, video backend available: %s)",
+            self.audio_processor.is_available,
+            bool(self.video_processor.capture_backend and self.video_processor.capture_backend.is_available),
+        )
     
     def get_tools(self) -> Dict[str, Any]:
         """Get tools provided by this module"""
@@ -641,12 +871,12 @@ class SensoryInputModule:
         Returns:
             Dictionary with result information
         """
-        if not SENSORY_IMPORTS_AVAILABLE or not self.audio_processor:
+        if not self.audio_processor.is_available:
             return {
                 "success": False,
-                "error": "Audio processing dependencies not available"
+                "error": "Audio capture backend not available"
             }
-        
+
         success = self.audio_processor.start_recording(device_index)
         return {
             "success": success,
@@ -660,12 +890,12 @@ class SensoryInputModule:
         Returns:
             Dictionary with result information
         """
-        if not SENSORY_IMPORTS_AVAILABLE or not self.audio_processor:
+        if not self.audio_processor.is_available:
             return {
                 "success": False,
-                "error": "Audio processing dependencies not available"
+                "error": "Audio capture backend not available"
             }
-        
+
         success = self.audio_processor.stop_recording()
         return {
             "success": success,
@@ -679,12 +909,12 @@ class SensoryInputModule:
         Returns:
             Dictionary with audio device information
         """
-        if not SENSORY_IMPORTS_AVAILABLE or not self.audio_processor:
+        if not self.audio_processor.is_available:
             return {
                 "success": False,
-                "error": "Audio processing dependencies not available"
+                "error": "Audio capture backend not available"
             }
-        
+
         devices = self.audio_processor.devices
         return {
             "success": True,
@@ -702,12 +932,13 @@ class SensoryInputModule:
         Returns:
             Dictionary with result information
         """
-        if not SENSORY_IMPORTS_AVAILABLE or not self.video_processor:
+        backend = self.video_processor.capture_backend
+        if not backend or not backend.is_available:
             return {
                 "success": False,
-                "error": "Video processing dependencies not available"
+                "error": "Video capture backend not available"
             }
-        
+
         success = self.video_processor.start_capture(camera_index)
         return {
             "success": success,
@@ -721,12 +952,13 @@ class SensoryInputModule:
         Returns:
             Dictionary with result information
         """
-        if not SENSORY_IMPORTS_AVAILABLE or not self.video_processor:
+        backend = self.video_processor.capture_backend
+        if not backend or not backend.is_available:
             return {
                 "success": False,
-                "error": "Video processing dependencies not available"
+                "error": "Video capture backend not available"
             }
-        
+
         success = self.video_processor.stop_capture()
         return {
             "success": success,
@@ -736,22 +968,72 @@ class SensoryInputModule:
     def list_cameras(self) -> Dict[str, Any]:
         """
         List available camera devices
-        
+
         Returns:
             Dictionary with camera information
         """
-        if not SENSORY_IMPORTS_AVAILABLE or not self.video_processor:
+        backend = self.video_processor.capture_backend
+        if not backend:
             return {
                 "success": False,
-                "error": "Video processing dependencies not available"
+                "error": "Video capture backend not available"
             }
-        
+
         cameras = self.video_processor.list_cameras()
         return {
             "success": True,
             "cameras": cameras,
             "count": len(cameras)
         }
+
+    def configure_audio_backend(self, backend: Optional[AudioCaptureBackend]) -> Dict[str, Any]:
+        """Attach a new audio backend implementation."""
+        self.audio_processor.use_backend(backend)
+        return {
+            "success": True,
+            "available": self.audio_processor.is_available
+        }
+
+    def configure_video_backend(self, backend: Optional[VideoCaptureBackend]) -> Dict[str, Any]:
+        """Attach a new video backend implementation."""
+        self.video_processor.use_backend(backend)
+        return {
+            "success": True,
+            "available": bool(self.video_processor.capture_backend and self.video_processor.capture_backend.is_available)
+        }
+
+    def check_audio_availability(self) -> Dict[str, Any]:
+        """Return audio backend availability information."""
+        devices = self.audio_processor.devices if self.audio_processor.is_available else []
+        return {
+            "available": self.audio_processor.is_available,
+            "device_count": len(devices),
+            "devices": devices
+        }
+
+    def check_video_availability(self) -> Dict[str, Any]:
+        """Return video backend availability information."""
+        backend = self.video_processor.capture_backend
+        cameras = backend.list_cameras() if backend else []
+        return {
+            "available": bool(backend and backend.is_available),
+            "camera_count": len(cameras),
+            "cameras": cameras
+        }
+
+    def add_test_event(self, event: Dict[str, Any]) -> None:
+        """Inject a synthetic event for testing or simulation."""
+        event.setdefault("timestamp", datetime.now().isoformat())
+        with self.buffer_lock:
+            self.event_buffer.append(event)
+            if len(self.event_buffer) > 100:
+                self.event_buffer = self.event_buffer[-100:]
+
+        for callback in list(self.event_callbacks):
+            try:
+                callback(event)
+            except Exception as exc:
+                logger.error(f"Error in injected event callback: {exc}")
     
     def register_event_callback(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """
@@ -791,13 +1073,7 @@ class SensoryInputModule:
                 "success": False,
                 "message": "Event processing already running"
             }
-        
-        if not SENSORY_IMPORTS_AVAILABLE:
-            return {
-                "success": False,
-                "error": "Sensory processing dependencies not available"
-            }
-        
+
         self.is_processing = True
         self.processing_thread = threading.Thread(
             target=self._event_processing_thread,
@@ -885,18 +1161,25 @@ class SensoryInputModule:
     def get_latest_sensory_events(self, max_events: int = 10) -> Dict[str, Any]:
         """
         Get the latest sensory events (audio, video, etc.)
-        
+
         Args:
             max_events: Maximum number of events to return
-            
+
         Returns:
             Dictionary with sensory events
         """
         with self.buffer_lock:
             events = self.event_buffer[-max_events:] if self.event_buffer else []
-        
+
         return {
             "success": True,
             "events": events,
             "count": len(events)
         }
+
+    def shutdown(self) -> None:
+        """Release resources used by the sensory processors."""
+        if self.audio_processor:
+            self.audio_processor.shutdown()
+        if self.video_processor:
+            self.video_processor.shutdown()

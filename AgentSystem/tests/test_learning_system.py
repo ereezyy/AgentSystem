@@ -4,16 +4,48 @@ Learning System Tests
 Unit tests for the learning system components.
 """
 
+import importlib.util
 import unittest
 import tempfile
 import shutil
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from AgentSystem.modules.knowledge_manager import KnowledgeManager
-from AgentSystem.modules.web_researcher import WebResearcher
-from AgentSystem.modules.code_modifier import CodeModifier
-from AgentSystem.modules.learning_agent import LearningAgent
+MODULE_DIR = Path(__file__).resolve().parents[1] / "modules"
+
+
+def _load_module(module_name: str):
+    module_path = MODULE_DIR / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(f"test_{module_name}", module_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+knowledge_manager_module = _load_module("knowledge_manager")
+learning_agent_module = _load_module("learning_agent")
+
+KnowledgeManager = knowledge_manager_module.KnowledgeManager
+LearningAgent = learning_agent_module.LearningAgent
+
+try:
+    web_researcher_module = _load_module("web_researcher")
+    WebResearcher = web_researcher_module.WebResearcher
+except Exception:  # pragma: no cover - optional dependency path
+    WebResearcher = None
+
+WEB_IMPORTS_AVAILABLE = bool(
+    getattr(web_researcher_module, "WEB_IMPORTS_AVAILABLE", False)
+) if 'web_researcher_module' in locals() else False
+
+try:
+    code_modifier_module = _load_module("code_modifier")
+    CodeModifier = code_modifier_module.CodeModifier
+except Exception:  # pragma: no cover - optional dependency path
+    CodeModifier = None
+
+CODE_MODIFIER_AVAILABLE = CodeModifier is not None
 
 class TestKnowledgeManager(unittest.TestCase):
     def setUp(self):
@@ -66,6 +98,7 @@ class TestKnowledgeManager(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertIn("Python", results[0]["content"])
 
+@unittest.skipIf(not WEB_IMPORTS_AVAILABLE, "Web researcher dependencies unavailable")
 class TestWebResearcher(unittest.TestCase):
     def setUp(self):
         """Set up test web researcher"""
@@ -101,6 +134,7 @@ class TestWebResearcher(unittest.TestCase):
             self.assertEqual(results[0]["url"], "http://test.com")
             self.assertEqual(results[0]["snippet"], "Test snippet")
 
+@unittest.skipIf(not CODE_MODIFIER_AVAILABLE, "Code modifier dependencies unavailable")
 class TestCodeModifier(unittest.TestCase):
     def setUp(self):
         """Set up test code modifier"""
@@ -167,12 +201,24 @@ class TestLearningAgent(unittest.TestCase):
         """Test background learning queue"""
         self.agent.start_learning()
         self.assertTrue(self.agent.learning_thread.is_alive())
-        
+
         self.agent.queue_research("test topic")
         self.assertEqual(self.agent.learning_queue.qsize(), 1)
-        
+
         self.agent.stop_learning()
         self.assertFalse(self.agent.learning_active)
+
+    def test_reward_tracking_metrics(self):
+        """Ensure reward metrics update when feedback is recorded."""
+        baseline = self.agent.get_learning_feedback()
+        self.assertEqual(baseline["cumulative_reward"], 0.0)
+        self.assertEqual(baseline["total_tasks"], 0)
+
+        self.agent.submit_feedback(0.5, note="good progress")
+        updated = self.agent.get_learning_feedback()
+        self.assertAlmostEqual(updated["cumulative_reward"], 0.5)
+        self.assertEqual(updated["total_tasks"], 1)
+        self.assertGreaterEqual(updated["success_rate"], 0.0)
 
 def main():
     unittest.main()
