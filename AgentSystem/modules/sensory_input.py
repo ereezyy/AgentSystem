@@ -27,7 +27,10 @@ try:
     from PIL import Image
     SENSORY_IMPORTS_AVAILABLE = True
 except ImportError:
-    logger.warning("Sensory input dependencies not available. Install with: pip install opencv-python numpy pyaudio SpeechRecognition pillow")
+    logger.warning(
+        "Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) "
+        "and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow"
+    )
     SENSORY_IMPORTS_AVAILABLE = False
 
 
