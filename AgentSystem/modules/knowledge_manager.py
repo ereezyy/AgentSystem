@@ -14,6 +14,7 @@ import sqlite3
 import os
 import time
 import json
+from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 try:
@@ -547,6 +548,68 @@ class KnowledgeManager:
             "sources": supporting[:min_sources],
             "average_trust": average_trust,
         }
+
+    def integrity_check(self) -> Dict[str, Any]:
+        """Validate database health and surface detected issues."""
+
+        if not self.conn:
+            self.init_database()
+
+        engine = "postgres" if self.use_postgres else "sqlite"
+        result: Dict[str, Any] = {"engine": engine}
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+                result["status"] = "ok"
+            else:
+                cursor.execute("PRAGMA integrity_check")
+                rows = cursor.fetchall()
+                findings = [row[0] if isinstance(row, (list, tuple)) else row for row in rows]
+                status = findings[0] if findings else "unknown"
+                result["status"] = "ok" if status == "ok" else "error"
+                if status != "ok":
+                    result["details"] = findings
+            return result
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Integrity check failed: %s", exc)
+            result["status"] = "error"
+            result["error"] = str(exc)
+            return result
+
+    def recover_integrity(self) -> Dict[str, Any]:
+        """Attempt to recover from detected integrity issues safely."""
+
+        engine = "postgres" if self.use_postgres else "sqlite"
+        outcome: Dict[str, Any] = {"engine": engine}
+
+        try:
+            if self.conn:
+                self.conn.close()
+        except Exception as exc:  # pragma: no cover - defensive cleanup
+            logger.warning("Failed to close connection during recovery: %s", exc)
+        finally:
+            self.conn = None
+
+        backup_path: Optional[Path] = None
+        if not self.use_postgres and self.db_path not in (None, ":memory:"):
+            candidate = Path(str(self.db_path))
+            if candidate.exists():
+                backup_path = candidate.with_name(f"{candidate.name}.corrupt.{int(time.time())}")
+                try:
+                    candidate.rename(backup_path)
+                except OSError as exc:  # pragma: no cover - filesystem edge case
+                    logger.error("Failed to back up corrupt database: %s", exc)
+                    backup_path = None
+
+        self.init_database()
+
+        outcome["status"] = "reset"
+        if backup_path:
+            outcome["backup_path"] = str(backup_path)
+        return outcome
 
     def update_source_trust(self, source: str, success: bool, weight: float = 1.0) -> None:
         """Adjust trust metrics for a given information source."""

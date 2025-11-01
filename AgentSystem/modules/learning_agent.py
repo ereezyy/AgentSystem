@@ -311,6 +311,8 @@ class ResilienceManager:
 
     def __init__(self) -> None:
         self._restart_hooks: List[Callable[[], None]] = []
+        self._health_checks: Dict[str, Dict[str, Any]] = {}
+        self._failure_counts: Dict[str, int] = {}
 
     def register_restart(self, hook: Callable[[], None]) -> None:
         self._restart_hooks.append(hook)
@@ -325,6 +327,84 @@ class ResilienceManager:
             except Exception as exc:
                 logger.error("Restart hook failed: %s", exc)
         starter()
+
+    def register_health_check(
+        self,
+        name: str,
+        check: Callable[[], Any],
+        *,
+        recover: Optional[Callable[[], Any]] = None,
+        threshold: int = 3,
+    ) -> None:
+        self._health_checks[name] = {
+            "check": check,
+            "recover": recover,
+            "threshold": max(1, int(threshold)) if threshold else 3,
+        }
+
+    def run_health_checks(self) -> Dict[str, Dict[str, Any]]:
+        outcomes: Dict[str, Dict[str, Any]] = {}
+        for name, config in self._health_checks.items():
+            check_callable = config.get("check")
+            try:
+                status = check_callable() if callable(check_callable) else None
+                if isinstance(status, dict):
+                    result = dict(status)
+                    result.setdefault("status", "ok")
+                else:
+                    result = {
+                        "status": "ok" if status in (None, True, "ok") else "unknown",
+                        "result": status,
+                    }
+            except Exception as exc:  # pragma: no cover - exercised via tests with recoveries
+                logger.error("Health check %s failed: %s", name, exc)
+                result = {"status": "error", "error": str(exc)}
+                status = None
+            outcomes[name] = result
+
+            status_value = result.get("status")
+            if status_value not in {"ok", "pass"}:
+                recover_callable = config.get("recover")
+                if recover_callable:
+                    try:
+                        recover_callable()
+                        result["recovered"] = True
+                    except Exception as recover_exc:  # pragma: no cover - defensive logging
+                        logger.error("Recovery for %s failed: %s", name, recover_exc)
+                        result["recovered"] = False
+        return outcomes
+
+    def record_failure(self, component: str, *, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        config = self._health_checks.get(component, {})
+        count = self._failure_counts.get(component, 0) + 1
+        self._failure_counts[component] = count
+        threshold = config.get("threshold", 3)
+        triggered = count >= threshold
+        if triggered:
+            self._failure_counts[component] = 0
+            recover_callable = config.get("recover")
+            if recover_callable:
+                try:
+                    recover_callable()
+                except Exception as exc:  # pragma: no cover - defensive logging
+                    logger.error("Failure recovery for %s failed: %s", component, exc)
+                    triggered = False
+        summary = {
+            "component": component,
+            "count": count,
+            "threshold": threshold,
+            "triggered": triggered,
+        }
+        if context:
+            summary["context"] = context
+        return summary
+
+    def record_success(self, component: str) -> None:
+        if component in self._failure_counts:
+            self._failure_counts[component] = 0
+
+    def get_failure_count(self, component: str) -> int:
+        return self._failure_counts.get(component, 0)
 
 
 class InferenceRouter:
@@ -533,6 +613,20 @@ class LearningAgent:
 
         self.mesh.register("Observer", lambda msg: logger.debug("Observer received %s", msg))
         self.resilience.register_restart(self.start_learning)
+        self.resilience.register_health_check(
+            "knowledge_base",
+            self.knowledge_manager.integrity_check,
+            recover=self.knowledge_manager.recover_integrity,
+            threshold=1,
+        )
+        self.resilience.register_health_check(
+            "learning_task",
+            lambda: {
+                "status": "active" if self.learning_active else "idle",
+                "queue_size": self.learning_queue.qsize(),
+            },
+            threshold=3,
+        )
 
     def start_learning(self) -> None:
         """Start background learning thread"""
@@ -644,6 +738,22 @@ class LearningAgent:
                 self.meta_layer.record_outcome({"reward": reward, "task": task_type, "success": task_success})
                 if task_type == "research" and task_success:
                     self.mesh.broadcast({"event": "research_complete", "details": task_details})
+                if task_success:
+                    self.resilience.record_success("learning_task")
+                else:
+                    failure_state = self.resilience.record_failure(
+                        "learning_task",
+                        context={
+                            "task": task_type,
+                            "details": task_details,
+                            "processing_time": processing_time,
+                        },
+                    )
+                    if failure_state.get("triggered"):
+                        logger.warning(
+                            "Repeated learning task failures triggered recovery: %s",
+                            failure_state,
+                        )
 
             except Exception as e:
                 logger.error(f"Critical error in learning loop: {e}")
@@ -1288,6 +1398,11 @@ class LearningAgent:
         }
         stats["performance"] = self.get_learning_feedback()
         return stats
+
+    def perform_health_checks(self) -> Dict[str, Any]:
+        """Run registered resilience health checks."""
+
+        return self.resilience.run_health_checks()
         
     def shutdown(self) -> None:
         """Cleanup and shutdown agent"""

@@ -146,6 +146,15 @@ class TestKnowledgeManager(unittest.TestCase):
         self.assertLess(reduced["score"], increased["score"])
         self.assertEqual(reduced["failure_count"], 1)
 
+    def test_integrity_check_and_recovery(self):
+        status = self.knowledge_manager.integrity_check()
+        self.assertEqual(status["status"], "ok")
+
+        recovery = self.knowledge_manager.recover_integrity()
+        self.assertEqual(recovery["status"], "reset")
+        post = self.knowledge_manager.integrity_check()
+        self.assertEqual(post["status"], "ok")
+
 @unittest.skipIf(not WEB_IMPORTS_AVAILABLE, "Web researcher dependencies unavailable")
 class TestWebResearcher(unittest.TestCase):
     def setUp(self):
@@ -443,6 +452,36 @@ class TestLearningAgent(unittest.TestCase):
         record = json.loads(lines[0])
         self.assertEqual(record["prompt_id"], "research")
         self.assertAlmostEqual(record["reward"], 0.25)
+
+    def test_resilience_health_checks(self):
+        checks = self.agent.perform_health_checks()
+        self.assertIn("knowledge_base", checks)
+        self.assertEqual(checks["knowledge_base"]["status"], "ok")
+
+        recoveries = {"count": 0}
+
+        def failing_check():
+            raise RuntimeError("boom")
+
+        def recovery_hook():
+            recoveries["count"] += 1
+
+        self.agent.resilience.register_health_check(
+            "dummy",
+            failing_check,
+            recover=recovery_hook,
+            threshold=2,
+        )
+
+        outcome = self.agent.resilience.run_health_checks()
+        self.assertEqual(outcome["dummy"]["status"], "error")
+        first = self.agent.resilience.record_failure("dummy")
+        self.assertFalse(first["triggered"])
+        second = self.agent.resilience.record_failure("dummy")
+        self.assertTrue(second["triggered"])
+        self.assertGreaterEqual(recoveries["count"], 1)
+        self.agent.resilience.record_success("dummy")
+        self.assertEqual(self.agent.resilience.get_failure_count("dummy"), 0)
 
 def main():
     unittest.main()
