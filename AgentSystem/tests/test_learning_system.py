@@ -4,16 +4,51 @@ Learning System Tests
 Unit tests for the learning system components.
 """
 
+import json
+import importlib.util
 import unittest
 import tempfile
 import shutil
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 from unittest.mock import Mock, patch
 
-from AgentSystem.modules.knowledge_manager import KnowledgeManager
-from AgentSystem.modules.web_researcher import WebResearcher
-from AgentSystem.modules.code_modifier import CodeModifier
-from AgentSystem.modules.learning_agent import LearningAgent
+MODULE_DIR = Path(__file__).resolve().parents[1] / "modules"
+
+
+def _load_module(module_name: str):
+    module_path = MODULE_DIR / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(f"test_{module_name}", module_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+knowledge_manager_module = _load_module("knowledge_manager")
+learning_agent_module = _load_module("learning_agent")
+
+KnowledgeManager = knowledge_manager_module.KnowledgeManager
+LearningAgent = learning_agent_module.LearningAgent
+ReflexRule = learning_agent_module.ReflexRule
+
+try:
+    web_researcher_module = _load_module("web_researcher")
+    WebResearcher = web_researcher_module.WebResearcher
+except Exception:  # pragma: no cover - optional dependency path
+    WebResearcher = None
+
+WEB_IMPORTS_AVAILABLE = bool(
+    getattr(web_researcher_module, "WEB_IMPORTS_AVAILABLE", False)
+) if 'web_researcher_module' in locals() else False
+
+try:
+    code_modifier_module = _load_module("code_modifier")
+    CodeModifier = code_modifier_module.CodeModifier
+except Exception:  # pragma: no cover - optional dependency path
+    CodeModifier = None
+
+CODE_MODIFIER_AVAILABLE = CodeModifier is not None
 
 class TestKnowledgeManager(unittest.TestCase):
     def setUp(self):
@@ -59,13 +94,68 @@ class TestKnowledgeManager(unittest.TestCase):
             content="JavaScript runs in browsers",
             category="programming"
         )
-        
+
         # Search
         results = self.knowledge_manager.search_facts("Python")
-        
+
         self.assertEqual(len(results), 1)
         self.assertIn("Python", results[0]["content"])
 
+    def test_episodic_memory_and_fusion(self):
+        episode_id = self.knowledge_manager.add_episode(
+            event="Investigated water behaviour",
+            outcome="understood flow",
+            emotion="curious",
+            salience=0.9,
+            context={"topic": "water"},
+        )
+        self.assertGreater(episode_id, 0)
+
+        fused = self.knowledge_manager.fusion_search("water")
+        self.assertTrue(fused["episodes"])
+
+        promoted = self.knowledge_manager.consolidate_memories(limit=1)
+        self.assertIsInstance(promoted, list)
+
+    def test_knowledge_synthesis_and_verification(self):
+        self.knowledge_manager.add_fact("Water flows downhill", category="science")
+        self.knowledge_manager.add_fact("Water flows through rivers", category="science")
+
+        graph = self.knowledge_manager.synthesize_knowledge("water")
+        self.assertIn("nodes", graph)
+        self.assertTrue(graph["nodes"])
+
+        hypotheses = self.knowledge_manager.generate_hypotheses("water")
+        self.assertTrue(hypotheses)
+
+        verdict = self.knowledge_manager.verify_claim("Water flows")
+        self.assertIn(verdict["verdict"], {"supported", "partial", "unknown"})
+
+    def test_source_trust_calibration(self):
+        source = "http://example.com"
+        baseline = self.knowledge_manager.get_source_trust(source)
+        self.assertEqual(baseline["score"], 0.5)
+
+        self.knowledge_manager.update_source_trust(source, success=True)
+        increased = self.knowledge_manager.get_source_trust(source)
+        self.assertGreater(increased["score"], baseline["score"])
+        self.assertEqual(increased["success_count"], 1)
+
+        self.knowledge_manager.update_source_trust(source, success=False, weight=2.0)
+        reduced = self.knowledge_manager.get_source_trust(source)
+        self.assertLess(reduced["score"], increased["score"])
+        self.assertEqual(reduced["failure_count"], 1)
+
+    def test_integrity_check_and_recovery(self):
+        status = self.knowledge_manager.integrity_check()
+        self.assertEqual(status["status"], "ok")
+
+        recovery = self.knowledge_manager.recover_integrity()
+        self.assertEqual(recovery["status"], "reset")
+        post = self.knowledge_manager.integrity_check()
+        self.assertEqual(post["status"], "ok")
+
+@unittest.skipIf(not WEB_IMPORTS_AVAILABLE, "Web researcher dependencies unavailable")
 class TestWebResearcher(unittest.TestCase):
     def setUp(self):
         """Set up test web researcher"""
@@ -101,6 +191,7 @@ class TestWebResearcher(unittest.TestCase):
             self.assertEqual(results[0]["url"], "http://test.com")
             self.assertEqual(results[0]["snippet"], "Test snippet")
 
+@unittest.skipIf(not CODE_MODIFIER_AVAILABLE, "Code modifier dependencies unavailable")
 class TestCodeModifier(unittest.TestCase):
     def setUp(self):
         """Set up test code modifier"""
@@ -167,12 +258,230 @@ class TestLearningAgent(unittest.TestCase):
         """Test background learning queue"""
         self.agent.start_learning()
         self.assertTrue(self.agent.learning_thread.is_alive())
-        
+
         self.agent.queue_research("test topic")
         self.assertEqual(self.agent.learning_queue.qsize(), 1)
-        
+
         self.agent.stop_learning()
         self.assertFalse(self.agent.learning_active)
+
+    def test_reward_tracking_metrics(self):
+        """Ensure reward metrics update when feedback is recorded."""
+        baseline = self.agent.get_learning_feedback()
+        self.assertEqual(baseline["cumulative_reward"], 0.0)
+        self.assertEqual(baseline["total_tasks"], 0)
+
+        self.agent.submit_feedback(0.5, note="good progress")
+        updated = self.agent.get_learning_feedback()
+        self.assertAlmostEqual(updated["cumulative_reward"], 0.5)
+        self.assertEqual(updated["total_tasks"], 1)
+        self.assertGreaterEqual(updated["success_rate"], 0.0)
+
+    def test_cognition_layers_and_meta_review(self):
+        triggered: List[Dict[str, Any]] = []
+        self.agent.cognition.reflex.register_rule(
+            ReflexRule(trigger="alert", action=lambda event: triggered.append(event))
+        )
+        response = self.agent.process_event({"type": "alert", "reward": 0.2})
+        self.assertTrue(response["handled"])
+        self.assertTrue(triggered)
+
+        planning = self.agent.process_event({"type": "observation", "goal": "research"})
+        self.assertIn("plan", planning)
+
+        review = self.agent.meta_review()
+        self.assertIn("status", review)
+
+    def test_react_reasoning_and_self_play(self):
+        self.agent.knowledge_manager.add_fact("Water analysis complete", category="research")
+        reason = self.agent.react_reason("water")
+        self.assertIn("trace", reason)
+        self.assertIn("memory", reason)
+
+        simulation = self.agent.simulate_self_play("maze-run")
+        self.assertIn(simulation["outcome"], {"win", "loss"})
+
+    def test_distributed_mesh_and_routing(self):
+        messages: List[Dict[str, Any]] = []
+        self.agent.join_mesh("Planner", lambda payload: messages.append(payload))
+        self.agent.share_mesh_state("goal", "expand-knowledge")
+        self.agent.mesh.broadcast({"event": "test"})
+        self.assertTrue(messages)
+        self.assertEqual(self.agent.mesh.get_shared_state("goal"), "expand-knowledge")
+
+        self.agent.register_local_inference(lambda task, payload: {"response": "ok"})
+        self.assertEqual(self.agent.choose_inference_path("analysis"), "local")
+
+    def test_hybrid_inference_execution(self):
+        calls = {"local": 0, "cloud": 0}
+
+        def local_handler(task: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+            calls["local"] += 1
+            if task == "fail-local":
+                raise RuntimeError("local offline")
+            return {"response": f"local::{payload['prompt']}", "reward": 0.25}
+
+        def cloud_handler(task: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+            calls["cloud"] += 1
+            return {"response": f"cloud::{payload['prompt']}", "reward": 0.1}
+
+        self.agent.register_local_inference(local_handler)
+        self.agent.register_cloud_inference(cloud_handler)
+
+        first = self.agent.generate_inference("analysis", "diagnose")
+        self.assertEqual(first["path"], "local")
+        self.assertIn("local::diagnose", first["result"]["response"])
+        self.assertEqual(calls["local"], 1)
+
+        fallback = self.agent.generate_inference("fail-local", "diagnose")
+        self.assertEqual(fallback["path"], "cloud")
+        self.assertEqual(calls["cloud"], 1)
+
+        self.agent.register_local_inference(None)
+        self.agent.register_cloud_inference(None)
+        cached = self.agent.generate_inference("analysis", "diagnose", prefer_local=False)
+        self.assertEqual(cached["path"], "cached")
+        self.assertIsNotNone(cached["result"])
+
+        stats = self.agent.inference_router.statistics
+        self.assertGreaterEqual(stats["local"]["success"], 1)
+        self.assertGreaterEqual(stats["cloud"]["success"], 1)
+        self.assertGreaterEqual(stats["cached"]["hits"], 1)
+
+    def test_consensus_planning(self):
+        def planner(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+            if payload.get("kind") == "consensus_request":
+                options = payload.get("options", [])
+                if options:
+                    choice = options[-1]
+                    return {"vote": choice.get("id"), "weight": 2.0, "note": "Prefer thorough plan"}
+            return None
+
+        def executor(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+            if payload.get("kind") == "consensus_request":
+                options = payload.get("options", [])
+                if options:
+                    return {"vote": options[0].get("id")}
+            return None
+
+        self.agent.join_mesh("Planner", planner, weight=2.0)
+        self.agent.join_mesh("Executor", executor)
+
+        options = [
+            {"id": "option-a", "expected_reward": 0.2, "steps": ["quick-draft"]},
+            {"id": "option-b", "expected_reward": 0.8, "steps": ["deploy-safely"]},
+        ]
+
+        decision = self.agent.consensus_plan("deploy-update", options)
+        self.assertEqual(decision["plan"], ["deploy-safely"])
+        self.assertTrue(decision["consensus"]["passed"])
+        self.assertEqual(decision["consensus"]["decision"], "option-b")
+        self.assertGreaterEqual(decision["consensus"]["decision_weight"], 2.0)
+
+        # Require a higher quorum so the deliberative fallback is used
+        fallback = self.agent.consensus_plan("deploy-update", options, quorum=10.0)
+        self.assertFalse(fallback["consensus"]["passed"])
+        self.assertEqual(fallback["plan"], ["deploy-safely"])
+
+    def test_social_and_memory_enrichment(self):
+        adapted = self.agent.adapt_response_tone("This is great progress")
+        self.assertEqual(adapted["analysis"]["sentiment"], "positive")
+
+        baseline = self.agent.knowledge_manager.contextual_recall("mission")
+        self.agent.register_observation("Mission accomplished", success=True, emotion="proud")
+        recall = self.agent.knowledge_manager.contextual_recall("Mission")
+        self.assertGreaterEqual(len(recall), len(baseline))
+
+    def test_reward_updates_source_trust(self):
+        source = "http://trust.example"
+        baseline = self.agent.knowledge_manager.get_source_trust(source)["score"]
+        self.agent._record_reward(
+            "research",
+            reward=1.0,
+            success=True,
+            processing_time=0.5,
+            details={"sources": [source]},
+        )
+        increased = self.agent.knowledge_manager.get_source_trust(source)["score"]
+        self.assertGreaterEqual(increased, baseline)
+
+        self.agent._record_reward(
+            "research",
+            reward=-1.0,
+            success=False,
+            processing_time=0.5,
+            details={"sources": [source]},
+        )
+        reduced = self.agent.knowledge_manager.get_source_trust(source)["score"]
+        self.assertLess(reduced, increased)
+
+    def test_prompt_evolution_and_distillation(self):
+        self.agent.register_prompt("research", "Base prompt with {query} context")
+
+        first_state = self.agent.evolve_prompts("research", success=False, notes="Missed citations")
+        self.assertEqual(first_state["version"], 1)
+
+        evolved_state = self.agent.evolve_prompts(
+            "research",
+            success=False,
+            notes="Needs deeper analysis",
+        )
+        self.assertGreaterEqual(evolved_state["version"], 2)
+
+        template = self.agent.get_prompt_template("research")
+        self.assertIsNotNone(template)
+        self.assertIn("[Adjustment v", template)
+
+        cached = self.agent.inference_router.cached_prompts.get("research")
+        self.assertIsNotNone(cached)
+        self.assertEqual(cached["version"], evolved_state["version"])
+
+        self.agent.meta_layer.record_outcome({"reward": -1.0})
+        self.agent.meta_layer.record_outcome({"reward": -0.5})
+        auto_keys = self.agent.auto_evolve_prompts()
+        self.assertIn("research", auto_keys)
+
+        self.agent.log_interaction("research", template or "", "response", reward=0.25)
+        output_path = Path(self.temp_dir) / "distilled.jsonl"
+        summary = self.agent.distill_model(output_path)
+        self.assertEqual(summary["samples"], 1)
+        self.assertTrue(output_path.exists())
+
+        lines = [line for line in output_path.read_text().splitlines() if line]
+        self.assertEqual(len(lines), 1)
+        record = json.loads(lines[0])
+        self.assertEqual(record["prompt_id"], "research")
+        self.assertAlmostEqual(record["reward"], 0.25)
+
+    def test_resilience_health_checks(self):
+        checks = self.agent.perform_health_checks()
+        self.assertIn("knowledge_base", checks)
+        self.assertEqual(checks["knowledge_base"]["status"], "ok")
+
+        recoveries = {"count": 0}
+
+        def failing_check():
+            raise RuntimeError("boom")
+
+        def recovery_hook():
+            recoveries["count"] += 1
+
+        self.agent.resilience.register_health_check(
+            "dummy",
+            failing_check,
+            recover=recovery_hook,
+            threshold=2,
+        )
+
+        outcome = self.agent.resilience.run_health_checks()
+        self.assertEqual(outcome["dummy"]["status"], "error")
+        first = self.agent.resilience.record_failure("dummy")
+        self.assertFalse(first["triggered"])
+        second = self.agent.resilience.record_failure("dummy")
+        self.assertTrue(second["triggered"])
+        self.assertGreaterEqual(recoveries["count"], 1)
+        self.agent.resilience.record_success("dummy")
+        self.assertEqual(self.agent.resilience.get_failure_count("dummy"), 0)
 
 def main():
     unittest.main()
