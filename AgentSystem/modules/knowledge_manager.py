@@ -13,8 +13,14 @@ Features:
 import sqlite3
 import os
 import time
-import numpy as np
+import json
+from pathlib import Path
 from typing import Dict, List, Any, Optional
+
+try:
+    import numpy as np  # type: ignore
+except ImportError:
+    np = None  # type: ignore
 from datetime import datetime, timedelta
 # Optional PostgreSQL support with graceful fallback
 try:
@@ -26,7 +32,10 @@ except ImportError:
     RealDictCursor = None
     POSTGRES_AVAILABLE = False
 # RealDictCursor import moved to conditional block above
-import psutil
+try:
+    import psutil  # type: ignore
+except ImportError:
+    psutil = None  # type: ignore
 import subprocess
 
 from AgentSystem.utils.logger import get_logger
@@ -58,6 +67,10 @@ class KnowledgeManager:
         self.max_retries = 3
         self.retry_delay = 1.0
         self.ram_limit = 20.0  # GB - Increased for testing
+        # Memory system tuning
+        self.memory_decay_half_life = 60 * 60 * 24  # one day default
+        self.minimum_salience = 0.05
+        self.consolidation_threshold = 0.8
         self.init_database()
 
     def monitor_ram(self, max_usage: float = None) -> bool:
@@ -65,7 +78,10 @@ class KnowledgeManager:
         if max_usage is None:
             max_usage = self.ram_limit
             
-        ram_usage = psutil.virtual_memory().used / (1024 ** 3)  # GB
+        if psutil:
+            ram_usage = psutil.virtual_memory().used / (1024 ** 3)  # GB
+        else:
+            ram_usage = 0.0
         if ram_usage > max_usage:
             logger.warning(f"RAM usage {ram_usage:.2f}GB exceeds limit {max_usage}GB")
             return False
@@ -115,7 +131,7 @@ class KnowledgeManager:
                     embedding BYTEA
                 )
                 ''')
-                
+
                 cursor.execute('''
                 CREATE TABLE IF NOT EXISTS documents (
                     id SERIAL PRIMARY KEY,
@@ -128,12 +144,38 @@ class KnowledgeManager:
                     last_accessed TIMESTAMP
                 )
                 ''')
-                
+
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS episodic_memories (
+                    id SERIAL PRIMARY KEY,
+                    event TEXT NOT NULL,
+                    outcome TEXT,
+                    emotion TEXT,
+                    salience REAL DEFAULT 0.5,
+                    context JSONB,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    embedding BYTEA,
+                    consolidated BOOLEAN DEFAULT FALSE
+                )
+                ''')
+
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS source_trust (
+                    source TEXT PRIMARY KEY,
+                    score REAL DEFAULT 0.5,
+                    success_count INTEGER DEFAULT 0,
+                    failure_count INTEGER DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+
                 # Create indexes for performance
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_category ON facts(category)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_timestamp ON facts(timestamp)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_confidence ON facts(confidence)')
-                
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_epi_salience ON episodic_memories(salience)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_epi_timestamp ON episodic_memories(timestamp)')
+
             else:
                 # Local SQLite for caching on Pi 5
                 self.conn = sqlite3.connect(self.db_path)
@@ -167,11 +209,37 @@ class KnowledgeManager:
                     last_accessed DATETIME
                 )
                 ''')
-                
+
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS episodic_memories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event TEXT NOT NULL,
+                    outcome TEXT,
+                    emotion TEXT,
+                    salience REAL DEFAULT 0.5,
+                    context TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    embedding BLOB,
+                    consolidated INTEGER DEFAULT 0
+                )
+                ''')
+
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS source_trust (
+                    source TEXT PRIMARY KEY,
+                    score REAL DEFAULT 0.5,
+                    success_count INTEGER DEFAULT 0,
+                    failure_count INTEGER DEFAULT 0,
+                    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+
                 # Create indexes
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_category ON facts(category)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_access ON facts(access_count)')
-            
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_epi_salience ON episodic_memories(salience)')
+                cursor.execute('CREATE INDEX IF NOT EXISTS idx_epi_timestamp ON episodic_memories(timestamp)')
+
             self.conn.commit()
             logger.info(f"Initialized {'PostgreSQL' if self.use_postgres else 'SQLite'} database")
             
@@ -180,7 +248,488 @@ class KnowledgeManager:
             if self.conn:
                 self.conn.close()
             self.conn = None
-    
+
+    # ------------------------------------------------------------------
+    # Episodic memory interface
+    # ------------------------------------------------------------------
+    def add_episode(
+        self,
+        event: str,
+        outcome: Optional[str] = None,
+        emotion: Optional[str] = None,
+        salience: float = 0.5,
+        context: Optional[Dict[str, Any]] = None,
+        embedding: Optional[bytes] = None,
+    ) -> int:
+        """Persist an episodic memory with an associated salience score."""
+        if not self.conn:
+            self.init_database()
+
+        normalized_salience = max(self.minimum_salience, min(salience, 1.0))
+        context_payload: Optional[str]
+        if context is None:
+            context_payload = None
+        else:
+            context_payload = json.dumps(context, default=str)
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    """
+                    INSERT INTO episodic_memories (event, outcome, emotion, salience, context, embedding)
+                    VALUES (%s, %s, %s, %s, %s::jsonb, %s)
+                    RETURNING id
+                    """,
+                    (event, outcome, emotion, float(normalized_salience), context_payload, embedding),
+                )
+                episode_id = cursor.fetchone()[0]
+            else:
+                cursor.execute(
+                    """
+                    INSERT INTO episodic_memories (event, outcome, emotion, salience, context, embedding)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (event, outcome, emotion, float(normalized_salience), context_payload, embedding),
+                )
+                episode_id = cursor.lastrowid
+
+            self.conn.commit()
+            return int(episode_id)
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to persist episodic memory: %s", exc)
+            return -1
+
+    def decay_memories(self, half_life: Optional[float] = None) -> None:
+        """Apply exponential decay to episodic salience, pruning stale entries."""
+        if not self.conn:
+            self.init_database()
+
+        half_life = half_life or self.memory_decay_half_life
+        if half_life <= 0:
+            return
+
+        decay_factor = 0.5 ** (self.retry_delay / half_life)
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    """
+                    UPDATE episodic_memories
+                    SET salience = GREATEST(%s, salience * %s)
+                    """,
+                    (self.minimum_salience, decay_factor),
+                )
+                cursor.execute(
+                    "DELETE FROM episodic_memories WHERE salience <= %s",
+                    (self.minimum_salience,),
+                )
+            else:
+                cursor.execute(
+                    """
+                    UPDATE episodic_memories
+                    SET salience = MAX(?, salience * ?)
+                    """,
+                    (self.minimum_salience, decay_factor),
+                )
+                cursor.execute(
+                    "DELETE FROM episodic_memories WHERE salience <= ?",
+                    (self.minimum_salience,),
+                )
+            self.conn.commit()
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to decay episodic memories: %s", exc)
+
+    def consolidate_memories(self, limit: int = 10) -> List[int]:
+        """Elevate highly salient episodes into long-term factual knowledge."""
+        if not self.conn:
+            self.init_database()
+
+        promoted: List[int] = []
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    """
+                    SELECT id, event, outcome, emotion
+                    FROM episodic_memories
+                    WHERE consolidated = FALSE AND salience >= %s
+                    ORDER BY salience DESC, timestamp DESC
+                    LIMIT %s
+                    """,
+                    (self.consolidation_threshold, limit),
+                )
+                rows = cursor.fetchall()
+            else:
+                cursor.execute(
+                    """
+                    SELECT id, event, outcome, emotion
+                    FROM episodic_memories
+                    WHERE consolidated = 0 AND salience >= ?
+                    ORDER BY salience DESC, timestamp DESC
+                    LIMIT ?
+                    """,
+                    (self.consolidation_threshold, limit),
+                )
+                rows = cursor.fetchall()
+
+            for row in rows:
+                episode_id, event, outcome, emotion = row
+                summary_parts = [event]
+                if outcome:
+                    summary_parts.append(f"Outcome: {outcome}")
+                if emotion:
+                    summary_parts.append(f"Emotion: {emotion}")
+                fact_text = " | ".join(summary_parts)
+                fact_id = self.add_fact(
+                    content=fact_text,
+                    source="episodic_memory",
+                    confidence=0.9,
+                    category="experience",
+                )
+                promoted.append(int(fact_id))
+                if self.use_postgres:
+                    cursor.execute(
+                        "UPDATE episodic_memories SET consolidated = TRUE WHERE id = %s",
+                        (episode_id,),
+                    )
+                else:
+                    cursor.execute(
+                        "UPDATE episodic_memories SET consolidated = 1 WHERE id = ?",
+                        (episode_id,),
+                    )
+
+            self.conn.commit()
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to consolidate episodic memories: %s", exc)
+
+        return promoted
+
+    def contextual_recall(self, cue: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """Retrieve episodic memories related to the provided cue."""
+        if not self.conn:
+            self.init_database()
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    """
+                    SELECT id, event, outcome, emotion, salience, context::text, timestamp
+                    FROM episodic_memories
+                    WHERE event ILIKE %s OR outcome ILIKE %s
+                    ORDER BY salience DESC, timestamp DESC
+                    LIMIT %s
+                    """,
+                    (f"%{cue}%", f"%{cue}%", limit),
+                )
+            else:
+                cursor.execute(
+                    """
+                    SELECT id, event, outcome, emotion, salience, context, timestamp
+                    FROM episodic_memories
+                    WHERE event LIKE ? OR outcome LIKE ?
+                    ORDER BY salience DESC, timestamp DESC
+                    LIMIT ?
+                    """,
+                    (f"%{cue}%", f"%{cue}%", limit),
+                )
+            rows = cursor.fetchall()
+            memories: List[Dict[str, Any]] = []
+            for row in rows:
+                context_blob = row[5]
+                parsed_context = None
+                if context_blob:
+                    try:
+                        parsed_context = json.loads(context_blob)
+                    except json.JSONDecodeError:
+                        parsed_context = {"raw": context_blob}
+                memories.append(
+                    {
+                        "id": row[0],
+                        "event": row[1],
+                        "outcome": row[2],
+                        "emotion": row[3],
+                        "salience": row[4],
+                        "context": parsed_context,
+                        "timestamp": row[6],
+                    }
+                )
+            return memories
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed contextual recall: %s", exc)
+            return []
+
+    def fusion_search(self, query: str, limit: int = 10) -> Dict[str, List[Dict[str, Any]]]:
+        """Combine structured facts and episodic memories for richer recall."""
+        facts = self.search_facts(query, limit=limit)
+        episodes = self.contextual_recall(query, limit=max(1, limit // 2))
+        return {"facts": facts, "episodes": episodes}
+
+    def synthesize_knowledge(self, topic: str, limit: int = 15) -> Dict[str, Any]:
+        """Build a lightweight semantic graph for the requested topic."""
+        nodes: Dict[str, Dict[str, Any]] = {}
+        edges: List[Dict[str, Any]] = []
+        facts = self.search_facts(topic, limit=limit)
+        episodes = self.contextual_recall(topic, limit=max(3, limit // 3))
+
+        for fact in facts:
+            node_id = f"fact-{fact['id']}"
+            nodes[node_id] = {
+                "id": node_id,
+                "label": fact["content"],
+                "type": "fact",
+                "confidence": fact.get("confidence", 1.0),
+            }
+
+        for episode in episodes:
+            node_id = f"episode-{episode['id']}"
+            nodes[node_id] = {
+                "id": node_id,
+                "label": episode["event"],
+                "type": "episode",
+                "salience": episode.get("salience"),
+            }
+
+        combined = list(nodes.values())
+        for idx, source in enumerate(combined):
+            for target in combined[idx + 1 : idx + 4]:
+                edges.append(
+                    {
+                        "source": source["id"],
+                        "target": target["id"],
+                        "weight": 0.5,
+                        "relation": "related",
+                    }
+                )
+
+        return {"topic": topic, "nodes": list(nodes.values()), "edges": edges}
+
+    def generate_hypotheses(self, topic: str, limit: int = 5) -> List[str]:
+        """Draft simple hypotheses based on existing facts and episodes."""
+        fused = self.fusion_search(topic, limit=limit * 2)
+        hypotheses: List[str] = []
+        for fact in fused["facts"][:limit]:
+            hypotheses.append(f"If {fact['content']}, then exploring more about {topic} may reveal deeper causes.")
+        for episode in fused["episodes"][:limit]:
+            hypotheses.append(
+                f"When {episode['event']} occurs, outcome {episode.get('outcome')} could influence future {topic} tasks."
+            )
+        return hypotheses[:limit]
+
+    def verify_claim(self, claim: str, min_sources: int = 2) -> Dict[str, Any]:
+        """Cross-check a claim across multiple stored sources."""
+        facts = self.search_facts(claim, limit=10)
+        supporting = [fact for fact in facts if claim.lower() in fact["content"].lower()]
+        trust_scores: List[float] = []
+        for fact in supporting:
+            source = fact.get("source")
+            if not source:
+                continue
+            trust = self.get_source_trust(str(source))
+            trust_scores.append(trust["score"])
+            # Reinforce trust for sources that consistently support claims
+            self.update_source_trust(str(source), success=True, weight=0.2)
+
+        average_trust = sum(trust_scores) / len(trust_scores) if trust_scores else 0.0
+
+        verdict = "unknown"
+        if len(supporting) >= min_sources and average_trust >= 0.6:
+            verdict = "supported"
+        elif supporting and average_trust >= 0.4:
+            verdict = "partial"
+        elif supporting:
+            verdict = "unknown"
+
+        return {
+            "claim": claim,
+            "verdict": verdict,
+            "sources": supporting[:min_sources],
+            "average_trust": average_trust,
+        }
+
+    def integrity_check(self) -> Dict[str, Any]:
+        """Validate database health and surface detected issues."""
+
+        if not self.conn:
+            self.init_database()
+
+        engine = "postgres" if self.use_postgres else "sqlite"
+        result: Dict[str, Any] = {"engine": engine}
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+                result["status"] = "ok"
+            else:
+                cursor.execute("PRAGMA integrity_check")
+                rows = cursor.fetchall()
+                findings = [row[0] if isinstance(row, (list, tuple)) else row for row in rows]
+                status = findings[0] if findings else "unknown"
+                result["status"] = "ok" if status == "ok" else "error"
+                if status != "ok":
+                    result["details"] = findings
+            return result
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Integrity check failed: %s", exc)
+            result["status"] = "error"
+            result["error"] = str(exc)
+            return result
+
+    def recover_integrity(self) -> Dict[str, Any]:
+        """Attempt to recover from detected integrity issues safely."""
+
+        engine = "postgres" if self.use_postgres else "sqlite"
+        outcome: Dict[str, Any] = {"engine": engine}
+
+        try:
+            if self.conn:
+                self.conn.close()
+        except Exception as exc:  # pragma: no cover - defensive cleanup
+            logger.warning("Failed to close connection during recovery: %s", exc)
+        finally:
+            self.conn = None
+
+        backup_path: Optional[Path] = None
+        if not self.use_postgres and self.db_path not in (None, ":memory:"):
+            candidate = Path(str(self.db_path))
+            if candidate.exists():
+                backup_path = candidate.with_name(f"{candidate.name}.corrupt.{int(time.time())}")
+                try:
+                    candidate.rename(backup_path)
+                except OSError as exc:  # pragma: no cover - filesystem edge case
+                    logger.error("Failed to back up corrupt database: %s", exc)
+                    backup_path = None
+
+        self.init_database()
+
+        outcome["status"] = "reset"
+        if backup_path:
+            outcome["backup_path"] = str(backup_path)
+        return outcome
+
+    def update_source_trust(self, source: str, success: bool, weight: float = 1.0) -> None:
+        """Adjust trust metrics for a given information source."""
+        if not source:
+            return
+
+        if not self.conn:
+            self.init_database()
+
+        delta = max(weight, 0.0) * (0.05 if success else -0.05)
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count FROM source_trust WHERE source = %s",
+                    (source,),
+                )
+            else:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count FROM source_trust WHERE source = ?",
+                    (source,),
+                )
+            row = cursor.fetchone()
+
+            if row:
+                current_score = row[0] if row[0] is not None else 0.5
+                success_count = int(row[1] or 0) + (1 if success else 0)
+                failure_count = int(row[2] or 0) + (0 if success else 1)
+                new_score = max(0.0, min(1.0, current_score + delta))
+                if self.use_postgres:
+                    cursor.execute(
+                        """
+                        UPDATE source_trust
+                        SET score = %s, success_count = %s, failure_count = %s,
+                            last_updated = CURRENT_TIMESTAMP
+                        WHERE source = %s
+                        """,
+                        (new_score, success_count, failure_count, source),
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        UPDATE source_trust
+                        SET score = ?, success_count = ?, failure_count = ?,
+                            last_updated = CURRENT_TIMESTAMP
+                        WHERE source = ?
+                        """,
+                        (new_score, success_count, failure_count, source),
+                    )
+            else:
+                base_score = 0.55 if success else 0.45
+                success_count = 1 if success else 0
+                failure_count = 0 if success else 1
+                if self.use_postgres:
+                    cursor.execute(
+                        """
+                        INSERT INTO source_trust (source, score, success_count, failure_count, last_updated)
+                        VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
+                        """,
+                        (source, base_score, success_count, failure_count),
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        INSERT INTO source_trust (source, score, success_count, failure_count, last_updated)
+                        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """,
+                        (source, base_score, success_count, failure_count),
+                    )
+
+            self.conn.commit()
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to update trust for %s: %s", source, exc)
+            if self.conn:
+                self.conn.rollback()
+
+    def get_source_trust(self, source: str) -> Dict[str, Any]:
+        """Retrieve trust metrics for the provided source."""
+        default = {
+            "source": source,
+            "score": 0.5,
+            "success_count": 0,
+            "failure_count": 0,
+            "last_updated": None,
+        }
+
+        if not source:
+            return default
+
+        if not self.conn:
+            self.init_database()
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count, last_updated FROM source_trust WHERE source = %s",
+                    (source,),
+                )
+            else:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count, last_updated FROM source_trust WHERE source = ?",
+                    (source,),
+                )
+            row = cursor.fetchone()
+            if not row:
+                return default
+
+            return {
+                "source": source,
+                "score": row[0] if row[0] is not None else 0.5,
+                "success_count": int(row[1] or 0),
+                "failure_count": int(row[2] or 0),
+                "last_updated": row[3],
+            }
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to read trust for %s: %s", source, exc)
+            return default
+
     def add_fact(self, content: str, source: Optional[str] = None, 
                 confidence: float = 1.0, category: Optional[str] = None,
                 embedding: Optional[bytes] = None) -> int:
