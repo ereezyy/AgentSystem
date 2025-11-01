@@ -5,11 +5,18 @@ Securely loads environment variables from .env file
 Provides fallback mechanisms and validation
 """
 
-import os
+import ast
 import logging
+import os
+import re
+import warnings
 from pathlib import Path
-from typing import Dict, Any, Optional
-from dotenv import load_dotenv
+from typing import Any, Dict, Optional
+
+try:
+    from dotenv import load_dotenv  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - fallback path for optional dependency
+    load_dotenv = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +40,158 @@ class EnvLoader:
         if not env_path.exists():
             logger.warning(f"Environment file not found at {self.env_path}")
             return
-        
+
+        if load_dotenv is None:
+            logger.info(
+                "python-dotenv is not installed; manually parsing %s", self.env_path
+            )
+            self._load_env_file_manually(env_path)
+            return
+
         load_dotenv(dotenv_path=self.env_path)
         logger.info(f"Loaded environment from {self.env_path}")
+
+    def _load_env_file_manually(self, env_path: Path) -> None:
+        """Fallback parser when python-dotenv is not installed."""
+
+        def _strip_inline_comment(raw_value: str) -> str:
+            in_single = False
+            in_double = False
+            escape = False
+            result_chars = []
+
+            for char in raw_value:
+                if escape:
+                    if char == "#" and not in_single and not in_double:
+                        result_chars.append("#")
+                    else:
+                        result_chars.append("\\" + char)
+                    escape = False
+                    continue
+
+                if char == "\\":
+                    escape = True
+                    continue
+
+                if char == "'" and not in_double:
+                    in_single = not in_single
+                    result_chars.append(char)
+                    continue
+
+                if char == '"' and not in_single:
+                    in_double = not in_double
+                    result_chars.append(char)
+                    continue
+
+                if char == "#" and not in_single and not in_double:
+                    break
+
+                result_chars.append(char)
+
+            if escape:
+                result_chars.append("\\")
+
+            return "".join(result_chars).rstrip()
+
+        interpolation_pattern = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+        escaped_dollar_pattern = re.compile(r"\\(\$)")
+
+        def _preserve_escaped_dollars(text: str) -> tuple[str, Dict[str, str]]:
+            placeholders: Dict[str, str] = {}
+
+            def replace(match: re.Match[str]) -> str:
+                placeholder = f"__ESCAPED_DOLLAR_{len(placeholders)}__"
+                placeholders[placeholder] = match.group(1)
+                return placeholder
+
+            return escaped_dollar_pattern.sub(replace, text), placeholders
+
+        def _restore_escaped_dollars(text: str, placeholders: Dict[str, str]) -> str:
+            for placeholder, replacement in placeholders.items():
+                text = text.replace(placeholder, replacement)
+            return text
+
+        def _interpolate_value(raw_value: str, allow_interpolation: bool) -> str:
+            working, placeholders = _preserve_escaped_dollars(raw_value)
+
+            if allow_interpolation and "${" in working:
+                previous = working
+                for _ in range(10):
+                    replaced = interpolation_pattern.sub(
+                        lambda match: os.environ.get(match.group(1), ""), previous
+                    )
+                    if replaced == previous:
+                        break
+                    previous = replaced
+                working = previous
+
+            return _restore_escaped_dollars(working, placeholders)
+
+        preexisting_keys = set(os.environ.keys())
+
+        try:
+            with env_path.open("r", encoding="utf-8") as env_file:
+                for raw_line in env_file:
+                    line = raw_line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+
+                    delimiter = None
+                    for candidate in ("=", ":"):
+                        if candidate in line:
+                            delimiter = candidate
+                            break
+
+                    if delimiter is None:
+                        logger.debug(
+                            "Skipping malformed environment line in %s: %s",
+                            env_path,
+                            raw_line.rstrip("\n"),
+                        )
+                        continue
+
+                    key, value = line.split(delimiter, 1)
+                    key = key.strip()
+                    stripped_value = _strip_inline_comment(value.strip())
+
+                    if key.startswith("export "):
+                        key = key[len("export ") :].strip()
+
+                    if not key:
+                        logger.debug(
+                            "Skipping environment line with empty key in %s: %s",
+                            env_path,
+                            raw_line.rstrip("\n"),
+                        )
+                        continue
+
+                    is_quoted = (
+                        len(stripped_value) >= 2
+                        and stripped_value[0] == stripped_value[-1]
+                        and stripped_value[0] in {'"', "'"}
+                    )
+                    is_single_quoted = is_quoted and stripped_value[0] == "'"
+
+                    processed_value = stripped_value
+
+                    if is_quoted:
+                        try:
+                            with warnings.catch_warnings():
+                                warnings.simplefilter("ignore", DeprecationWarning)
+                                processed_value = ast.literal_eval(processed_value)
+                        except (SyntaxError, ValueError):
+                            processed_value = processed_value[1:-1]
+
+                    processed_value = _interpolate_value(
+                        str(processed_value), allow_interpolation=not is_single_quoted
+                    )
+
+                    if key in preexisting_keys:
+                        continue
+
+                    os.environ[key] = processed_value
+        except OSError as exc:
+            logger.error("Failed to read environment file %s: %s", env_path, exc)
         
     def get(self, key: str, default: Any = None, required: bool = False) -> Any:
         """

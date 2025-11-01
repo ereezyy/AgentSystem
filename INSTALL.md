@@ -193,6 +193,20 @@ sudo apt install -y cpufrequtils
 
 Choose between automated or manual installation based on your preference and requirements.
 
+### Method 0: Graphical Installer (Beginner Friendly)
+
+For non-technical users we include a lightweight installer wizard that walks through
+creating a virtual environment and installing Python dependencies.
+
+```bash
+cd /home/pi/pi5_deployment_package
+python3 scripts/gui_installer.py
+```
+
+The wizard lets you choose the installation folder and whether to create a dedicated
+virtual environment. Progress is displayed inside the window and detailed logs help
+diagnose any issues without leaving the graphical interface.
+
 ### Method 1: Automated Installation (Recommended)
 
 The automated installation handles everything for you:
