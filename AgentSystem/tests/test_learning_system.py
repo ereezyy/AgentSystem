@@ -4,6 +4,7 @@ Learning System Tests
 Unit tests for the learning system components.
 """
 
+import json
 import importlib.util
 import unittest
 import tempfile
@@ -333,6 +334,44 @@ class TestLearningAgent(unittest.TestCase):
         )
         reduced = self.agent.knowledge_manager.get_source_trust(source)["score"]
         self.assertLess(reduced, increased)
+
+    def test_prompt_evolution_and_distillation(self):
+        self.agent.register_prompt("research", "Base prompt with {query} context")
+
+        first_state = self.agent.evolve_prompts("research", success=False, notes="Missed citations")
+        self.assertEqual(first_state["version"], 1)
+
+        evolved_state = self.agent.evolve_prompts(
+            "research",
+            success=False,
+            notes="Needs deeper analysis",
+        )
+        self.assertGreaterEqual(evolved_state["version"], 2)
+
+        template = self.agent.get_prompt_template("research")
+        self.assertIsNotNone(template)
+        self.assertIn("[Adjustment v", template)
+
+        cached = self.agent.inference_router.cached_prompts.get("research")
+        self.assertIsNotNone(cached)
+        self.assertEqual(cached["version"], evolved_state["version"])
+
+        self.agent.meta_layer.record_outcome({"reward": -1.0})
+        self.agent.meta_layer.record_outcome({"reward": -0.5})
+        auto_keys = self.agent.auto_evolve_prompts()
+        self.assertIn("research", auto_keys)
+
+        self.agent.log_interaction("research", template or "", "response", reward=0.25)
+        output_path = Path(self.temp_dir) / "distilled.jsonl"
+        summary = self.agent.distill_model(output_path)
+        self.assertEqual(summary["samples"], 1)
+        self.assertTrue(output_path.exists())
+
+        lines = [line for line in output_path.read_text().splitlines() if line]
+        self.assertEqual(len(lines), 1)
+        record = json.loads(lines[0])
+        self.assertEqual(record["prompt_id"], "research")
+        self.assertAlmostEqual(record["reward"], 0.25)
 
 def main():
     unittest.main()

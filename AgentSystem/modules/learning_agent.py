@@ -15,6 +15,7 @@ import threading
 import queue
 import time
 import random
+import json
 from collections import deque
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional, Callable, Iterable
@@ -351,6 +352,7 @@ class LearningAgent:
         self.social_layer = SocialIntelligenceLayer()
         self._prompt_versions: Dict[str, Dict[str, Any]] = {}
         self._self_play_log: deque = deque(maxlen=50)
+        self._distillation_buffer: deque = deque(maxlen=200)
 
         self.mesh.register("Observer", lambda msg: logger.debug("Observer received %s", msg))
         self.resilience.register_restart(self.start_learning)
@@ -659,20 +661,197 @@ class LearningAgent:
         )
         return record
 
-    def evolve_prompts(self, key: str, success: bool, notes: Optional[str] = None) -> Dict[str, Any]:
-        """Adapt prompts based on success metrics."""
-        state = self._prompt_versions.setdefault(key, {"version": 1, "history": []})
-        if not success:
-            state["version"] += 1
-        entry = {"success": success, "notes": notes, "version": state["version"]}
-        state["history"].append(entry)
-        self.inference_router.cache_prompt(key, entry)
+    def register_prompt(
+        self,
+        key: str,
+        template: str,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Register a prompt template for evolution and tracking."""
+
+        state = self._prompt_versions.setdefault(
+            key,
+            {
+                "version": 1,
+                "template": template,
+                "history": [],
+                "stats": {
+                    "success": 0,
+                    "failure": 0,
+                    "success_streak": 0,
+                    "failure_streak": 0,
+                },
+                "metadata": metadata.copy() if metadata else {},
+                "adjustments": [],
+            },
+        )
+        if not state.get("template"):
+            state["template"] = template
+        if metadata:
+            state.setdefault("metadata", {}).update(metadata)
         return state
 
-    def distill_model(self) -> Dict[str, Any]:
-        """Placeholder for offline model distillation from interactions."""
-        distilled_examples = list(self._reward_history)[-5:]
-        return {"status": "distilled", "samples": len(distilled_examples)}
+    def get_prompt_template(self, key: str) -> Optional[str]:
+        """Return the currently active template for a prompt identifier."""
+
+        state = self._prompt_versions.get(key)
+        return state.get("template") if state else None
+
+    def evolve_prompts(
+        self,
+        key: str,
+        success: bool,
+        notes: Optional[str] = None,
+        reward: Optional[float] = None,
+        template: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Adapt prompts based on performance history and feedback."""
+
+        state = self._prompt_versions.setdefault(
+            key,
+            {
+                "version": 1,
+                "template": template or "",
+                "history": [],
+                "stats": {
+                    "success": 0,
+                    "failure": 0,
+                    "success_streak": 0,
+                    "failure_streak": 0,
+                },
+                "metadata": {},
+                "adjustments": [],
+            },
+        )
+        if template and not state.get("template"):
+            state["template"] = template
+
+        stats = state.setdefault(
+            "stats",
+            {
+                "success": 0,
+                "failure": 0,
+                "success_streak": 0,
+                "failure_streak": 0,
+            },
+        )
+
+        entry = {
+            "success": success,
+            "notes": notes,
+            "reward": reward,
+            "version": state["version"],
+            "timestamp": time.time(),
+        }
+        state.setdefault("history", []).append(entry)
+
+        if success:
+            stats["success"] = stats.get("success", 0) + 1
+            stats["success_streak"] = stats.get("success_streak", 0) + 1
+            stats["failure_streak"] = 0
+        else:
+            stats["failure"] = stats.get("failure", 0) + 1
+            stats["failure_streak"] = stats.get("failure_streak", 0) + 1
+            stats["success_streak"] = 0
+
+        mutated = False
+        if not success and stats["failure_streak"] >= 2:
+            new_template = self._generate_prompt_variant(
+                state.get("template", ""),
+                notes,
+                state["version"] + 1,
+                state.setdefault("adjustments", []),
+            )
+            if new_template != state.get("template"):
+                state["template"] = new_template
+                state["version"] += 1
+                stats["failure_streak"] = 0
+                state.setdefault("adjustments", []).append(
+                    {"note": notes or "", "version": state["version"], "timestamp": time.time()}
+                )
+                mutated = True
+        elif success and stats.get("success_streak", 0) >= 3:
+            state.setdefault("metadata", {})["stabilised"] = True
+
+        cache_payload = {
+            "template": state.get("template"),
+            "version": state["version"],
+            "mutated": mutated,
+            "success": stats.get("success", 0),
+            "failure": stats.get("failure", 0),
+        }
+        self.inference_router.cache_prompt(key, cache_payload)
+        return state
+
+    def auto_evolve_prompts(self) -> List[str]:
+        """Automatically evolve prompts when the meta review indicates issues."""
+
+        review = self.meta_layer.review()
+        evolved: List[str] = []
+        if review.get("status") == "needs-adjustment":
+            for key, state in self._prompt_versions.items():
+                stats = state.get("stats", {})
+                if stats.get("failure", 0) > stats.get("success", 0):
+                    self.evolve_prompts(key, success=False, notes="Meta-review requested refinement.")
+                    evolved.append(key)
+        return evolved
+
+    def log_interaction(self, prompt_id: str, prompt: str, response: str, reward: float) -> None:
+        """Record an interaction for later offline distillation."""
+
+        record = {
+            "prompt_id": prompt_id,
+            "prompt": prompt,
+            "response": response,
+            "reward": reward,
+            "timestamp": time.time(),
+        }
+        self._distillation_buffer.append(record)
+
+    def distill_model(self, output_path: Optional[str] = None) -> Dict[str, Any]:
+        """Produce a distilled dataset from recent interactions for offline tuning."""
+
+        samples = list(self._distillation_buffer)
+        if not samples:
+            return {"status": "no-data", "samples": 0}
+
+        average_reward = sum(sample["reward"] for sample in samples) / len(samples)
+        if output_path:
+            path = Path(output_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("w", encoding="utf-8") as handle:
+                for sample in samples:
+                    handle.write(json.dumps(sample) + "\n")
+
+        summary = {
+            "status": "distilled",
+            "samples": len(samples),
+            "average_reward": average_reward,
+            "prompt_ids": sorted({sample["prompt_id"] for sample in samples}),
+        }
+        return summary
+
+    def _generate_prompt_variant(
+        self,
+        template: str,
+        notes: Optional[str],
+        version: int,
+        adjustments: List[Dict[str, Any]],
+    ) -> str:
+        """Create a deterministic prompt variation based on prior adjustments."""
+
+        base = template.strip() if template else "You are an adaptive research assistant."
+        guidance_segments: List[str] = []
+        if notes:
+            guidance_segments.append(f"Feedback: {notes.strip()}")
+        if not adjustments:
+            guidance_segments.append("Incorporate verification and reflection before final answers.")
+        else:
+            guidance_segments.append("Provide deeper analysis and cite relevant memories when possible.")
+        guidance = " ".join(segment for segment in guidance_segments if segment).strip()
+        if guidance:
+            base = f"{base}\n\n[Adjustment v{version}]: {guidance}"
+        return base
 
     def reinforcement_feedback(self, module: str, reward: float) -> None:
         """Record reinforcement signal for the specified module."""
