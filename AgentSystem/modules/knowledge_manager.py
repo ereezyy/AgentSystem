@@ -158,6 +158,16 @@ class KnowledgeManager:
                 )
                 ''')
 
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS source_trust (
+                    source TEXT PRIMARY KEY,
+                    score REAL DEFAULT 0.5,
+                    success_count INTEGER DEFAULT 0,
+                    failure_count INTEGER DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+
                 # Create indexes for performance
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_category ON facts(category)')
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_facts_timestamp ON facts(timestamp)')
@@ -210,6 +220,16 @@ class KnowledgeManager:
                     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                     embedding BLOB,
                     consolidated INTEGER DEFAULT 0
+                )
+                ''')
+
+                cursor.execute('''
+                CREATE TABLE IF NOT EXISTS source_trust (
+                    source TEXT PRIMARY KEY,
+                    score REAL DEFAULT 0.5,
+                    success_count INTEGER DEFAULT 0,
+                    failure_count INTEGER DEFAULT 0,
+                    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
                 ''')
 
@@ -501,12 +521,151 @@ class KnowledgeManager:
         """Cross-check a claim across multiple stored sources."""
         facts = self.search_facts(claim, limit=10)
         supporting = [fact for fact in facts if claim.lower() in fact["content"].lower()]
+        trust_scores: List[float] = []
+        for fact in supporting:
+            source = fact.get("source")
+            if not source:
+                continue
+            trust = self.get_source_trust(str(source))
+            trust_scores.append(trust["score"])
+            # Reinforce trust for sources that consistently support claims
+            self.update_source_trust(str(source), success=True, weight=0.2)
+
+        average_trust = sum(trust_scores) / len(trust_scores) if trust_scores else 0.0
+
         verdict = "unknown"
-        if len(supporting) >= min_sources:
+        if len(supporting) >= min_sources and average_trust >= 0.6:
             verdict = "supported"
-        elif facts:
+        elif supporting and average_trust >= 0.4:
             verdict = "partial"
-        return {"claim": claim, "verdict": verdict, "sources": supporting[:min_sources]}
+        elif supporting:
+            verdict = "unknown"
+
+        return {
+            "claim": claim,
+            "verdict": verdict,
+            "sources": supporting[:min_sources],
+            "average_trust": average_trust,
+        }
+
+    def update_source_trust(self, source: str, success: bool, weight: float = 1.0) -> None:
+        """Adjust trust metrics for a given information source."""
+        if not source:
+            return
+
+        if not self.conn:
+            self.init_database()
+
+        delta = max(weight, 0.0) * (0.05 if success else -0.05)
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count FROM source_trust WHERE source = %s",
+                    (source,),
+                )
+            else:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count FROM source_trust WHERE source = ?",
+                    (source,),
+                )
+            row = cursor.fetchone()
+
+            if row:
+                current_score = row[0] if row[0] is not None else 0.5
+                success_count = int(row[1] or 0) + (1 if success else 0)
+                failure_count = int(row[2] or 0) + (0 if success else 1)
+                new_score = max(0.0, min(1.0, current_score + delta))
+                if self.use_postgres:
+                    cursor.execute(
+                        """
+                        UPDATE source_trust
+                        SET score = %s, success_count = %s, failure_count = %s,
+                            last_updated = CURRENT_TIMESTAMP
+                        WHERE source = %s
+                        """,
+                        (new_score, success_count, failure_count, source),
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        UPDATE source_trust
+                        SET score = ?, success_count = ?, failure_count = ?,
+                            last_updated = CURRENT_TIMESTAMP
+                        WHERE source = ?
+                        """,
+                        (new_score, success_count, failure_count, source),
+                    )
+            else:
+                base_score = 0.55 if success else 0.45
+                success_count = 1 if success else 0
+                failure_count = 0 if success else 1
+                if self.use_postgres:
+                    cursor.execute(
+                        """
+                        INSERT INTO source_trust (source, score, success_count, failure_count, last_updated)
+                        VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
+                        """,
+                        (source, base_score, success_count, failure_count),
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        INSERT INTO source_trust (source, score, success_count, failure_count, last_updated)
+                        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """,
+                        (source, base_score, success_count, failure_count),
+                    )
+
+            self.conn.commit()
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to update trust for %s: %s", source, exc)
+            if self.conn:
+                self.conn.rollback()
+
+    def get_source_trust(self, source: str) -> Dict[str, Any]:
+        """Retrieve trust metrics for the provided source."""
+        default = {
+            "source": source,
+            "score": 0.5,
+            "success_count": 0,
+            "failure_count": 0,
+            "last_updated": None,
+        }
+
+        if not source:
+            return default
+
+        if not self.conn:
+            self.init_database()
+
+        try:
+            cursor = self.conn.cursor()
+            if self.use_postgres:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count, last_updated FROM source_trust WHERE source = %s",
+                    (source,),
+                )
+            else:
+                cursor.execute(
+                    "SELECT score, success_count, failure_count, last_updated FROM source_trust WHERE source = ?",
+                    (source,),
+                )
+            row = cursor.fetchone()
+            if not row:
+                return default
+
+            return {
+                "source": source,
+                "score": row[0] if row[0] is not None else 0.5,
+                "success_count": int(row[1] or 0),
+                "failure_count": int(row[2] or 0),
+                "last_updated": row[3],
+            }
+        except (sqlite3.Error, psycopg2.Error) as exc:  # type: ignore[arg-type]
+            logger.error("Failed to read trust for %s: %s", source, exc)
+            return default
 
     def add_fact(self, content: str, source: Optional[str] = None, 
                 confidence: float = 1.0, category: Optional[str] = None,

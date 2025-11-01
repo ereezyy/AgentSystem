@@ -130,6 +130,21 @@ class TestKnowledgeManager(unittest.TestCase):
         verdict = self.knowledge_manager.verify_claim("Water flows")
         self.assertIn(verdict["verdict"], {"supported", "partial", "unknown"})
 
+    def test_source_trust_calibration(self):
+        source = "http://example.com"
+        baseline = self.knowledge_manager.get_source_trust(source)
+        self.assertEqual(baseline["score"], 0.5)
+
+        self.knowledge_manager.update_source_trust(source, success=True)
+        increased = self.knowledge_manager.get_source_trust(source)
+        self.assertGreater(increased["score"], baseline["score"])
+        self.assertEqual(increased["success_count"], 1)
+
+        self.knowledge_manager.update_source_trust(source, success=False, weight=2.0)
+        reduced = self.knowledge_manager.get_source_trust(source)
+        self.assertLess(reduced["score"], increased["score"])
+        self.assertEqual(reduced["failure_count"], 1)
+
 @unittest.skipIf(not WEB_IMPORTS_AVAILABLE, "Web researcher dependencies unavailable")
 class TestWebResearcher(unittest.TestCase):
     def setUp(self):
@@ -295,6 +310,29 @@ class TestLearningAgent(unittest.TestCase):
         self.agent.register_observation("Mission accomplished", success=True, emotion="proud")
         recall = self.agent.knowledge_manager.contextual_recall("Mission")
         self.assertGreaterEqual(len(recall), len(baseline))
+
+    def test_reward_updates_source_trust(self):
+        source = "http://trust.example"
+        baseline = self.agent.knowledge_manager.get_source_trust(source)["score"]
+        self.agent._record_reward(
+            "research",
+            reward=1.0,
+            success=True,
+            processing_time=0.5,
+            details={"sources": [source]},
+        )
+        increased = self.agent.knowledge_manager.get_source_trust(source)["score"]
+        self.assertGreaterEqual(increased, baseline)
+
+        self.agent._record_reward(
+            "research",
+            reward=-1.0,
+            success=False,
+            processing_time=0.5,
+            details={"sources": [source]},
+        )
+        reduced = self.agent.knowledge_manager.get_source_trust(source)["score"]
+        self.assertLess(reduced, increased)
 
 def main():
     unittest.main()

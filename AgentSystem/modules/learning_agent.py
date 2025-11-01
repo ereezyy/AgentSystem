@@ -419,10 +419,18 @@ class LearningAgent:
                         depth = task.get("depth", 1)
                         logger.info(f"Starting research task: {topic} (depth={depth})")
                         results = self.research_topic(topic, depth)
+                        sources = sorted(
+                            {
+                                entry.get("source")
+                                for entry in results
+                                if isinstance(entry, dict) and entry.get("source")
+                            }
+                        )
                         logger.info(f"Completed research: {topic} - found {len(results)} results")
                         task_details = {
                             "result_count": len(results),
-                            "topic": topic
+                            "topic": topic,
+                            "sources": sources,
                         }
                         task_success = True
 
@@ -757,6 +765,19 @@ class LearningAgent:
             success,
             processing_time,
         )
+        sources_field = None
+        if isinstance(details, dict):
+            sources_field = details.get("sources")
+        if sources_field:
+            if isinstance(sources_field, (list, tuple, set)):
+                candidates = [str(src) for src in sources_field if src]
+            else:
+                candidates = [str(sources_field)]
+            for source in candidates:
+                try:
+                    self.knowledge_manager.update_source_trust(source, success)
+                except Exception as exc:  # pragma: no cover - defensive safeguard
+                    logger.debug("Skipping trust update for %s: %s", source, exc)
         self.meta_layer.record_outcome(entry)
 
     def get_learning_feedback(self) -> Dict[str, Any]:
