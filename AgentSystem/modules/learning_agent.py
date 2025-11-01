@@ -210,9 +210,20 @@ class DistributedAgentMesh:
     def __init__(self) -> None:
         self._subscribers: Dict[str, Callable[[Dict[str, Any]], None]] = {}
         self._shared_state: Dict[str, Any] = {}
+        self._weights: Dict[str, float] = {}
 
-    def register(self, role: str, callback: Callable[[Dict[str, Any]], None]) -> None:
+    def register(
+        self,
+        role: str,
+        callback: Callable[[Dict[str, Any]], Any],
+        *,
+        weight: float = 1.0,
+    ) -> None:
         self._subscribers[role] = callback
+        try:
+            self._weights[role] = max(float(weight), 0.0)
+        except (TypeError, ValueError):
+            self._weights[role] = 1.0
 
     def broadcast(self, message: Dict[str, Any]) -> None:
         for role, callback in self._subscribers.items():
@@ -226,6 +237,73 @@ class DistributedAgentMesh:
 
     def get_shared_state(self, key: str, default: Any = None) -> Any:
         return self._shared_state.get(key, default)
+
+    def request_consensus(
+        self,
+        question: Dict[str, Any],
+        *,
+        quorum: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Request proposals from subscribers and return an aggregated decision."""
+
+        votes: List[Dict[str, Any]] = []
+        total_weight = 0.0
+        for role, callback in self._subscribers.items():
+            payload = dict(question, target_role=role, kind="consensus_request")
+            try:
+                response = callback(payload)
+            except Exception as exc:
+                logger.warning("Consensus callback for %s failed: %s", role, exc)
+                continue
+
+            if response is None:
+                continue
+
+            if not isinstance(response, dict):
+                response = {"vote": response}
+
+            if "vote" not in response:
+                continue
+
+            response = dict(response)
+            response.setdefault("role", role)
+            weight = response.get("weight", self._weights.get(role, 1.0))
+            try:
+                weight_value = float(weight)
+            except (TypeError, ValueError):
+                weight_value = 1.0
+            if weight_value < 0:
+                weight_value = 0.0
+            response["weight"] = weight_value
+            votes.append(response)
+            total_weight += weight_value
+
+        if not votes:
+            return {
+                "decision": None,
+                "votes": [],
+                "passed": False,
+                "total_weight": 0.0,
+                "decision_weight": 0.0,
+            }
+
+        tallies: Dict[Any, float] = {}
+        for entry in votes:
+            vote_key = entry.get("vote")
+            tallies[vote_key] = tallies.get(vote_key, 0.0) + entry["weight"]
+
+        decision, decision_weight = max(tallies.items(), key=lambda item: item[1])
+        threshold = quorum if quorum is not None else (total_weight / 2.0)
+        passed = decision_weight >= threshold if total_weight else False
+
+        return {
+            "decision": decision,
+            "votes": votes,
+            "passed": passed,
+            "total_weight": total_weight,
+            "decision_weight": decision_weight,
+            "threshold": threshold,
+        }
 
 
 class ResilienceManager:
@@ -882,13 +960,58 @@ class LearningAgent:
         adapted = self.social_layer.adapt_response(text, analysis["sentiment"])
         return {"analysis": analysis, "response": adapted}
 
-    def join_mesh(self, role: str, callback: Callable[[Dict[str, Any]], None]) -> None:
+    def join_mesh(
+        self,
+        role: str,
+        callback: Callable[[Dict[str, Any]], Any],
+        *,
+        weight: float = 1.0,
+    ) -> None:
         """Register a specialised agent callback within the distributed mesh."""
-        self.mesh.register(role, callback)
+        self.mesh.register(role, callback, weight=weight)
 
     def share_mesh_state(self, key: str, value: Any) -> None:
         """Publish shared state for other agents in the mesh."""
         self.mesh.update_shared_state(key, value)
+
+    def get_mesh_state(self, key: str, default: Any = None) -> Any:
+        """Retrieve shared mesh state."""
+        return self.mesh.get_shared_state(key, default)
+
+    def consensus_plan(
+        self,
+        goal: str,
+        options: List[Dict[str, Any]],
+        *,
+        quorum: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Seek a consensus-backed plan with a deliberative fallback."""
+
+        consensus = self.mesh.request_consensus(
+            {"goal": goal, "options": options}, quorum=quorum
+        )
+
+        plan_steps = self.cognition.deliberative.plan(goal, options)
+
+        decision_key = consensus.get("decision")
+        if decision_key is not None:
+            chosen_option = next(
+                (
+                    opt
+                    for opt in options
+                    if opt.get("id") == decision_key
+                    or opt.get("action") == decision_key
+                ),
+                None,
+            )
+            if chosen_option and consensus.get("passed"):
+                plan_steps = list(
+                    chosen_option.get(
+                        "steps", [chosen_option.get("action", goal)]
+                    )
+                )
+
+        return {"plan": plan_steps, "consensus": consensus}
 
     def _calculate_reward(
         self,

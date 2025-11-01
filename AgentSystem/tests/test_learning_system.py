@@ -10,7 +10,7 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from unittest.mock import Mock, patch
 
 MODULE_DIR = Path(__file__).resolve().parents[1] / "modules"
@@ -302,6 +302,41 @@ class TestLearningAgent(unittest.TestCase):
 
         self.agent.inference_router.register_local(True)
         self.assertEqual(self.agent.choose_inference_path("analysis"), "local")
+
+    def test_consensus_planning(self):
+        def planner(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+            if payload.get("kind") == "consensus_request":
+                options = payload.get("options", [])
+                if options:
+                    choice = options[-1]
+                    return {"vote": choice.get("id"), "weight": 2.0, "note": "Prefer thorough plan"}
+            return None
+
+        def executor(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+            if payload.get("kind") == "consensus_request":
+                options = payload.get("options", [])
+                if options:
+                    return {"vote": options[0].get("id")}
+            return None
+
+        self.agent.join_mesh("Planner", planner, weight=2.0)
+        self.agent.join_mesh("Executor", executor)
+
+        options = [
+            {"id": "option-a", "expected_reward": 0.2, "steps": ["quick-draft"]},
+            {"id": "option-b", "expected_reward": 0.8, "steps": ["deploy-safely"]},
+        ]
+
+        decision = self.agent.consensus_plan("deploy-update", options)
+        self.assertEqual(decision["plan"], ["deploy-safely"])
+        self.assertTrue(decision["consensus"]["passed"])
+        self.assertEqual(decision["consensus"]["decision"], "option-b")
+        self.assertGreaterEqual(decision["consensus"]["decision_weight"], 2.0)
+
+        # Require a higher quorum so the deliberative fallback is used
+        fallback = self.agent.consensus_plan("deploy-update", options, quorum=10.0)
+        self.assertFalse(fallback["consensus"]["passed"])
+        self.assertEqual(fallback["plan"], ["deploy-safely"])
 
     def test_social_and_memory_enrichment(self):
         adapted = self.agent.adapt_response_tone("This is great progress")
