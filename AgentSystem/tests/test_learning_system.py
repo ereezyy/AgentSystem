@@ -300,8 +300,44 @@ class TestLearningAgent(unittest.TestCase):
         self.assertTrue(messages)
         self.assertEqual(self.agent.mesh.get_shared_state("goal"), "expand-knowledge")
 
-        self.agent.inference_router.register_local(True)
+        self.agent.register_local_inference(lambda task, payload: {"response": "ok"})
         self.assertEqual(self.agent.choose_inference_path("analysis"), "local")
+
+    def test_hybrid_inference_execution(self):
+        calls = {"local": 0, "cloud": 0}
+
+        def local_handler(task: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+            calls["local"] += 1
+            if task == "fail-local":
+                raise RuntimeError("local offline")
+            return {"response": f"local::{payload['prompt']}", "reward": 0.25}
+
+        def cloud_handler(task: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+            calls["cloud"] += 1
+            return {"response": f"cloud::{payload['prompt']}", "reward": 0.1}
+
+        self.agent.register_local_inference(local_handler)
+        self.agent.register_cloud_inference(cloud_handler)
+
+        first = self.agent.generate_inference("analysis", "diagnose")
+        self.assertEqual(first["path"], "local")
+        self.assertIn("local::diagnose", first["result"]["response"])
+        self.assertEqual(calls["local"], 1)
+
+        fallback = self.agent.generate_inference("fail-local", "diagnose")
+        self.assertEqual(fallback["path"], "cloud")
+        self.assertEqual(calls["cloud"], 1)
+
+        self.agent.register_local_inference(None)
+        self.agent.register_cloud_inference(None)
+        cached = self.agent.generate_inference("analysis", "diagnose", prefer_local=False)
+        self.assertEqual(cached["path"], "cached")
+        self.assertIsNotNone(cached["result"])
+
+        stats = self.agent.inference_router.statistics
+        self.assertGreaterEqual(stats["local"]["success"], 1)
+        self.assertGreaterEqual(stats["cloud"]["success"], 1)
+        self.assertGreaterEqual(stats["cached"]["hits"], 1)
 
     def test_consensus_planning(self):
         def planner(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:

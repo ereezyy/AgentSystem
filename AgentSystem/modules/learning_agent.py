@@ -334,19 +334,118 @@ class InferenceRouter:
         self.local_available = False
         self.cloud_available = True
         self.cached_prompts: Dict[str, Dict[str, Any]] = {}
+        self._result_cache: Dict[str, Dict[str, Any]] = {}
+        self.local_handler: Optional[Callable[[str, Dict[str, Any]], Any]] = None
+        self.cloud_handler: Optional[Callable[[str, Dict[str, Any]], Any]] = None
+        self.statistics: Dict[str, Dict[str, float]] = {
+            "local": {"success": 0, "failure": 0},
+            "cloud": {"success": 0, "failure": 0},
+            "cached": {"hits": 0, "misses": 0},
+        }
 
-    def register_local(self, available: bool) -> None:
-        self.local_available = available
+    def register_local(
+        self, available: bool, handler: Optional[Callable[[str, Dict[str, Any]], Any]] = None
+    ) -> None:
+        if handler is not None:
+            self.local_handler = handler
+        self.local_available = bool(available and self.local_handler)
 
-    def choose(self, task: str) -> str:
-        if self.local_available:
+    def register_cloud(
+        self, available: bool, handler: Optional[Callable[[str, Dict[str, Any]], Any]] = None
+    ) -> None:
+        if handler is not None:
+            self.cloud_handler = handler
+        self.cloud_available = bool(available and self.cloud_handler)
+
+    def choose(self, task: str, prefer_local: bool = True) -> str:
+        if prefer_local and self.local_handler and self.local_available:
             return "local"
-        if not self.cloud_available:
+        if self.cloud_handler and self.cloud_available:
+            return "cloud"
+        if self._result_cache:
             return "cached"
-        return "cloud"
+        return "unavailable"
 
     def cache_prompt(self, key: str, payload: Dict[str, Any]) -> None:
         self.cached_prompts[key] = payload
+
+    def cache_result(self, key: str, payload: Dict[str, Any]) -> None:
+        self._result_cache[key] = dict(payload, timestamp=time.time())
+
+    def get_cached_result(self, key: str) -> Optional[Dict[str, Any]]:
+        return self._result_cache.get(key)
+
+    def _record_stat(self, channel: str, success: bool) -> None:
+        stats = self.statistics.setdefault(channel, {"success": 0, "failure": 0})
+        key = "success" if success else "failure"
+        stats[key] = stats.get(key, 0) + 1
+
+    def run(
+        self,
+        task: str,
+        payload: Dict[str, Any],
+        *,
+        cache_key: Optional[str] = None,
+        prefer_local: bool = True,
+    ) -> Dict[str, Any]:
+        order = ["local", "cloud"] if prefer_local else ["cloud", "local"]
+        errors: List[Dict[str, Any]] = []
+
+        for channel in order:
+            handler: Optional[Callable[[str, Dict[str, Any]], Any]]
+            available: bool
+            if channel == "local":
+                handler = self.local_handler
+                available = self.local_available and handler is not None
+            else:
+                handler = self.cloud_handler
+                available = self.cloud_available and handler is not None
+
+            if not available or handler is None:
+                continue
+
+            try:
+                result = handler(task, dict(payload))
+            except Exception as exc:  # pragma: no cover - defensive logging
+                logger.warning("%s inference path failed: %s", channel, exc)
+                self._record_stat(channel, success=False)
+                if channel == "local":
+                    self.local_available = False
+                else:
+                    self.cloud_available = False
+                errors.append({"path": channel, "error": str(exc)})
+                continue
+
+            self._record_stat(channel, success=True)
+            response = {
+                "result": result,
+                "path": channel,
+                "cached": False,
+                "errors": errors,
+            }
+            if cache_key:
+                self.cache_result(cache_key, {"result": result, "path": channel, "task": task})
+            return response
+
+        cached_payload: Optional[Dict[str, Any]] = None
+        if cache_key:
+            cached_payload = self.get_cached_result(cache_key)
+        if cached_payload is None and self._result_cache:
+            cached_payload = next(iter(self._result_cache.values()))
+
+        if cached_payload is not None:
+            stats = self.statistics.setdefault("cached", {"hits": 0, "misses": 0})
+            stats["hits"] = stats.get("hits", 0) + 1
+            return {
+                "result": cached_payload.get("result"),
+                "path": "cached",
+                "cached": True,
+                "errors": errors,
+            }
+
+        stats = self.statistics.setdefault("cached", {"hits": 0, "misses": 0})
+        stats["misses"] = stats.get("misses", 0) + 1
+        return {"result": None, "path": "unavailable", "cached": False, "errors": errors}
 
 
 class SocialIntelligenceLayer:
@@ -950,9 +1049,59 @@ class LearningAgent:
         """Fetch related facts and episodes for the provided cue."""
         return self.knowledge_manager.fusion_search(cue)
 
-    def choose_inference_path(self, task: str) -> str:
+    def choose_inference_path(self, task: str, prefer_local: bool = True) -> str:
         """Select the inference strategy (local/cloud/cached)."""
-        return self.inference_router.choose(task)
+        return self.inference_router.choose(task, prefer_local=prefer_local)
+
+    def register_local_inference(
+        self, handler: Optional[Callable[[str, Dict[str, Any]], Any]]
+    ) -> None:
+        """Register a local inference handler and mark availability."""
+
+        self.inference_router.register_local(bool(handler), handler=handler)
+
+    def register_cloud_inference(
+        self, handler: Optional[Callable[[str, Dict[str, Any]], Any]]
+    ) -> None:
+        """Register a cloud inference handler and mark availability."""
+
+        self.inference_router.register_cloud(bool(handler), handler=handler)
+
+    def generate_inference(
+        self,
+        task: str,
+        prompt: str,
+        *,
+        context: Optional[Dict[str, Any]] = None,
+        prefer_local: bool = True,
+        cache_key: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Execute an inference request using the configured hybrid strategy."""
+
+        payload = {"prompt": prompt, "context": dict(context or {})}
+        key = cache_key or f"{task}:{hash(prompt) & 0xFFFFFFFF:x}"
+        outcome = self.inference_router.run(
+            task, payload, cache_key=key, prefer_local=prefer_local
+        )
+
+        result = outcome.get("result")
+        if result is None:
+            return outcome
+
+        if not isinstance(result, dict):
+            result = {"response": str(result)}
+            outcome["result"] = result
+
+        reward_value = result.get("reward", 0.0)
+        try:
+            reward = float(reward_value)
+        except (TypeError, ValueError):
+            reward = 0.0
+
+        if outcome.get("path") in {"local", "cloud"}:
+            self.log_interaction(task, prompt, result.get("response", ""), reward)
+
+        return outcome
 
     def adapt_response_tone(self, text: str) -> Dict[str, Any]:
         """Analyse sentiment and adapt the response tone."""
