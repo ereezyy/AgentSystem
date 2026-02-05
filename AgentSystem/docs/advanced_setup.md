@@ -30,17 +30,20 @@ pip install -r requirements.txt
 The audio components require additional system libraries:
 
 #### On Windows:
-- PyAudio should install automatically via pip
+- Install the PortAudio binary from the official website
+- Then install PyAudio with `pip install pyaudio`
 - For video, OpenCV may require Microsoft Visual C++ Redistributable
 
 #### On macOS:
 ```bash
 brew install portaudio
+pip install pyaudio
 ```
 
 #### On Linux:
 ```bash
-sudo apt-get install portaudio19-dev python3-pyaudio
+sudo apt-get install portaudio19-dev
+pip install pyaudio
 sudo apt-get install libopencv-dev python3-opencv
 ```
 

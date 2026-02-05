@@ -24,7 +24,8 @@ requests>=2.28.0   # For API interactions
 # Sensory Input Module dependencies
 opencv-python>=4.6.0    # For video processing
 numpy>=1.22.0           # For array processing
-pyaudio>=0.2.12         # For audio capture
+# PyAudio requires native PortAudio headers. Install manually when audio capture is needed.
+# Example (Debian/Ubuntu): sudo apt-get install portaudio19-dev && pip install pyaudio
 SpeechRecognition>=3.9.0 # For speech recognition
 
 # Continuous Learning Module dependencies

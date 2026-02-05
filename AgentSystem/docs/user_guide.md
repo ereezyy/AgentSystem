@@ -135,7 +135,7 @@ If you encounter issues with sensory input:
 1. Check that your microphone and webcam are connected and working
 2. Verify you have the necessary permissions for the devices
 3. Adjust the device indexes in the `.env` file if needed
-4. Check the requirements are installed: `pip install pyaudio opencv-python SpeechRecognition`
+4. Install system dependencies (e.g., `sudo apt-get install portaudio19-dev`) and then install the Python packages: `pip install pyaudio opencv-python SpeechRecognition`
 
 ### Research Issues
 
