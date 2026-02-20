@@ -1,0 +1,35 @@
+2026-02-20 22:45:30 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:45:30 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:45:30 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'TestAgent' (d3aa2fee-2172-4155-9957-ed7d36569b27) initialized
+2026-02-20 22:45:30 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'TestAgent' (adc287fb-9a2e-440d-9655-b6e91062af54) initialized
+2026-02-20 22:45:46 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:45:46 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:48:34 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:48:34 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:48:34 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'TestAgent' (f11095dc-9000-4386-96c2-8658567d728c) initialized
+2026-02-20 22:48:34 - AgentSystem.core.agent - INFO - agent.py:215 - Saved agent state to agent_state.json
+2026-02-20 22:48:34 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'TestAgent' (82ba6bcf-7515-47ef-8dcf-2bf012c2bf3a) initialized
+2026-02-20 22:48:34 - AgentSystem.core.agent - INFO - agent.py:234 - Loaded agent state from agent_state.json
+2026-02-20 22:49:03 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:49:03 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:49:03 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'TestAgent' (947561f3-3a0c-45ba-bfe4-db109406966d) initialized
+2026-02-20 22:49:03 - AgentSystem.core.agent - INFO - agent.py:215 - Saved agent state to agent_state.json
+2026-02-20 22:49:03 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'TestAgent' (5d4dad54-d1e3-4171-b473-eddd11aaf2a6) initialized
+2026-02-20 22:49:03 - AgentSystem.core.agent - INFO - agent.py:234 - Loaded agent state from agent_state.json
+2026-02-20 22:49:24 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:49:24 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:49:25 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-20 22:49:25 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-20 22:49:25 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:49:25 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:49:25 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 22:49:25 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-20 22:50:48 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:50:48 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:50:48 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:50:48 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:50:48 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-20 22:50:48 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-20 22:50:48 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-20 22:50:48 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 22:50:48 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow

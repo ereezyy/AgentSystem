@@ -209,8 +209,15 @@ class Agent:
         Args:
             file_path: Path to save state
         """
-        # TODO: Implement state saving
-        pass
+        if self.state_manager:
+            try:
+                self.state_manager.save(file_path)
+                logger.info(f"Saved agent state to {file_path}")
+            except Exception as e:
+                logger.error(f"Failed to save agent state to {file_path}: {e}")
+                raise
+        else:
+            logger.warning("No state manager available to save state")
     
     def load_state(self, file_path: str) -> None:
         """
@@ -219,8 +226,15 @@ class Agent:
         Args:
             file_path: Path to load state from
         """
-        # TODO: Implement state loading
-        pass
+        try:
+            # Local import to avoid potential circular dependencies
+            from AgentSystem.core.state import AgentState
+
+            self.state_manager = AgentState.load(file_path)
+            logger.info(f"Loaded agent state from {file_path}")
+        except Exception as e:
+            logger.error(f"Failed to load agent state from {file_path}: {e}")
+            raise
     
     def __str__(self) -> str:
         """String representation"""
