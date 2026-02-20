@@ -268,6 +268,16 @@ class CLVPredictor:
                 """
                 payment_data = await conn.fetchrow(payment_query, tenant_id)
 
+                # Get support ticket data
+                support_query = """
+                    SELECT
+                        COUNT(*) as ticket_count
+                    FROM tenant_management.support_tickets
+                    WHERE tenant_id = $1
+                    AND created_at >= NOW() - INTERVAL '12 months'
+                """
+                support_data = await conn.fetchrow(support_query, tenant_id)
+
                 # Get feature usage data
                 feature_query = """
                     SELECT
@@ -310,7 +320,7 @@ class CLVPredictor:
                     # Engagement features
                     api_calls_per_month=int(api_calls_per_month),
                     feature_adoption_score=min(1.0, (feature_data['features_used'] or 0) / 10),
-                    support_tickets=0,  # TODO: Add support ticket tracking
+                    support_tickets=int(support_data['ticket_count'] or 0),
                     login_frequency=float(login_frequency),
                     session_duration_avg=0.0,  # TODO: Add session tracking
 
