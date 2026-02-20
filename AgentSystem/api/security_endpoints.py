@@ -4,14 +4,17 @@ Advanced Security and Compliance Automation API Endpoints
 Provides comprehensive API for security monitoring, compliance management, and threat detection
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks, UploadFile, File
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks, UploadFile, File, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Dict, Optional, Any
 from datetime import datetime, timedelta, date
 from pydantic import BaseModel, Field
 import asyncio
 import logging
 from enum import Enum
+import jwt
+from ..utils.env_loader import get_env
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -188,10 +191,45 @@ class IncidentRequest(BaseModel):
     source_event_id: Optional[str] = Field(default=None, description="Source security event ID")
 
 # Dependency to get current user/tenant
-async def get_current_tenant(token: str = Depends(security)) -> str:
+async def get_current_tenant(token: HTTPAuthorizationCredentials = Depends(security)) -> str:
     """Extract tenant ID from JWT token"""
-    # Implementation would decode JWT and extract tenant_id
-    return "tenant_123"
+    try:
+        jwt_secret = get_env("JWT_SECRET_KEY", required=True)
+        jwt_algorithm = get_env("JWT_ALGORITHM", "HS256")
+
+        payload = jwt.decode(
+            token.credentials,
+            jwt_secret,
+            algorithms=[jwt_algorithm]
+        )
+
+        tenant_id = payload.get("tenant_id")
+        if not tenant_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token missing tenant_id"
+            )
+
+        return tenant_id
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error validating token: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
 
 # Security Event Monitoring Endpoints
 
