@@ -20,9 +20,11 @@ from ..monitoring.realtime_dashboard import dashboard_service
 
 logger = get_logger(__name__)
 
+
 @dataclass
 class ScalingRule:
     """Scaling rule configuration"""
+
     service_name: str
     metric_name: str
     scale_up_threshold: float
@@ -34,9 +36,11 @@ class ScalingRule:
     scale_down_step: int
     evaluation_period: int  # seconds
 
+
 @dataclass
 class ScalingEvent:
     """Scaling event record"""
+
     timestamp: float
     service_name: str
     action: str  # "scale_up", "scale_down"
@@ -46,6 +50,7 @@ class ScalingEvent:
     trigger_value: float
     threshold: float
     reason: str
+
 
 class ServiceManager:
     """Manages service instances and scaling operations"""
@@ -64,7 +69,9 @@ class ServiceManager:
             # Initialize current instance counts
             self._discover_current_instance_counts()
         except Exception as e:
-            logger.warning(f"Docker not available: {e}. Scaling functionality will be limited.")
+            logger.warning(
+                f"Docker not available: {e}. Scaling functionality will be limited."
+            )
 
     def _discover_current_instance_counts(self):
         """Discover currently running service instances"""
@@ -93,13 +100,13 @@ class ServiceManager:
         """Extract service name from container"""
         try:
             # Try to get from compose service label
-            if 'com.docker.compose.service' in container.labels:
-                return container.labels['com.docker.compose.service']
+            if "com.docker.compose.service" in container.labels:
+                return container.labels["com.docker.compose.service"]
 
             # Try to extract from container name
             name = container.name
-            if 'agentsystem-' in name:
-                return name.replace('agentsystem-', '').split('-')[0]
+            if "agentsystem-" in name:
+                return name.replace("agentsystem-", "").split("-")[0]
 
             return None
         except Exception:
@@ -127,7 +134,9 @@ class ServiceManager:
                     await self._stop_service_instance(service_name)
 
             self.current_instances[service_name] = target_instances
-            logger.info(f"Scaled {service_name} from {current} to {target_instances} instances")
+            logger.info(
+                f"Scaled {service_name} from {current} to {target_instances} instances"
+            )
             return True
 
         except Exception as e:
@@ -138,7 +147,9 @@ class ServiceManager:
     async def _start_service_instance(self, service_name: str):
         """Start a new instance of a service"""
         if not self.docker_available:
-            logger.warning(f"Cannot start instance of {service_name}: Docker not available")
+            logger.warning(
+                f"Cannot start instance of {service_name}: Docker not available"
+            )
             return
 
         try:
@@ -148,16 +159,22 @@ class ServiceManager:
             new_count = current_count + 1
 
             # Execute docker-compose scale command
-            import subprocess
-            result = subprocess.run([
-                "docker-compose", "-f", compose_file,
-                "scale", f"{service_name}={new_count}"
-            ], capture_output=True, text=True)
+            process = await asyncio.create_subprocess_exec(
+                "docker-compose",
+                "-f",
+                compose_file,
+                "scale",
+                f"{service_name}={new_count}",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await process.communicate()
 
-            if result.returncode == 0:
+            if process.returncode == 0:
                 logger.info(f"Started new instance of {service_name}")
             else:
-                logger.error(f"Failed to start {service_name}: {result.stderr}")
+                error_msg = stderr.decode() if stderr else "Unknown error"
+                logger.error(f"Failed to start {service_name}: {error_msg}")
 
         except Exception as e:
             logger.error(f"Error starting {service_name} instance: {e}")
@@ -166,7 +183,9 @@ class ServiceManager:
     async def _stop_service_instance(self, service_name: str):
         """Stop an instance of a service"""
         if not self.docker_available:
-            logger.warning(f"Cannot stop instance of {service_name}: Docker not available")
+            logger.warning(
+                f"Cannot stop instance of {service_name}: Docker not available"
+            )
             return
 
         try:
@@ -177,9 +196,11 @@ class ServiceManager:
 
             if containers:
                 # Stop the most recently created container
-                container_to_stop = max(containers, key=lambda c: c.attrs['Created'])
+                container_to_stop = max(containers, key=lambda c: c.attrs["Created"])
                 container_to_stop.stop()
-                logger.info(f"Stopped instance of {service_name}: {container_to_stop.short_id}")
+                logger.info(
+                    f"Stopped instance of {service_name}: {container_to_stop.short_id}"
+                )
 
         except Exception as e:
             logger.error(f"Error stopping {service_name} instance: {e}")
@@ -190,6 +211,7 @@ class ServiceManager:
         if not self.docker_available:
             return 1  # Default to 1 instance when Docker is not available
         return self.current_instances.get(service_name, 0)
+
 
 class LoadBalancer:
     """Manages load balancing configuration"""
@@ -210,7 +232,7 @@ class LoadBalancer:
             config = self._generate_haproxy_config()
 
             # Write new config
-            with open(self.haproxy_config_path, 'w') as f:
+            with open(self.haproxy_config_path, "w") as f:
                 f.write(config)
 
             # Reload HAProxy
@@ -268,7 +290,9 @@ backend orchestrator_backend
 """
 
         # Add orchestrator endpoints
-        for i, endpoint in enumerate(self.service_endpoints.get('agent-orchestrator', [])):
+        for i, endpoint in enumerate(
+            self.service_endpoints.get("agent-orchestrator", [])
+        ):
             config += f"    server orchestrator{i+1} {endpoint} check\n"
 
         # Add AI provider backend
@@ -277,7 +301,9 @@ backend api_backend
     balance roundrobin
     option httpchk GET /health
 """
-        for i, endpoint in enumerate(self.service_endpoints.get('ai-provider-service', [])):
+        for i, endpoint in enumerate(
+            self.service_endpoints.get("ai-provider-service", [])
+        ):
             config += f"    server ai_provider{i+1} {endpoint} check\n"
 
         # Add streaming backend
@@ -286,7 +312,9 @@ backend streaming_backend
     balance roundrobin
     option httpchk GET /health
 """
-        for i, endpoint in enumerate(self.service_endpoints.get('streaming-service', [])):
+        for i, endpoint in enumerate(
+            self.service_endpoints.get("streaming-service", [])
+        ):
             config += f"    server streaming{i+1} {endpoint} check\n"
 
         # Add analytics backend
@@ -295,7 +323,9 @@ backend analytics_backend
     balance roundrobin
     option httpchk GET /health
 """
-        for i, endpoint in enumerate(self.service_endpoints.get('analytics-service', [])):
+        for i, endpoint in enumerate(
+            self.service_endpoints.get("analytics-service", [])
+        ):
             config += f"    server analytics{i+1} {endpoint} check\n"
 
         # Add notifications backend
@@ -304,7 +334,9 @@ backend notifications_backend
     balance roundrobin
     option httpchk GET /health
 """
-        for i, endpoint in enumerate(self.service_endpoints.get('notification-service', [])):
+        for i, endpoint in enumerate(
+            self.service_endpoints.get("notification-service", [])
+        ):
             config += f"    server notifications{i+1} {endpoint} check\n"
 
         return config
@@ -313,10 +345,21 @@ backend notifications_backend
         """Reload HAProxy configuration"""
         try:
             import subprocess
-            result = subprocess.run([
-                "docker", "exec", "agentsystem-loadbalancer",
-                "haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg", "-sf", "$(cat /var/run/haproxy.pid)"
-            ], capture_output=True, text=True)
+
+            result = subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "agentsystem-loadbalancer",
+                    "haproxy",
+                    "-f",
+                    "/usr/local/etc/haproxy/haproxy.cfg",
+                    "-sf",
+                    "$(cat /var/run/haproxy.pid)",
+                ],
+                capture_output=True,
+                text=True,
+            )
 
             if result.returncode == 0:
                 logger.info("HAProxy configuration reloaded successfully")
@@ -333,16 +376,19 @@ backend notifications_backend
                 try:
                     response = requests.get(f"http://{endpoint}/health", timeout=5)
                     self.health_check_results[service_name][endpoint] = {
-                        "status": "healthy" if response.status_code == 200 else "unhealthy",
+                        "status": (
+                            "healthy" if response.status_code == 200 else "unhealthy"
+                        ),
                         "response_time": response.elapsed.total_seconds(),
-                        "last_check": time.time()
+                        "last_check": time.time(),
                     }
                 except Exception as e:
                     self.health_check_results[service_name][endpoint] = {
                         "status": "unhealthy",
                         "error": str(e),
-                        "last_check": time.time()
+                        "last_check": time.time(),
                     }
+
 
 class AutoScaler:
     """Main auto-scaling orchestrator"""
@@ -365,10 +411,10 @@ class AutoScaler:
         """Load scaling rules from configuration"""
         try:
             if os.path.exists(self.config_path):
-                with open(self.config_path, 'r') as f:
+                with open(self.config_path, "r") as f:
                     config = yaml.safe_load(f)
 
-                for rule_config in config.get('scaling_rules', []):
+                for rule_config in config.get("scaling_rules", []):
                     rule = ScalingRule(**rule_config)
                     self.scaling_rules[rule.service_name] = rule
 
@@ -394,7 +440,7 @@ class AutoScaler:
                 cooldown_period=300,
                 scale_up_step=1,
                 scale_down_step=1,
-                evaluation_period=60
+                evaluation_period=60,
             ),
             ScalingRule(
                 service_name="task-processor",
@@ -406,7 +452,7 @@ class AutoScaler:
                 cooldown_period=180,
                 scale_up_step=2,
                 scale_down_step=1,
-                evaluation_period=30
+                evaluation_period=30,
             ),
             ScalingRule(
                 service_name="streaming-service",
@@ -418,8 +464,8 @@ class AutoScaler:
                 cooldown_period=120,
                 scale_up_step=1,
                 scale_down_step=1,
-                evaluation_period=45
-            )
+                evaluation_period=45,
+            ),
         ]
 
         for rule in default_rules:
@@ -487,16 +533,28 @@ class AutoScaler:
         action = None
         target_instances = current_instances
 
-        if avg_value > rule.scale_up_threshold and current_instances < rule.max_instances:
+        if (
+            avg_value > rule.scale_up_threshold
+            and current_instances < rule.max_instances
+        ):
             action = "scale_up"
-            target_instances = min(current_instances + rule.scale_up_step, rule.max_instances)
-        elif avg_value < rule.scale_down_threshold and current_instances > rule.min_instances:
+            target_instances = min(
+                current_instances + rule.scale_up_step, rule.max_instances
+            )
+        elif (
+            avg_value < rule.scale_down_threshold
+            and current_instances > rule.min_instances
+        ):
             action = "scale_down"
-            target_instances = max(current_instances - rule.scale_down_step, rule.min_instances)
+            target_instances = max(
+                current_instances - rule.scale_down_step, rule.min_instances
+            )
 
         # Execute scaling action
         if action and target_instances != current_instances:
-            success = await self.service_manager.scale_service(service_name, target_instances)
+            success = await self.service_manager.scale_service(
+                service_name, target_instances
+            )
 
             if success:
                 # Record scaling event
@@ -508,19 +566,29 @@ class AutoScaler:
                     to_instances=target_instances,
                     trigger_metric=rule.metric_name,
                     trigger_value=avg_value,
-                    threshold=rule.scale_up_threshold if action == "scale_up" else rule.scale_down_threshold,
-                    reason=f"{rule.metric_name} {action.replace('_', ' ')} threshold triggered"
+                    threshold=(
+                        rule.scale_up_threshold
+                        if action == "scale_up"
+                        else rule.scale_down_threshold
+                    ),
+                    reason=f"{rule.metric_name} {action.replace('_', ' ')} threshold triggered",
                 )
 
                 self.scaling_history.append(event)
                 self.service_manager.last_scaling_events[service_name] = time.time()
 
-                logger.info(f"Scaling event: {action} {service_name} from {current_instances} to {target_instances}")
+                logger.info(
+                    f"Scaling event: {action} {service_name} from {current_instances} to {target_instances}"
+                )
 
                 # Update load balancer
-                await self._update_load_balancer_endpoints(service_name, target_instances)
+                await self._update_load_balancer_endpoints(
+                    service_name, target_instances
+                )
 
-    async def _update_load_balancer_endpoints(self, service_name: str, instance_count: int):
+    async def _update_load_balancer_endpoints(
+        self, service_name: str, instance_count: int
+    ):
         """Update load balancer with new service endpoints"""
         try:
             # Generate endpoints based on service naming convention
@@ -544,7 +612,7 @@ class AutoScaler:
             "notification-service": 8002,
             "analytics-service": 8003,
             "streaming-service": 8004,
-            "task-processor": 8006
+            "task-processor": 8006,
         }
         return port_mapping.get(service_name, 8000)
 
@@ -554,7 +622,7 @@ class AutoScaler:
             "timestamp": time.time(),
             "services": {},
             "recent_events": [],
-            "load_balancer_status": {}
+            "load_balancer_status": {},
         }
 
         # Service status
@@ -566,12 +634,13 @@ class AutoScaler:
                 "max_instances": rule.max_instances,
                 "scaling_metric": rule.metric_name,
                 "scale_up_threshold": rule.scale_up_threshold,
-                "scale_down_threshold": rule.scale_down_threshold
+                "scale_down_threshold": rule.scale_down_threshold,
             }
 
         # Recent scaling events
         recent_events = [
-            asdict(event) for event in self.scaling_history
+            asdict(event)
+            for event in self.scaling_history
             if time.time() - event.timestamp < 3600  # Last hour
         ]
         status["recent_events"] = recent_events[-10:]  # Last 10 events
@@ -587,11 +656,16 @@ class AutoScaler:
             return False
 
         rule = self.scaling_rules[service_name]
-        if target_instances < rule.min_instances or target_instances > rule.max_instances:
+        if (
+            target_instances < rule.min_instances
+            or target_instances > rule.max_instances
+        ):
             return False
 
         current_instances = self.service_manager.get_service_instances(service_name)
-        success = await self.service_manager.scale_service(service_name, target_instances)
+        success = await self.service_manager.scale_service(
+            service_name, target_instances
+        )
 
         if success:
             # Record manual scaling event
@@ -604,13 +678,14 @@ class AutoScaler:
                 trigger_metric="manual",
                 trigger_value=0,
                 threshold=0,
-                reason="Manual scaling operation"
+                reason="Manual scaling operation",
             )
 
             self.scaling_history.append(event)
             await self._update_load_balancer_endpoints(service_name, target_instances)
 
         return success
+
 
 # Global auto-scaler instance
 auto_scaler = AutoScaler()
