@@ -363,7 +363,7 @@ class IntelligentCache:
 
         try:
             # Generate embedding
-            embedding = self.embedding_model.encode(content)
+            embedding = await asyncio.to_thread(self.embedding_model.encode, content)
 
             # Create hash from embedding (simplified)
             embedding_bytes = embedding.tobytes()
