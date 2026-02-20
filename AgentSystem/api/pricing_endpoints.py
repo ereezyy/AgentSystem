@@ -397,23 +397,28 @@ async def implement_pricing_recommendation(
             # Integrate with billing system to actually update prices
             recommended_price = Decimal(str(result['recommended_price']))
 
-            stripe_service = StripeService(
-                conn,
-                os.getenv('STRIPE_SECRET_KEY', 'sk_test_placeholder'),
-                os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_placeholder')
-            )
+            stripe_key = os.getenv('STRIPE_SECRET_KEY')
+            webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
 
-            try:
-                await stripe_service.update_subscription_price(
-                    str(tenant_id),
-                    recommended_price
+            if stripe_key and webhook_secret:
+                stripe_service = StripeService(
+                    conn,
+                    stripe_key,
+                    webhook_secret
                 )
-            except Exception as e:
-                # Log error but don't fail the request since DB update succeeded
-                # Ideally we should rollback or have a compensation transaction
-                print(f"Failed to update Stripe price: {e}")
-                # We might want to include a warning in the response
 
+                try:
+                    await stripe_service.update_subscription_price(
+                        str(tenant_id),
+                        recommended_price
+                    )
+                except Exception as e:
+                    # Log error but don't fail the request since DB update succeeded
+                    # Ideally we should rollback or have a compensation transaction
+                    print(f"Failed to update Stripe price: {e}")
+                    # We might want to include a warning in the response
+            else:
+                print("Stripe configuration missing, skipping price update")
             return {"message": "Pricing recommendation implemented successfully"}
 
     except Exception as e:
