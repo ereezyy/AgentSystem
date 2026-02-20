@@ -25,7 +25,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Stripe configuration
-stripe.api_key = "sk_test_..."  # Will be loaded from environment
 
 class PlanType(str, Enum):
     STARTER = "starter"
