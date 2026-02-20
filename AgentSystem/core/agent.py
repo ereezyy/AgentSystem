@@ -209,8 +209,23 @@ class Agent:
         Args:
             file_path: Path to save state
         """
-        # TODO: Implement state saving
-        pass
+        try:
+            state_data = {
+                "id": self.id,
+                "created_at": self.created_at,
+                "config": self.config.to_dict() if self.config else None,
+            }
+
+            if self.state_manager and hasattr(self.state_manager, "to_dict"):
+                state_data["state"] = self.state_manager.to_dict()
+
+            with open(file_path, "w") as f:
+                json.dump(state_data, f, indent=2)
+
+            logger.info(f"Agent state saved to {file_path}")
+
+        except Exception as e:
+            logger.error(f"Error saving agent state to {file_path}: {e}")
     
     def load_state(self, file_path: str) -> None:
         """
