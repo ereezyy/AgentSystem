@@ -1,4 +1,3 @@
-
 """
 Dynamic Pricing API Endpoints - AgentSystem Profit Machine
 Advanced value-based pricing optimization system endpoints
@@ -16,6 +15,7 @@ from enum import Enum
 
 from ..auth.auth_service import verify_token, get_current_tenant
 from ..database.connection import get_db_connection
+from ..utils.query_builder import build_select_query
 from ..pricing.dynamic_pricing_engine import (
     DynamicPricingEngine, PricingStrategy, PricingTier, PriceAdjustmentType,
     PricingRecommendation, CustomerPricingProfile, MarketConditions
@@ -304,39 +304,24 @@ async def get_pricing_recommendations(
         # Verify token
         await verify_token(token.credentials)
 
-        # Build query
-        conditions = ["tenant_id = $1"]
-        params = [tenant_id]
-        param_count = 1
-
-        if customer_id:
-            param_count += 1
-            conditions.append(f"customer_id = ${param_count}")
-            params.append(customer_id)
-
-        if strategy:
-            param_count += 1
-            conditions.append(f"strategy_used = ${param_count}")
-            params.append(strategy.value)
-
-        if status:
-            param_count += 1
-            conditions.append(f"status = ${param_count}")
-            params.append(status)
-
-        if min_priority:
-            param_count += 1
-            conditions.append(f"implementation_priority >= ${param_count}")
-            params.append(min_priority)
-
         async with get_db_connection() as conn:
-            query = f"""
-                SELECT * FROM pricing.recommendations
-                WHERE {' AND '.join(conditions)}
-                ORDER BY implementation_priority DESC, created_at DESC
-                LIMIT ${param_count + 1} OFFSET ${param_count + 2}
-            """
-            params.extend([limit, offset])
+            conditions = [("tenant_id", "=", tenant_id)]
+            if customer_id:
+                conditions.append(("customer_id", "=", customer_id))
+            if strategy:
+                conditions.append(("strategy_used", "=", strategy.value))
+            if status:
+                conditions.append(("status", "=", status))
+            if min_priority:
+                conditions.append(("implementation_priority", ">=", min_priority))
+
+            query, params = build_select_query(
+                table="pricing.recommendations",
+                conditions=conditions,
+                order_by="implementation_priority DESC, created_at DESC",
+                limit=limit,
+                offset=offset
+            )
 
             results = await conn.fetch(query, *params)
 
@@ -540,22 +525,18 @@ async def get_pricing_experiments(
         # Verify token
         await verify_token(token.credentials)
 
-        # Build query
-        conditions = ["tenant_id = $1"]
-        params = [tenant_id]
-
-        if status:
-            conditions.append("status = $2")
-            params.append(status)
-
         async with get_db_connection() as conn:
-            query = f"""
-                SELECT * FROM pricing.experiments
-                WHERE {' AND '.join(conditions)}
-                ORDER BY created_at DESC
-                LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
-            """
-            params.extend([limit, offset])
+            conditions = [("tenant_id", "=", tenant_id)]
+            if status:
+                conditions.append(("status", "=", status))
+
+            query, params = build_select_query(
+                table="pricing.experiments",
+                conditions=conditions,
+                order_by="created_at DESC",
+                limit=limit,
+                offset=offset
+            )
 
             results = await conn.fetch(query, *params)
 
@@ -688,24 +669,18 @@ async def get_price_elasticity(
         await verify_token(token.credentials)
 
         async with get_db_connection() as conn:
-            # Build query
-            conditions = ["tenant_id = $1"]
-            params = [tenant_id]
-
+            conditions = [("tenant_id", "=", tenant_id)]
             if customer_segment:
-                conditions.append("customer_segment = $2")
-                params.append(customer_segment)
-
+                conditions.append(("customer_segment", "=", customer_segment))
             if pricing_tier:
-                conditions.append("pricing_tier = $3")
-                params.append(pricing_tier.value)
+                conditions.append(("pricing_tier", "=", pricing_tier.value))
 
-            query = f"""
-                SELECT * FROM pricing.price_elasticity
-                WHERE {' AND '.join(conditions)}
-                ORDER BY calculation_date DESC
-                LIMIT 50
-            """
+            query, params = build_select_query(
+                table="pricing.price_elasticity",
+                conditions=conditions,
+                order_by="calculation_date DESC",
+                limit=50
+            )
 
             results = await conn.fetch(query, *params)
 
@@ -822,26 +797,20 @@ async def get_competitive_intelligence(
         # Verify token
         await verify_token(token.credentials)
 
-        # Build query
-        conditions = ["tenant_id = $1"]
-        params = [tenant_id]
-
-        if competitor_name:
-            conditions.append("competitor_name ILIKE $2")
-            params.append(f"%{competitor_name}%")
-
-        if product_tier:
-            conditions.append("product_tier = $3")
-            params.append(product_tier)
-
         async with get_db_connection() as conn:
-            query = f"""
-                SELECT * FROM pricing.competitive_intelligence
-                WHERE {' AND '.join(conditions)}
-                ORDER BY last_updated DESC
-                LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
-            """
-            params.extend([limit, offset])
+            conditions = [("tenant_id", "=", tenant_id)]
+            if competitor_name:
+                conditions.append(("competitor_name", "ILIKE", f"%{competitor_name}%"))
+            if product_tier:
+                conditions.append(("product_tier", "=", product_tier))
+
+            query, params = build_select_query(
+                table="pricing.competitive_intelligence",
+                conditions=conditions,
+                order_by="last_updated DESC",
+                limit=limit,
+                offset=offset
+            )
 
             results = await conn.fetch(query, *params)
 
@@ -879,30 +848,22 @@ async def get_pricing_alerts(
         # Verify token
         await verify_token(token.credentials)
 
-        # Build query
-        conditions = ["tenant_id = $1"]
-        params = [tenant_id]
-
-        if alert_type:
-            conditions.append("alert_type = $2")
-            params.append(alert_type)
-
-        if severity:
-            conditions.append("severity = $3")
-            params.append(severity)
-
-        if status:
-            conditions.append("status = $4")
-            params.append(status)
-
         async with get_db_connection() as conn:
-            query = f"""
-                SELECT * FROM pricing.alerts
-                WHERE {' AND '.join(conditions)}
-                ORDER BY created_at DESC
-                LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
-            """
-            params.extend([limit, offset])
+            conditions = [("tenant_id", "=", tenant_id)]
+            if alert_type:
+                conditions.append(("alert_type", "=", alert_type))
+            if severity:
+                conditions.append(("severity", "=", severity))
+            if status:
+                conditions.append(("status", "=", status))
+
+            query, params = build_select_query(
+                table="pricing.alerts",
+                conditions=conditions,
+                order_by="created_at DESC",
+                limit=limit,
+                offset=offset
+            )
 
             results = await conn.fetch(query, *params)
 
