@@ -1,0 +1,28 @@
+2026-02-20 23:38:59 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:38:59 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:38:59 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:39:27 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:39:27 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:39:27 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:40:16 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:40:16 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:40:16 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:40:29 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:40:29 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:40:29 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:09 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:09 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:41:09 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:26 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:41:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:54 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:54 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:41:54 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:41:55 - AgentSystem.pricing.dynamic_pricing_engine - ERROR - dynamic_pricing_engine.py:481 - Failed to extract customer profile: 'coroutine' object does not support the asynchronous context manager protocol
+2026-02-20 23:42:20 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:42:20 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:42:20 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:44:43 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:44:43 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:44:43 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO

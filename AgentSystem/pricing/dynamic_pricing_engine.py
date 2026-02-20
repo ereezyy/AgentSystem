@@ -457,17 +457,30 @@ class DynamicPricingEngine:
                 # Calculate payment reliability (0-1)
                 payment_reliability = max(0.1, 1 - (failed_payments / total_payments))
 
+                # Calculate competitive position
+                current_tier = PricingTier(customer_data["current_tier"] or "starter")
+                competitor_price = await self._get_competitor_pricing(current_tier)
+
+                # Position score = competitor_price / (competitor_price + our_price)
+                # If equal -> 0.5
+                # If we are cheaper -> > 0.5 (better position)
+                # If we are more expensive -> < 0.5 (worse position)
+                total_market_value = competitor_price + monthly_usage
+                competitive_position = 0.5  # Default
+                if total_market_value > 0:
+                    competitive_position = competitor_price / total_market_value
+
                 # Build profile
                 profile = CustomerPricingProfile(
                     customer_id=customer_id,
                     tenant_id=tenant_id,
-                    current_tier=PricingTier(customer_data['current_tier'] or 'starter'),
+                    current_tier=current_tier,
                     monthly_usage=monthly_usage,
                     value_score=value_score,
                     price_sensitivity=price_sensitivity,
-                    churn_risk=float(churn_data['churn_probability'] or 0.3) if churn_data else 0.3,
-                    clv_prediction=float(clv_data['predicted_clv'] or 5000) if clv_data else 5000,
-                    competitive_position=0.5,  # TODO: Calculate from market data
+                    churn_risk=float(churn_data["churn_probability"] or 0.3) if churn_data else 0.3,
+                    clv_prediction=float(clv_data["predicted_clv"] or 5000) if clv_data else 5000,
+                    competitive_position=competitive_position,
                     usage_growth_trend=0.1,   # TODO: Calculate from usage trends
                     feature_adoption_score=0.5,  # TODO: Calculate from feature usage
                     support_cost_ratio=0.1,   # TODO: Calculate from support costs
