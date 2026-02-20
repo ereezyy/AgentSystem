@@ -279,6 +279,23 @@ class CLVPredictor:
                 """
                 feature_data = await conn.fetchrow(feature_query, tenant_id)
 
+                # Get plan history
+                history_query = """
+                    SELECT plan_id
+                    FROM billing.subscriptions
+                    WHERE tenant_id = $1
+                    ORDER BY created_at
+                """
+                history_data = await conn.fetch(history_query, tenant_id)
+
+                plan_changes = 0
+                if history_data:
+                    current_plan = history_data[0]["plan_id"]
+                    for record in history_data[1:]:
+                        if record["plan_id"] != current_plan:
+                            plan_changes += 1
+                            current_plan = record["plan_id"]
+
                 # Calculate derived features
                 days_since_signup = customer_data['days_since_signup'] or 1
                 subscription_days = subscription_data['subscription_days'] if subscription_data else days_since_signup
@@ -317,7 +334,7 @@ class CLVPredictor:
                     # Subscription features
                     subscription_tier=subscription_data['plan_id'] if subscription_data else 'free',
                     months_subscribed=int(subscription_days / 30),
-                    plan_changes=0,  # TODO: Add plan change tracking
+                    plan_changes=plan_changes,
                     payment_failures=int(payment_data['failed_payments'] or 0),
 
                     # Usage features
