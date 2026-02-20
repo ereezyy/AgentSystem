@@ -1,0 +1,14 @@
+2026-02-20 22:44:56 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:44:56 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:44:56 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'agent' (8bd62700-4848-4949-9c0f-042baabf8277) initialized
+2026-02-20 22:44:56 - AgentSystem.core.agent - ERROR - agent.py:168 - Error in handler for 'test_event': Intentional Failure
+2026-02-20 22:45:11 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:45:11 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:45:11 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-20 22:45:11 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-20 22:45:11 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:45:11 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:45:11 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 22:45:11 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-20 22:45:12 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'agent' (2fd9838d-add4-44bb-b048-6c7d19fd2c37) initialized
+2026-02-20 22:45:12 - AgentSystem.core.agent - ERROR - agent.py:168 - Error in handler for 'test_event': Intentional Failure
