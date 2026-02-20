@@ -284,6 +284,31 @@ class AgentState:
         
         logger.debug(f"Saved state to {file_path}")
     
+    def load_from_dict(self, state_dict: Dict[str, Any]) -> None:
+        """
+        Load state from dictionary
+
+        Args:
+            state_dict: State dictionary
+        """
+        try:
+            self.status = AgentStatus[state_dict.get("status", "IDLE")]
+            self.current_task_id = state_dict.get("current_task_id")
+
+            # Load tasks
+            self.tasks = {}
+            for tid, task_dict in state_dict.get("tasks", {}).items():
+                task = TaskInfo(**task_dict)
+                self.tasks[tid] = task
+
+            self.task_queue = state_dict.get("task_queue", [])
+            self.context = state_dict.get("context", {})
+            self.last_updated = state_dict.get("last_updated", time.time())
+            self.execution_count = state_dict.get("execution_count", 0)
+
+        except Exception as e:
+            logger.error(f"Error loading state from dict: {e}")
+
     @classmethod
     def load(cls, file_path: str) -> 'AgentState':
         """
@@ -301,18 +326,7 @@ class AgentState:
             with open(file_path, 'r') as f:
                 state_dict = json.load(f)
             
-            state.status = AgentStatus[state_dict.get("status", "IDLE")]
-            state.current_task_id = state_dict.get("current_task_id")
-            
-            # Load tasks
-            for tid, task_dict in state_dict.get("tasks", {}).items():
-                task = TaskInfo(**task_dict)
-                state.tasks[tid] = task
-            
-            state.task_queue = state_dict.get("task_queue", [])
-            state.context = state_dict.get("context", {})
-            state.last_updated = state_dict.get("last_updated", time.time())
-            state.execution_count = state_dict.get("execution_count", 0)
+            state.load_from_dict(state_dict)
             
             logger.debug(f"Loaded state from {file_path}")
             
