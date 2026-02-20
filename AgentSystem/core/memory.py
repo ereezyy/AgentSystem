@@ -366,6 +366,9 @@ class Memory:
                 # If importance changed, may need to store in long-term
                 if 'importance' in kwargs and kwargs['importance'] > 0.7:
                     self._store_in_long_term(item)
+                # If the item is already important or critical, update in long-term memory as well
+                elif item.importance > 0.7 or item.type in ["critical", "persistent"]:
+                    self._store_in_long_term(item)
                 
                 return True
         
