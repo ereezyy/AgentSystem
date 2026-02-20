@@ -1,4 +1,3 @@
-
 """
 Intelligent Caching Engine - AgentSystem Profit Machine
 Advanced multi-level caching system to reduce AI costs by 60%
@@ -399,12 +398,17 @@ class IntelligentCache:
 
         # Get candidates with similar semantic hash
         pattern = f"cache:semantic:{tenant_id}:*"
-        keys = await self.redis.keys(pattern)
+        # Use scan_iter to avoid blocking Redis with KEYS command
+        keys = []
+        async for key in self.redis.scan_iter(match=pattern, count=100):
+            keys.append(key)
+            if len(keys) >= 50:
+                break
 
         best_match = None
         best_similarity = 0
 
-        for key in keys[:50]:  # Limit search for performance
+        for key in keys:  # Limit search for performance
             cached_data = await self.redis.get(key)
             if cached_data:
                 cache_entry = pickle.loads(cached_data)
@@ -902,23 +906,35 @@ class IntelligentCache:
 
     async def _find_keys_by_pattern(self, tenant_id: str, pattern: str) -> List[str]:
         """Find Redis keys matching pattern"""
-        return await self.redis.keys(f"cache:*:{tenant_id}:*{pattern}*")
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*{pattern}*"):
+            keys.append(key)
+        return keys
 
     async def _find_keys_by_model(self, tenant_id: str, model: str) -> List[str]:
         """Find Redis keys for specific model"""
         # Would need to scan cache entries and build key list
         # Simplified implementation
-        return await self.redis.keys(f"cache:*:{tenant_id}:*")
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*"):
+            keys.append(key)
+        return keys
 
     async def _find_keys_by_tags(self, tenant_id: str, tags: List[str]) -> List[str]:
         """Find Redis keys matching tags"""
         # Would query database for cache_ids with matching tags, then build Redis keys
         # Simplified implementation
-        return await self.redis.keys(f"cache:*:{tenant_id}:*")
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*"):
+            keys.append(key)
+        return keys
 
     async def _find_all_tenant_keys(self, tenant_id: str) -> List[str]:
         """Find all Redis keys for tenant"""
-        return await self.redis.keys(f"cache:*:{tenant_id}:*")
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*"):
+            keys.append(key)
+        return keys
 
     async def _mark_invalidated_in_database(self, tenant_id: str, pattern: Optional[str] = None,
                                           model: Optional[str] = None, tags: Optional[List[str]] = None):
