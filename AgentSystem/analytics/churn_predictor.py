@@ -427,7 +427,8 @@ class ChurnPredictor:
                         SUM(tokens_used) as total_tokens,
                         SUM(cost) as total_cost,
                         MAX(created_at) as last_usage,
-                        COUNT(DISTINCT DATE(created_at)) as active_days
+                        COUNT(DISTINCT DATE(created_at)) as active_days,
+                        COUNT(DISTINCT service_type) as distinct_features
                     FROM usage.usage_logs
                     WHERE tenant_id = $1
                     AND created_at >= NOW() - INTERVAL '30 days'
@@ -448,7 +449,8 @@ class ChurnPredictor:
                 usage_prev_30d_query = """
                     SELECT
                         COUNT(*) as total_requests,
-                        SUM(tokens_used) as total_tokens
+                        SUM(tokens_used) as total_tokens,
+                        COUNT(DISTINCT service_type) as distinct_features
                     FROM usage.usage_logs
                     WHERE tenant_id = $1
                     AND created_at >= NOW() - INTERVAL '60 days'
@@ -498,7 +500,7 @@ class ChurnPredictor:
                     usage_trend_7d=usage_trend_7d,
                     days_since_last_login=days_since_last_login,
                     session_frequency_decline=max(0, -usage_trend_30d / 10),
-                    feature_usage_decline=0.0,  # TODO: Calculate from feature usage data
+                    feature_usage_decline=max(0.0, ((float(usage_prev_30d['distinct_features'] or 0) - float(usage_30d['distinct_features'] or 0)) / max(1.0, float(usage_prev_30d['distinct_features'] or 0))) * 100),
                     api_calls_decline=max(0, -usage_trend_30d),
 
                     # Engagement metrics
