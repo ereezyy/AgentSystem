@@ -482,3 +482,16 @@ class Memory:
             summary += f"- [{item.type}] {content_str} (importance: {item.importance:.2f})\n"
         
         return summary
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert memory state to dictionary (working memory only)"""
+        return {
+            "working_memory": [item.to_dict() for item in self.working_memory]
+        }
+
+    def load_from_dict(self, data: Dict[str, Any]) -> None:
+        """Load memory state from dictionary"""
+        if "working_memory" in data:
+            self.working_memory = [
+                MemoryItem.from_dict(item) for item in data.get("working_memory", [])
+            ]
