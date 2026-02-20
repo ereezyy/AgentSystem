@@ -37,7 +37,7 @@ except ImportError:
 class AudioProcessor:
     """Processes audio input from microphone"""
     
-    def __init__(self, sample_rate: int = 16000, chunk_size: int = 1024):
+    def __init__(self, sample_rate: int = 16000, chunk_size: int = 1024, event_callback: Optional[Callable[[Dict[str, Any]], None]] = None):
         """
         Initialize the audio processor
         
@@ -47,7 +47,8 @@ class AudioProcessor:
         """
         self.sample_rate = sample_rate
         self.chunk_size = chunk_size
-        self.audio_queue = queue.Queue()
+        self.event_callback = event_callback
+        self.audio_queue = queue.Queue(maxsize=100)
         self.is_recording = False
         self.recording_thread = None
         
@@ -195,13 +196,30 @@ class AudioProcessor:
                 if text:
                     logger.debug(f"Recognized speech: {text}")
                     
-                    # Add to queue
-                    self.audio_queue.put({
+                    # Create event
+                    event = {
                         'type': 'speech',
                         'text': text,
                         'timestamp': datetime.now().isoformat(),
                         'confidence': 0.8  # Estimated confidence
-                    })
+                    }
+
+                    # Add to queue
+                    try:
+                        self.audio_queue.put(event, block=False)
+                    except queue.Full:
+                        try:
+                            self.audio_queue.get_nowait()
+                            self.audio_queue.put(event, block=False)
+                        except:
+                            pass
+
+                    # Call callback if available
+                    if self.event_callback:
+                        try:
+                            self.event_callback(event)
+                        except Exception as e:
+                            logger.error(f"Error in audio event callback: {e}")
             except sr.UnknownValueError:
                 # No speech detected, add audio features instead
                 self._extract_audio_features(audio_data)
@@ -230,7 +248,7 @@ class AudioProcessor:
                 
                 # Only queue if there's significant audio (not silence)
                 if rms > 500:  # Arbitrary threshold, adjust as needed
-                    self.audio_queue.put({
+                    event = {
                         'type': 'audio_features',
                         'timestamp': datetime.now().isoformat(),
                         'features': {
@@ -238,7 +256,22 @@ class AudioProcessor:
                             'peak': int(peak),
                             'zero_crossings': int(zero_crossings)
                         }
-                    })
+                    }
+                    try:
+                        self.audio_queue.put(event, block=False)
+                    except queue.Full:
+                        try:
+                            self.audio_queue.get_nowait()
+                            self.audio_queue.put(event, block=False)
+                        except:
+                            pass
+
+                    # Call callback if available
+                    if self.event_callback:
+                        try:
+                            self.event_callback(event)
+                        except Exception as e:
+                            logger.error(f"Error in audio event callback: {e}")
         except Exception as e:
             logger.error(f"Error extracting audio features: {e}")
     
@@ -261,7 +294,7 @@ class AudioProcessor:
 class VideoProcessor:
     """Processes video input from webcam or other sources"""
     
-    def __init__(self, width: int = 640, height: int = 480, fps: int = 5):
+    def __init__(self, width: int = 640, height: int = 480, fps: int = 5, event_callback: Optional[Callable[[Dict[str, Any]], None]] = None):
         """
         Initialize the video processor
         
@@ -274,6 +307,7 @@ class VideoProcessor:
         self.height = height
         self.fps = fps
         self.frame_interval = 1.0 / fps
+        self.event_callback = event_callback
         
         self.video_queue = queue.Queue(maxsize=10)  # Limit queue size
         self.is_capturing = False
@@ -489,6 +523,13 @@ class VideoProcessor:
                 'thumbnail': thumbnail_b64
             }
             
+            # Call callback if available
+            if self.event_callback:
+                try:
+                    self.event_callback(event)
+                except Exception as e:
+                    logger.error(f"Error in video event callback: {e}")
+
             # Add to queue (non-blocking to prevent slowdowns)
             try:
                 self.video_queue.put(event, block=False)
@@ -524,8 +565,10 @@ class SensoryInputModule:
     
     def __init__(self):
         """Initialize the sensory input module"""
-        self.audio_processor = AudioProcessor() if SENSORY_IMPORTS_AVAILABLE else None
-        self.video_processor = VideoProcessor() if SENSORY_IMPORTS_AVAILABLE else None
+        self.unified_queue = queue.Queue(maxsize=100)
+
+        self.audio_processor = AudioProcessor(event_callback=self._handle_sensory_event) if SENSORY_IMPORTS_AVAILABLE else None
+        self.video_processor = VideoProcessor(event_callback=self._handle_sensory_event) if SENSORY_IMPORTS_AVAILABLE else None
         
         # Callbacks for processing events
         self.event_callbacks = []
@@ -540,6 +583,18 @@ class SensoryInputModule:
         
         logger.info(f"Initialized SensoryInputModule (dependencies available: {SENSORY_IMPORTS_AVAILABLE})")
     
+    def _handle_sensory_event(self, event: Dict[str, Any]) -> None:
+        """Handle incoming sensory event from processors"""
+        try:
+            self.unified_queue.put(event, block=False)
+        except queue.Full:
+            # If queue is full, remove oldest item and add new one
+            try:
+                self.unified_queue.get_nowait()
+                self.unified_queue.put(event, block=False)
+            except:
+                pass
+
     def get_tools(self) -> Dict[str, Any]:
         """Get tools provided by this module"""
         return {
@@ -842,45 +897,26 @@ class SensoryInputModule:
         """Thread function for continuous event processing"""
         while self.is_processing:
             try:
-                # Get audio events
-                if self.audio_processor:
-                    audio_event = self.audio_processor.get_next_audio_event(timeout=0.01)
-                    if audio_event:
-                        # Process event through callbacks
-                        for callback in self.event_callbacks:
-                            try:
-                                callback(audio_event)
-                            except Exception as e:
-                                logger.error(f"Error in audio event callback: {e}")
-                        
-                        # Add to buffer
-                        with self.buffer_lock:
-                            self.event_buffer.append(audio_event)
-                            # Limit buffer size
-                            if len(self.event_buffer) > 100:
-                                self.event_buffer = self.event_buffer[-100:]
+                # Wait for event
+                event = self.unified_queue.get(timeout=1.0)
                 
-                # Get video events
-                if self.video_processor:
-                    video_event = self.video_processor.get_next_video_event(timeout=0.01)
-                    if video_event:
-                        # Process event through callbacks
-                        for callback in self.event_callbacks:
-                            try:
-                                callback(video_event)
-                            except Exception as e:
-                                logger.error(f"Error in video event callback: {e}")
-                        
-                        # Add to buffer
-                        with self.buffer_lock:
-                            self.event_buffer.append(video_event)
-                            # Limit buffer size
-                            if len(self.event_buffer) > 100:
-                                self.event_buffer = self.event_buffer[-100:]
+                # Process event through callbacks
+                for callback in self.event_callbacks:
+                    try:
+                        callback(event)
+                    except Exception as e:
+                        logger.error(f"Error in event callback: {e}")
                 
-                # Short sleep to prevent tight loop
-                time.sleep(0.01)
-                
+                # Add to buffer
+                with self.buffer_lock:
+                    self.event_buffer.append(event)
+                    # Limit buffer size
+                    if len(self.event_buffer) > 100:
+                        self.event_buffer = self.event_buffer[-100:]
+
+            except queue.Empty:
+                # Just loop back to check is_processing
+                continue
             except Exception as e:
                 logger.error(f"Error in event processing: {e}")
                 time.sleep(0.1)  # Longer sleep on errors

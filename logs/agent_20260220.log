@@ -1,0 +1,12 @@
+2026-02-20 22:57:55 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:57:55 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:57:55 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-20 22:57:55 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-20 22:57:55 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:57:55 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:57:55 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 22:57:55 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-20 22:57:55 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 22:57:55 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:584 - Initialized SensoryInputModule (dependencies available: True)
+2026-02-20 22:57:55 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:866 - Started sensory event processing
+2026-02-20 22:58:00 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:890 - Stopped sensory event processing
