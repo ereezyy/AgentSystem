@@ -1,0 +1,9 @@
+2026-02-20 22:47:23 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:47:23 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:47:44 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:47:44 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:53:25 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:53:25 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:53:25 - AgentSystem.analytics.churn_predictor - ERROR - churn_predictor.py:552 - Failed to extract churn features: ChurnFeatures.__init__() missing 3 required positional arguments: 'plan_downgrades', 'contract_renewal_date', and 'days_to_renewal'
+2026-02-20 22:54:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:54:26 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing

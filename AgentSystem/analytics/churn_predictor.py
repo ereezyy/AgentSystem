@@ -480,6 +480,19 @@ class ChurnPredictor:
                 """
                 billing_data = await conn.fetchrow(billing_query, tenant_id)
 
+                # Get training attendance
+                training_query = """
+                    SELECT COUNT(*)
+                    FROM analytics.churn_interventions
+                    WHERE tenant_id = $1
+                    AND intervention_type = 'feature_training'
+                    AND status = 'completed'
+                    AND execution_date >= NOW() - INTERVAL '365 days'
+                """
+                training_count = await conn.fetchval(training_query, tenant_id)
+
+
+
                 # Calculate trends and features
                 current_usage = usage_30d['total_requests'] or 0
                 prev_usage = usage_prev_30d['total_requests'] or 1
@@ -506,7 +519,7 @@ class ChurnPredictor:
                     support_satisfaction_score=float(support_data['avg_satisfaction'] or 5.0),
                     feature_adoption_rate=0.5,  # TODO: Calculate from feature usage
                     onboarding_completion=1.0,  # TODO: Track onboarding progress
-                    training_attendance=0,  # TODO: Track training participation
+                    training_attendance=int(training_count or 0),  # Track training participation
 
                     # Billing and subscription
                     payment_failures=int(billing_data['payment_failures'] or 0),
