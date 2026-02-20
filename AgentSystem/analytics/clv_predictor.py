@@ -14,6 +14,7 @@ import pandas as pd
 from dataclasses import dataclass
 from enum import Enum
 import json
+from pathlib import Path
 import pickle
 import warnings
 warnings.filterwarnings('ignore')
@@ -785,13 +786,72 @@ class CLVPredictor:
         except Exception as e:
             logger.error(f"Failed to store CLV prediction: {e}")
 
+    def _save_model(self, model_key: str, model: Any):
+        """Save model to disk"""
+        try:
+            model_dir = Path(__file__).parent / "models"
+            model_dir.mkdir(exist_ok=True)
+
+            path = None
+            try:
+                import joblib
+                path = model_dir / f"{model_key}.joblib"
+                joblib.dump(model, path)
+            except ImportError:
+                path = model_dir / f"{model_key}.pkl"
+                with open(path, 'wb') as f:
+                    pickle.dump(model, f)
+
+            logger.info(f"Saved model {model_key} to {path}")
+        except Exception as e:
+            logger.error(f"Failed to save model {model_key}: {e}")
+
     async def _load_models(self):
         """Load pre-trained ML models"""
         try:
-            # For now, we'll use placeholder models
-            # In production, load from file system or model registry
-            self.models['clv_regressor'] = None
-            self.scalers['clv_scaler'] = None
+            model_dir = Path(__file__).parent / "models"
+            model_dir.mkdir(exist_ok=True)
+
+            # Define models to load
+            models_to_load = ['clv_regressor', 'clv_scaler']
+
+            for model_key in models_to_load:
+                # Check for .joblib first, then .pkl
+                joblib_path = model_dir / f"{model_key}.joblib"
+                pkl_path = model_dir / f"{model_key}.pkl"
+
+                loaded_model = None
+
+                if joblib_path.exists():
+                    try:
+                        import joblib
+                        loaded_model = joblib.load(joblib_path)
+                        logger.info(f"Loaded {model_key} from {joblib_path}")
+                    except ImportError:
+                        logger.warning(f"Found {joblib_path} but joblib is not installed. Skipping.")
+                    except Exception as e:
+                        logger.error(f"Failed to load {joblib_path}: {e}")
+
+                if loaded_model is None and pkl_path.exists():
+                    try:
+                        with open(pkl_path, 'rb') as f:
+                            loaded_model = pickle.load(f)
+                        logger.info(f"Loaded {model_key} from {pkl_path}")
+                    except Exception as e:
+                        logger.error(f"Failed to load {pkl_path}: {e}")
+
+                if loaded_model:
+                    if model_key == 'clv_scaler':
+                        self.scalers[model_key] = loaded_model
+                    else:
+                        self.models[model_key] = loaded_model
+                else:
+                    logger.info(f"Model {model_key} not found, will be initialized on demand")
+                    if model_key == 'clv_scaler':
+                        self.scalers[model_key] = None
+                    else:
+                        self.models[model_key] = None
+
             logger.info("Models loaded successfully")
         except Exception as e:
             logger.error(f"Failed to load models: {e}")
@@ -806,6 +866,7 @@ class CLVPredictor:
                 model = RandomForestRegressor(n_estimators=100, random_state=42)
                 # Would be pre-trained on historical data
                 self.models['clv_regressor'] = model
+                self._save_model('clv_regressor', model)
             except ImportError:
                 # Fallback if sklearn not available
                 self.models['clv_regressor'] = None
@@ -820,6 +881,7 @@ class CLVPredictor:
                 scaler = StandardScaler()
                 # Would be fitted on training data
                 self.scalers['clv_scaler'] = scaler
+                self._save_model('clv_scaler', scaler)
             except ImportError:
                 # Fallback if sklearn not available
                 self.scalers['clv_scaler'] = None
@@ -1071,6 +1133,13 @@ class CLVPredictor:
 
             # Retrain models (placeholder implementation)
             logger.info(f"Retraining CLV models for tenant {tenant_id}")
+            # In a real implementation, we would train here and then save
+            # For now, we'll just save the current models if they exist
+            if self.models.get('clv_regressor'):
+                self._save_model('clv_regressor', self.models['clv_regressor'])
+
+            if self.scalers.get('clv_scaler'):
+                self._save_model('clv_scaler', self.scalers['clv_scaler'])
 
         except Exception as e:
             logger.error(f"Failed to retrain models: {e}")
