@@ -1,0 +1,11 @@
+2026-02-20 23:37:11 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:37:11 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:37:48 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:37:48 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:38:08 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:38:08 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:38:47 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:38:47 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 23:38:47 - AgentSystem.pricing.dynamic_pricing_engine - ERROR - dynamic_pricing_engine.py:492 - Failed to extract customer profile: name 'ServiceType' is not defined
+2026-02-20 23:39:11 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 23:39:11 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing

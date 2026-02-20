@@ -29,7 +29,7 @@ except ImportError:
     pass
 
 from ..database.connection import get_db_connection
-from ..usage.usage_tracker import UsageTracker
+from ..usage.usage_tracker import UsageTracker, ServiceType
 from ..billing.stripe_service import StripeService
 from ..analytics.clv_predictor import CLVPredictor
 
@@ -440,6 +440,17 @@ class DynamicPricingEngine:
                 """
                 churn_data = await conn.fetchrow(churn_query, tenant_id, customer_id)
 
+                # Get feature adoption data
+                feature_query = """
+                    SELECT COUNT(DISTINCT service_type) as used_features
+                    FROM tenant_management.usage_events
+                    WHERE tenant_id =
+                    AND created_at >= NOW() - INTERVAL '30 days'
+                """
+                feature_data = await conn.fetchrow(feature_query, tenant_id)
+                used_features_count = feature_data['used_features'] if feature_data and feature_data['used_features'] else 0
+                total_features = len(ServiceType)
+                calculated_feature_adoption = used_features_count / total_features if total_features > 0 else 0.0
                 # Calculate derived metrics
                 monthly_usage = float(usage_data['total_cost'] or 0)
                 total_revenue = float(payment_data['total_revenue'] or 0)
@@ -469,7 +480,7 @@ class DynamicPricingEngine:
                     clv_prediction=float(clv_data['predicted_clv'] or 5000) if clv_data else 5000,
                     competitive_position=0.5,  # TODO: Calculate from market data
                     usage_growth_trend=0.1,   # TODO: Calculate from usage trends
-                    feature_adoption_score=0.5,  # TODO: Calculate from feature usage
+                    feature_adoption_score=calculated_feature_adoption,
                     support_cost_ratio=0.1,   # TODO: Calculate from support costs
                     payment_reliability=payment_reliability,
                     contract_length_preference=12  # Default to 12 months
