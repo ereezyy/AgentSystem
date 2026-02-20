@@ -1,0 +1,99 @@
+2026-02-20 22:45:37 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:45:37 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (f21e1403-3cbd-4e3a-bf29-dd84283937e8)
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Task 1' (f21e1403-3cbd-4e3a-bf29-dd84283937e8) with status: success
+2026-02-20 22:45:37 - AgentSystem.core.state - WARNING - state.py:196 - Task non_existent not found to complete
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'High Priority' (e45aa173-af3e-42ad-b57d-e5bc7819259b) with status: success
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Medium Priority' (d9e3b42d-3d72-490c-a2a2-ca848706af45) with status: success
+2026-02-20 22:45:37 - AgentSystem.core.state - ERROR - state.py:320 - Error loading state from non_existent_file.json: [Errno 2] No such file or directory: 'non_existent_file.json'
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> EXECUTING
+2026-02-20 22:45:37 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (21273877-fdd8-43e8-9bf4-1e42b31b4f44)
+2026-02-20 22:45:37 - AgentSystem.core.state - WARNING - state.py:171 - Task non_existent not found to start
+2026-02-20 22:45:37 - AgentSystem.core.state - WARNING - state.py:147 - Task non_existent not found for update
+2026-02-20 22:46:00 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:00 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:11 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:11 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:23 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:23 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:34 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:34 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:34 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> EXECUTING
+2026-02-20 22:46:47 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:47 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:47 - AgentSystem.core.state - WARNING - state.py:147 - Task non_existent not found for update
+2026-02-20 22:46:47 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (d2b55cd2-c58f-4434-a04b-b5127a564ca1)
+2026-02-20 22:46:47 - AgentSystem.core.state - WARNING - state.py:171 - Task non_existent not found to start
+2026-02-20 22:46:47 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (d2bf7308-1721-48bc-9370-a8b8e9d18142)
+2026-02-20 22:46:47 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Task 1' (d2bf7308-1721-48bc-9370-a8b8e9d18142) with status: success
+2026-02-20 22:46:47 - AgentSystem.core.state - WARNING - state.py:196 - Task non_existent not found to complete
+2026-02-20 22:46:47 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'High Priority' (e15cb5df-1ab5-4083-97da-a795ee1fa471) with status: success
+2026-02-20 22:46:47 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Medium Priority' (e8e61713-2176-48fc-bf44-f5200219f67a) with status: success
+2026-02-20 22:46:57 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:57 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:47:10 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:47:10 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:47:10 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:47:10 - AgentSystem.core.state - ERROR - state.py:320 - Error loading state from non_existent_file.json: [Errno 2] No such file or directory: 'non_existent_file.json'
+2026-02-20 22:47:53 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:47:53 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:47:53 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:47:53 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (9d7d5bd3-cef8-45d2-9638-2511e6e3fecc)
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Task 1' (9d7d5bd3-cef8-45d2-9638-2511e6e3fecc) with status: success
+2026-02-20 22:47:53 - AgentSystem.core.state - WARNING - state.py:196 - Task non_existent not found to complete
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'High Priority' (752deb3c-366a-4862-95da-4c46cea88d08) with status: success
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Medium Priority' (fe8a3d6c-c9af-4843-bcdd-29b0d64bd5a0) with status: success
+2026-02-20 22:47:53 - AgentSystem.core.state - ERROR - state.py:320 - Error loading state from non_existent_file.json: [Errno 2] No such file or directory: 'non_existent_file.json'
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> EXECUTING
+2026-02-20 22:47:53 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (70ac762e-5eb6-4370-a547-371e1af3c09c)
+2026-02-20 22:47:53 - AgentSystem.core.state - WARNING - state.py:171 - Task non_existent not found to start
+2026-02-20 22:47:53 - AgentSystem.core.state - WARNING - state.py:147 - Task non_existent not found for update
+2026-02-20 22:48:32 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:48:32 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:48:32 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:48:32 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:48:32 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:48:33 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-20 22:48:33 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-20 22:48:33 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 22:48:33 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (1065f47e-355c-40b6-85c7-a158c0ca5ac8)
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Task 1' (1065f47e-355c-40b6-85c7-a158c0ca5ac8) with status: success
+2026-02-20 22:48:33 - AgentSystem.core.state - WARNING - state.py:196 - Task non_existent not found to complete
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'High Priority' (67c2f014-7d72-4823-9e6e-074b11e73f98) with status: success
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Medium Priority' (0519304a-2b46-4694-afea-5254fd437920) with status: success
+2026-02-20 22:48:33 - AgentSystem.core.state - ERROR - state.py:320 - Error loading state from non_existent_file.json: [Errno 2] No such file or directory: 'non_existent_file.json'
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> EXECUTING
+2026-02-20 22:48:33 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (65515fe2-c8ee-4bed-b02b-79918047d309)
+2026-02-20 22:48:33 - AgentSystem.core.state - WARNING - state.py:171 - Task non_existent not found to start
+2026-02-20 22:48:33 - AgentSystem.core.state - WARNING - state.py:147 - Task non_existent not found for update
+2026-02-20 22:48:42 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:48:42 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (250d07b7-b667-4589-ba70-2575d506edd1)
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Task 1' (250d07b7-b667-4589-ba70-2575d506edd1) with status: success
+2026-02-20 22:48:42 - AgentSystem.core.state - WARNING - state.py:196 - Task non_existent not found to complete
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'High Priority' (261ac753-6b9a-4c2a-b49e-b47995b1a236) with status: success
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Medium Priority' (fc7117d1-dee2-4643-ba4c-68fc0b95d20e) with status: success
+2026-02-20 22:48:42 - AgentSystem.core.state - ERROR - state.py:320 - Error loading state from non_existent_file.json: [Errno 2] No such file or directory: 'non_existent_file.json'
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> EXECUTING
+2026-02-20 22:48:42 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (4409c4b8-ae25-4946-94be-2afb674fb778)
+2026-02-20 22:48:42 - AgentSystem.core.state - WARNING - state.py:171 - Task non_existent not found to start
+2026-02-20 22:48:42 - AgentSystem.core.state - WARNING - state.py:147 - Task non_existent not found for update
+2026-02-20 22:49:08 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:49:08 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (92c33e79-26ed-43c7-9c62-975c5e1f8646)
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Task 1' (92c33e79-26ed-43c7-9c62-975c5e1f8646) with status: success
+2026-02-20 22:49:08 - AgentSystem.core.state - WARNING - state.py:196 - Task non_existent not found to complete
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'High Priority' (c40b69a6-427a-4319-a934-91307930a0f0) with status: success
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:210 - Completed task 'Medium Priority' (972fe6ed-d1a9-4d97-82a3-659803633a31) with status: success
+2026-02-20 22:49:08 - AgentSystem.core.state - ERROR - state.py:320 - Error loading state from non_existent_file.json: [Errno 2] No such file or directory: 'non_existent_file.json'
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> EXECUTING
+2026-02-20 22:49:08 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Task 1' (b82b92f7-7a2e-4c3c-a9dd-324daad03e48)
+2026-02-20 22:49:08 - AgentSystem.core.state - WARNING - state.py:171 - Task non_existent not found to start
+2026-02-20 22:49:08 - AgentSystem.core.state - WARNING - state.py:147 - Task non_existent not found for update

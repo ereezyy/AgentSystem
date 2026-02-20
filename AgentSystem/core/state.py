@@ -320,3 +320,6 @@ class AgentState:
             logger.error(f"Error loading state from {file_path}: {e}")
         
         return state
+
+# Alias for backward compatibility
+Task = TaskInfo
