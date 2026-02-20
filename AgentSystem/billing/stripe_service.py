@@ -9,7 +9,8 @@ import hashlib
 import hmac
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Union
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, asdict
 import json
 import logging
@@ -91,11 +92,20 @@ PRICING_TIERS = {
 class StripeService:
     """Comprehensive Stripe billing integration"""
 
-    def __init__(self, db_pool: asyncpg.Pool, stripe_api_key: str, webhook_secret: str):
+    def __init__(self, db_pool: Union[asyncpg.Pool, asyncpg.Connection], stripe_api_key: str, webhook_secret: str):
         self.db_pool = db_pool
         stripe.api_key = stripe_api_key
         self.webhook_secret = webhook_secret
         self.pricing_tiers = PRICING_TIERS
+
+    @asynccontextmanager
+    async def _get_db_connection(self):
+        """Get database connection from pool or use existing connection"""
+        if isinstance(self.db_pool, asyncpg.Pool):
+            async with self.db_pool.acquire() as conn:
+                yield conn
+        else:
+            yield self.db_pool
 
     async def create_customer(self, tenant_id: str, email: str, name: str,
                             plan_type: PlanType = PlanType.STARTER) -> Dict[str, Any]:
@@ -115,7 +125,7 @@ class StripeService:
             subscription = await self._create_subscription(customer.id, plan_type)
 
             # Update tenant record with Stripe customer ID
-            async with self.db_pool.acquire() as conn:
+            async with self._get_db_connection() as conn:
                 await conn.execute("""
                     UPDATE tenant_management.tenants
                     SET stripe_customer_id = $1, plan_type = $2,
@@ -204,7 +214,7 @@ class StripeService:
         """Change a customer's subscription plan"""
         try:
             # Get tenant's Stripe customer ID
-            async with self.db_pool.acquire() as conn:
+            async with self._get_db_connection() as conn:
                 row = await conn.fetchrow("""
                     SELECT stripe_customer_id FROM tenant_management.tenants
                     WHERE id = $1
@@ -240,7 +250,7 @@ class StripeService:
             )
 
             # Update tenant record
-            async with self.db_pool.acquire() as conn:
+            async with self._get_db_connection() as conn:
                 await conn.execute("""
                     UPDATE tenant_management.tenants
                     SET plan_type = $1, monthly_token_limit = $2, api_rate_limit = $3
@@ -258,15 +268,77 @@ class StripeService:
                 'plan_details': asdict(self.pricing_tiers[new_plan_type])
             }
 
+
         except stripe.error.StripeError as e:
             logger.error(f"Stripe error changing plan: {e}")
+            raise HTTPException(status_code=400, detail=f"Payment error: {str(e)}")
+    async def update_subscription_price(self, tenant_id: str, new_price: Decimal, currency: str = 'usd') -> Dict[str, Any]:
+        """Update a tenant's subscription to a custom price"""
+        try:
+            # Get tenant's Stripe customer ID
+            async with self._get_db_connection() as conn:
+                row = await conn.fetchrow("""
+                    SELECT stripe_customer_id FROM tenant_management.tenants
+                    WHERE id = $1
+                """, tenant_id)
+
+                if not row or not row['stripe_customer_id']:
+                    raise HTTPException(status_code=404, detail="Customer not found")
+
+                customer_id = row['stripe_customer_id']
+
+            # Get current subscription
+            subscriptions = stripe.Subscription.list(customer=customer_id, status='active')
+            if not subscriptions.data:
+                raise HTTPException(status_code=404, detail="No active subscription found")
+
+            subscription = subscriptions.data[0]
+
+            # Create new price in Stripe
+            price = stripe.Price.create(
+                currency=currency,
+                unit_amount=int(new_price * 100),  # Convert to cents
+                recurring={'interval': 'month'},
+                product_data={
+                    'name': f'AgentSystem Custom Plan ({tenant_id})',
+                    'metadata': {
+                        'tenant_id': tenant_id,
+                        'type': 'dynamic_pricing'
+                    }
+                }
+            )
+
+            # Update subscription
+            updated_subscription = stripe.Subscription.modify(
+                subscription.id,
+                items=[{
+                    'id': subscription['items']['data'][0].id,
+                    'price': price.id,
+                }],
+                proration_behavior='create_prorations',
+                metadata={
+                    'pricing_type': 'dynamic',
+                    'monthly_fee': str(new_price)
+                }
+            )
+
+            logger.info(f"Updated price for tenant {tenant_id} to {new_price}")
+
+            return {
+                'subscription_id': updated_subscription.id,
+                'new_price': float(new_price),
+                'currency': currency
+            }
+
+        except stripe.error.StripeError as e:
+            logger.error(f"Stripe error updating price: {e}")
             raise HTTPException(status_code=400, detail=f"Payment error: {str(e)}")
 
     async def calculate_usage_charges(self, tenant_id: str, billing_period_start: datetime,
                                     billing_period_end: datetime) -> Dict[str, Any]:
         """Calculate usage-based charges for a billing period"""
 
-        async with self.db_pool.acquire() as conn:
+        async with self._get_db_connection() as conn:
             # Get tenant plan info
             tenant_row = await conn.fetchrow("""
                 SELECT plan_type, monthly_token_limit FROM tenant_management.tenants
@@ -333,7 +405,7 @@ class StripeService:
             usage_data = await self.calculate_usage_charges(tenant_id, billing_period_start, billing_period_end)
 
             # Get customer ID
-            async with self.db_pool.acquire() as conn:
+            async with self._get_db_connection() as conn:
                 row = await conn.fetchrow("""
                     SELECT stripe_customer_id FROM tenant_management.tenants
                     WHERE id = $1
@@ -372,7 +444,7 @@ class StripeService:
             )
 
             # Save billing record to database
-            async with self.db_pool.acquire() as conn:
+            async with self._get_db_connection() as conn:
                 await conn.execute("""
                     INSERT INTO tenant_management.monthly_bills (
                         tenant_id, billing_month, billing_year, period_start, period_end,
@@ -444,7 +516,7 @@ class StripeService:
         tenant_id = customer.metadata.get('tenant_id')
 
         if tenant_id:
-            async with self.db_pool.acquire() as conn:
+            async with self._get_db_connection() as conn:
                 await conn.execute("""
                     UPDATE tenant_management.tenants
                     SET status = 'active',
@@ -463,7 +535,7 @@ class StripeService:
         """Handle successful payment"""
 
         # Update payment status in database
-        async with self.db_pool.acquire() as conn:
+        async with self._get_db_connection() as conn:
             await conn.execute("""
                 UPDATE tenant_management.monthly_bills
                 SET payment_status = $1, paid_at = $2
@@ -476,7 +548,7 @@ class StripeService:
         """Handle failed payment"""
 
         # Update payment status and potentially suspend account
-        async with self.db_pool.acquire() as conn:
+        async with self._get_db_connection() as conn:
             await conn.execute("""
                 UPDATE tenant_management.monthly_bills
                 SET payment_status = $1
@@ -507,7 +579,7 @@ class StripeService:
         customer_id = subscription['customer']
 
         # Update tenant status
-        async with self.db_pool.acquire() as conn:
+        async with self._get_db_connection() as conn:
             await conn.execute("""
                 UPDATE tenant_management.tenants
                 SET status = 'cancelled'
@@ -524,7 +596,7 @@ class StripeService:
     async def get_billing_history(self, tenant_id: str, limit: int = 12) -> List[Dict[str, Any]]:
         """Get billing history for a tenant"""
 
-        async with self.db_pool.acquire() as conn:
+        async with self._get_db_connection() as conn:
             rows = await conn.fetch("""
                 SELECT * FROM tenant_management.monthly_bills
                 WHERE tenant_id = $1
@@ -541,7 +613,7 @@ class StripeService:
         now = datetime.now()
         period_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-        async with self.db_pool.acquire() as conn:
+        async with self._get_db_connection() as conn:
             # Get tenant plan info
             tenant_row = await conn.fetchrow("""
                 SELECT plan_type, monthly_token_limit FROM tenant_management.tenants
@@ -604,7 +676,7 @@ def track_usage(service_type: str, tokens_used: int = 0):
 
             if tenant_id:
                 # Record usage event
-                async with self.db_pool.acquire() as conn:
+                async with self._get_db_connection() as conn:
                     await conn.execute("""
                         INSERT INTO tenant_management.usage_events (
                             tenant_id, event_type, service_type, tokens_used,
