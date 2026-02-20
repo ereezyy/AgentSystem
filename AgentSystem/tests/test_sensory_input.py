@@ -18,10 +18,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import the module to test
 from AgentSystem.modules.sensory_input import SensoryInputModule
-from AgentSystem.utils.logger import configure_logging
+from AgentSystem.utils.logger import setup_logging
 
 # Configure logging
-configure_logging(level="INFO")
+setup_logging(level="INFO")
 logger = logging.getLogger("tests.test_sensory_input")
 
 

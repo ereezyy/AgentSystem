@@ -314,12 +314,49 @@ class DashboardService:
     def __init__(self):
         self.metrics_collector = MetricsCollector()
         self._metrics_task = None
+        self.db_pool = None
+        self.redis_client = None
         self.dashboard_config = {
             "refresh_interval": 5,
             "chart_types": ["line", "gauge", "bar"],
             "time_ranges": [300, 900, 3600, 86400],  # 5m, 15m, 1h, 1d
             "alert_channels": ["console", "webhook"]
         }
+
+    async def initialize_connections(self):
+        """Initialize database and Redis connections"""
+        try:
+            import asyncpg
+            import redis.asyncio as aioredis
+
+            # Use default connection params or get from env
+            db_user = os.getenv("POSTGRES_USER", "postgres")
+            db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
+            db_host = os.getenv("POSTGRES_HOST", "localhost")
+            db_port = os.getenv("POSTGRES_PORT", "5432")
+            db_name = os.getenv("POSTGRES_DB", "agentsystem")
+
+            try:
+                self.db_pool = await asyncpg.create_pool(
+                    user=db_user,
+                    password=db_password,
+                    host=db_host,
+                    port=db_port,
+                    database=db_name
+                )
+                logger.info("Initialized DB connection")
+            except Exception as e:
+                logger.warning(f"Failed to initialize DB connection (continuing without DB): {e}")
+
+            try:
+                redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+                self.redis_client = aioredis.from_url(redis_url)
+                logger.info("Initialized Redis connection")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Redis connection (continuing without Redis): {e}")
+
+        except Exception as e:
+            logger.error(f"Failed to initialize connections: {e}")
 
     async def get_dashboard_data(self, time_range: int = 3600) -> Dict[str, Any]:
         """Get comprehensive dashboard data"""

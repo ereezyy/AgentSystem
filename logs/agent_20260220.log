@@ -1,0 +1,844 @@
+2026-02-20 19:31:09 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:31:09 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:31:09 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 19:31:09 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 19:31:12 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:31:12 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:31:12 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:32:01 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:32:01 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:32:03 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:32:03 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:32:03 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:32:03 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:32:03 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:32:03 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:32:03 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:32:03 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:32:03 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:32:04 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:32:04 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:32:05 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:32:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:32:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:32:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:32:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:32:21 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:32:21 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:32:23 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:32:23 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:32:23 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:32:23 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:32:23 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:32:23 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:32:23 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:32:23 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:32:23 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:32:25 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:32:25 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:32:25 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:32:25 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:32:25 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:32:25 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:32:25 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:32:49 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:32:49 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:32:50 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:32:50 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:32:50 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:32:50 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:32:50 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:32:50 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:32:50 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:32:50 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:32:50 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:32:52 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:32:52 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:32:53 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:32:53 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:32:53 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:32:53 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:32:53 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:33:11 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:33:11 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:33:12 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:33:12 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:33:12 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:33:12 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:33:12 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:33:12 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:33:12 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:33:12 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:33:12 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:33:14 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:33:15 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:33:15 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:33:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:33:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:33:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:33:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:33:16 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:33:38 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:33:38 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:33:39 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:33:39 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:33:39 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:33:39 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:33:39 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:33:39 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:33:39 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:33:39 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:33:39 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:33:42 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:33:42 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:33:42 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:33:42 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:33:42 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:33:42 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:33:42 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:33:43 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:34:00 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:34:00 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:34:01 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:34:01 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:34:01 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:34:01 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:34:01 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:34:01 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:34:01 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:34:01 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:34:01 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:34:03 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:34:03 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:34:03 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:34:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:34:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:34:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:34:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:34:04 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:34:19 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:34:19 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:34:20 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:34:20 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:34:20 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:34:20 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:34:20 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:34:20 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:34:20 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:34:20 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:34:20 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:34:22 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:34:23 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:34:23 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:34:23 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:34:23 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:34:23 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:34:23 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:34:24 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:34:39 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:34:39 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:34:41 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:34:41 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:34:41 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:34:41 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:34:41 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:34:41 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:34:41 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:34:41 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:34:41 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:34:43 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:34:43 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:34:43 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:34:44 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:34:44 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:34:44 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:34:44 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:34:44 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:35:09 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:35:09 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:35:10 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:35:10 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:35:10 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:35:10 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:35:10 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:35:10 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:35:10 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:35:10 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:35:10 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:35:12 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:35:12 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:35:12 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:35:13 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:35:13 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:35:13 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:35:13 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:35:13 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:36:06 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:36:06 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:36:08 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:36:08 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:36:08 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:36:08 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:36:08 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:36:08 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:36:08 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:36:08 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:36:08 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:36:11 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:36:12 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:36:12 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:36:12 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:36:12 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:36:12 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:36:12 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:36:13 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:37:01 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:37:01 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:37:02 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:37:02 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:37:02 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:37:02 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:37:02 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:37:02 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:37:02 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:37:02 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:37:02 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:37:04 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:37:04 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:37:05 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:37:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:37:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:37:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:37:05 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:37:05 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:49:03 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:49:03 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:49:05 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:49:05 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:49:05 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:49:05 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:49:05 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:49:05 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:49:05 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:49:05 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:49:05 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:49:09 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:49:09 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:49:10 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:49:11 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:49:11 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:49:11 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:49:11 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:49:11 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:50:00 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:50:00 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:50:02 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:50:02 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:50:02 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:50:02 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:50:02 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:50:02 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:50:02 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:50:02 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:50:02 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:50:05 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:50:05 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:50:05 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:50:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:50:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:50:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:50:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:50:06 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:51:05 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:51:05 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:51:07 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:51:07 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:51:07 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:51:07 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:51:07 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:51:07 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:51:07 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:51:07 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:51:07 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:51:09 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:51:09 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:51:09 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:51:10 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:51:10 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:51:10 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:51:10 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:51:10 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:51:45 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:51:45 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:51:46 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:51:46 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:51:46 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:51:46 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:51:46 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:51:46 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:51:46 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:51:46 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:51:46 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:51:48 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:51:49 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:51:49 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:51:49 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:51:49 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:51:49 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:51:49 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:51:50 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:53:00 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:53:00 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:53:01 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:53:01 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:53:01 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:53:01 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:53:01 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:53:01 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:53:01 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:53:01 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:53:01 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:53:03 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:53:03 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:53:03 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:53:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:53:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:53:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:53:04 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:53:04 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:54:10 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:54:10 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:54:12 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:54:12 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:54:12 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:54:12 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:54:12 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:54:12 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:54:12 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:54:12 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:54:12 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:54:14 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:54:14 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:54:14 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:54:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:54:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:54:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:54:15 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:54:15 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:55:27 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:55:27 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:55:29 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:55:29 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:55:29 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:55:29 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:55:29 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:55:29 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:55:29 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:55:29 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:55:29 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:55:31 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:55:31 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:55:31 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:55:31 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:55:31 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:55:31 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:55:31 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:55:32 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:56:50 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:56:50 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:56:51 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:56:51 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:56:51 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:56:51 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:56:51 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:56:51 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:56:51 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:56:51 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:56:51 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:56:53 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:56:53 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:56:53 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:56:54 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:56:54 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:56:54 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:56:54 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:56:54 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 19:58:33 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 19:58:33 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 19:58:35 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:58:35 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 19:58:35 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 19:58:35 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 19:58:35 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 19:58:35 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 19:58:35 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 19:58:35 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 19:58:35 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 19:58:37 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 19:58:38 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 19:58:38 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 19:58:38 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 19:58:38 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 19:58:38 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 19:58:38 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 19:58:39 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 20:01:04 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:01:04 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 20:01:05 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:01:05 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:01:05 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 20:01:05 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 20:01:05 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 20:01:07 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 20:01:08 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 20:01:08 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}
+2026-02-20 20:29:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:29:26 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 20:29:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:29:33 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:29:33 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:29:33 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 20:29:33 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 20:29:33 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 20:29:33 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 20:29:33 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 20:29:33 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 20:29:33 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 20:29:33 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 20:29:33 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 20:29:33 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 20:30:34 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:30:34 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 20:30:34 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:30:38 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:30:38 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:30:38 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 20:30:38 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 20:30:38 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 20:30:38 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 20:30:38 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 20:30:38 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 20:30:38 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 20:30:38 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 20:30:38 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 20:30:38 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:38 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:541 - Initialized SensoryInputModule (dependencies available: False)
+2026-02-20 20:30:57 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 20:30:57 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 20:30:59 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:30:59 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:30:59 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 20:30:59 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 20:30:59 - AgentSystem.services.ai - INFO - ai.py:217 - Loaded OpenRouter provider
+2026-02-20 20:30:59 - AgentSystem.services.ai - INFO - ai.py:230 - Loaded Gemini provider
+2026-02-20 20:30:59 - AgentSystem.services.ai - WARNING - ai.py:242 - HuggingFace provider not available - missing dependencies
+2026-02-20 20:30:59 - AgentSystem.services.ai - WARNING - ai.py:252 - Anthropic provider not available - missing dependencies
+2026-02-20 20:30:59 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 3 providers
+2026-02-20 20:31:01 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 20:31:01 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 20:31:01 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:30 - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 20:31:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 20:31:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 20:31:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 20:31:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 20:31:03 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - auto_scaler.py:86 - Discovered current instances: {}

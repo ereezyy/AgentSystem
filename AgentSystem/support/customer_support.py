@@ -8,7 +8,7 @@ import logging
 import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
-import aioredis
+import redis.asyncio as aioredis
 import asyncpg
 from AgentSystem.services.ai import ai_service
 
@@ -31,6 +31,10 @@ class CustomerSupport:
 
     async def start(self):
         """Start the customer support system with background tasks"""
+        if not self.db_pool:
+            logger.warning("Database not available, skipping customer support background tasks")
+            return
+
         self._running = True
         self._chatbot_task = asyncio.create_task(self._chatbot_loop())
         self._ticket_task = asyncio.create_task(self._ticket_monitor_loop())
