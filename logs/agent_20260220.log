@@ -1,0 +1,43 @@
+2026-02-20 22:44:07 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:44:07 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:44:07 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:44:07 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:44:18 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:44:18 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:44:18 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:44:18 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:44:29 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:44:29 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:44:29 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:44:29 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:44:41 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:44:41 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:44:41 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:44:41 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:45:01 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:45:01 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:45:02 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:45:02 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:45:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:45:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:45:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:45:02 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:45:02 - AgentSystem.AgentSystem.core.agent_swarm - ERROR - agent_swarm.py:83 - Agent test_agent failed task task_1: Simulated failure
+2026-02-20 22:46:06 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:06 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:06 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:46:06 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:46:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:46:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:46:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:46:06 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:46:06 - AgentSystem.AgentSystem.core.agent_swarm - ERROR - agent_swarm.py:83 - Agent test_agent failed task task_1: Simulated failure
+2026-02-20 22:46:24 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:46:24 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:46:24 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:46:24 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:46:24 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:46:24 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:46:24 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:46:24 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:46:24 - AgentSystem.AgentSystem.core.agent_swarm - ERROR - agent_swarm.py:83 - Agent test_agent failed task task_1: Simulated failure
