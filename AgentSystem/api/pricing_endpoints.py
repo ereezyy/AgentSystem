@@ -11,6 +11,7 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime, timedelta, date
 from uuid import UUID, uuid4
 import asyncio
+import logging
 import os
 import json
 from enum import Enum
@@ -18,6 +19,10 @@ from decimal import Decimal
 
 from ..auth.auth_service import verify_token, get_current_tenant
 from ..database.connection import get_db_connection
+from ..utils.env_loader import get_env
+logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 from ..billing.stripe_service import StripeService
 from ..pricing.dynamic_pricing_engine import (
     DynamicPricingEngine, PricingStrategy, PricingTier, PriceAdjustmentType,
@@ -397,10 +402,11 @@ async def implement_pricing_recommendation(
             # Integrate with billing system to actually update prices
             recommended_price = Decimal(str(result['recommended_price']))
 
-            stripe_key = os.getenv('STRIPE_SECRET_KEY')
-            webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+            stripe_key = get_env('STRIPE_SECRET_KEY')
+            webhook_secret = get_env('STRIPE_WEBHOOK_SECRET')
 
             if stripe_key and webhook_secret:
+
                 stripe_service = StripeService(
                     conn,
                     stripe_key,
@@ -415,10 +421,10 @@ async def implement_pricing_recommendation(
                 except Exception as e:
                     # Log error but don't fail the request since DB update succeeded
                     # Ideally we should rollback or have a compensation transaction
-                    print(f"Failed to update Stripe price: {e}")
+                    logger.error(f"Failed to update Stripe price: {e}")
                     # We might want to include a warning in the response
             else:
-                print("Stripe configuration missing, skipping price update")
+                logger.warning("Stripe configuration missing, skipping price update")
             return {"message": "Pricing recommendation implemented successfully"}
 
     except Exception as e:
