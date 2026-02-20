@@ -1,0 +1,10 @@
+2026-02-20 22:44:45 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:44:45 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:45:00 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:45:00 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:45:02 - AgentSystem.caching.intelligent_cache - INFO - intelligent_cache.py:140 - Loaded embedding model for semantic caching
+2026-02-20 22:48:46 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:48:46 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:49:10 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:49:10 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:49:12 - AgentSystem.caching.intelligent_cache - INFO - intelligent_cache.py:144 - Loaded embedding model for semantic caching

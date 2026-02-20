@@ -5,6 +5,7 @@ Advanced multi-level caching system to reduce AI costs by 60%
 """
 
 import asyncio
+import threading
 import json
 import logging
 import hashlib
@@ -134,13 +135,20 @@ class IntelligentCache:
 
     def _load_embedding_model(self):
         """Load sentence transformer model for semantic similarity"""
-        try:
-            # Use a lightweight but effective model
-            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-            logger.info("Loaded embedding model for semantic caching")
-        except Exception as e:
-            logger.error(f"Failed to load embedding model: {e}")
-            self.embedding_model = None
+        self.embedding_model = None
+
+        def _load_model_worker():
+            try:
+                # Use a lightweight but effective model
+                self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+                logger.info("Loaded embedding model for semantic caching")
+            except Exception as e:
+                logger.error(f"Failed to load embedding model: {e}")
+                self.embedding_model = None
+
+        # Start loading in background thread to avoid blocking initialization
+        thread = threading.Thread(target=_load_model_worker, daemon=True)
+        thread.start()
 
     async def get_cached_response(self, tenant_id: str, request_content: str,
                                  model: str, temperature: float = 0.7,
