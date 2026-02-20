@@ -115,7 +115,7 @@ class ResearchAgent(SpecializedAgent):
 
     def __init__(self, agent_id: str):
         super().__init__(agent_id, AgentRole.RESEARCH, [
-            "web_scraping", "data_analysis", "information_synthesis",
+            "research", "web_scraping", "data_analysis", "information_synthesis",
             "fact_checking", "trend_analysis"
         ])
 
@@ -203,7 +203,7 @@ class VisionAgent(SpecializedAgent):
 
     def __init__(self, agent_id: str):
         super().__init__(agent_id, AgentRole.VISION, [
-            "image_analysis", "object_detection", "ocr",
+            "vision", "image_analysis", "object_detection", "ocr",
             "image_generation", "visual_qa"
         ])
 

@@ -1,0 +1,70 @@
+2026-02-20 22:50:52 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:50:52 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:50:52 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:50:52 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-20 22:50:52 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-20 22:51:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:51:26 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:51:26 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:51:28 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:99 - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: dummy. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 22:51:28 - AgentSystem.services.ai_providers.openai - ERROR - openai_provider.py:100 - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: dummy. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 22:51:28 - AgentSystem.services.ai_providers.openai - WARNING - openai_provider.py:102 - OpenAI provider will not be available due to initialization failure
+2026-02-20 22:51:28 - AgentSystem.services.ai - INFO - ai.py:204 - Loaded OpenAI provider
+2026-02-20 22:51:28 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 1 providers
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - ERROR - agent_swarm.py:83 - Agent research_001 failed task c0a2c206-347d-4e0b-a01b-3cc6b7e60701: Simulated failure
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized research agent: research_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized code agent: code_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized security agent: security_001
+2026-02-20 22:51:28 - AgentSystem.AgentSystem.core.agent_swarm - INFO - agent_swarm.py:257 - Initialized vision agent: vision_001
