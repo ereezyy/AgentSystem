@@ -147,6 +147,7 @@ class InterventionPlan:
     assigned_agent: Optional[str]
 
 class ChurnPredictor:
+    TOTAL_ONBOARDING_STEPS = 7
     """Advanced churn prediction and intervention engine"""
 
     def __init__(self):
@@ -400,6 +401,25 @@ class ChurnPredictor:
             logger.error(f"Failed to monitor intervention effectiveness: {e}")
             return {}
 
+
+    async def _get_onboarding_progress(self, conn, tenant_id: UUID) -> float:
+        """Calculate onboarding completion percentage"""
+        try:
+            query = "SELECT completed_steps FROM customer_journeys WHERE tenant_id = $1"
+            result = await conn.fetchrow(query, tenant_id)
+
+            if not result or not result['completed_steps']:
+                return 0.0
+
+            steps = result['completed_steps']
+            if isinstance(steps, str):
+                steps = json.loads(steps)
+
+            return min(1.0, len(steps) / self.TOTAL_ONBOARDING_STEPS)
+        except Exception as e:
+            logger.warning(f"Failed to get onboarding progress: {e}")
+            return 0.0
+
     async def _extract_churn_features(self, tenant_id: UUID, customer_id: UUID) -> ChurnFeatures:
         """Extract features for churn prediction"""
         try:
@@ -505,7 +525,7 @@ class ChurnPredictor:
                     support_ticket_frequency=float(support_data['ticket_count'] or 0) / 3,  # Per month
                     support_satisfaction_score=float(support_data['avg_satisfaction'] or 5.0),
                     feature_adoption_rate=0.5,  # TODO: Calculate from feature usage
-                    onboarding_completion=1.0,  # TODO: Track onboarding progress
+                    onboarding_completion=await self._get_onboarding_progress(conn, tenant_id),  # TODO: Track onboarding progress
                     training_attendance=0,  # TODO: Track training participation
 
                     # Billing and subscription
