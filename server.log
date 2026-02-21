@@ -1,0 +1,181 @@
+2026-02-20 20:01:04 - AgentSystem - INFO - Logging initialized at level INFO
+2026-02-20 20:01:04 - AgentSystem.AgentSystem - INFO - AgentSystem v0.1.0 initializing
+2026-02-20 20:01:05 - AgentSystem.services.ai_providers.openai - ERROR - Error initializing OpenAI client: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:01:05 - AgentSystem.services.ai_providers.openai - ERROR - OpenAI client initialization error details:
+Traceback (most recent call last):
+  File "/app/AgentSystem/services/ai_providers/openai_provider.py", line 94, in _init_client
+    models_response = self._client.models.list()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/resources/models.py", line 91, in list
+    return self._get_api_list(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1383, in get_api_list
+    return self._request_api_list(model, page, opts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1182, in _request_api_list
+    return self.request(page, options, stream=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.12/lib/python3.12/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2026-02-20 20:01:05 - AgentSystem.services.ai_providers.openai - WARNING - OpenAI provider will not be available due to initialization failure
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - Loaded OpenAI provider
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - Loaded OpenRouter provider
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - Loaded Gemini provider
+2026-02-20 20:01:05 - AgentSystem.services.ai - WARNING - HuggingFace provider not available - missing dependencies
+2026-02-20 20:01:05 - AgentSystem.services.ai - WARNING - Anthropic provider not available - missing dependencies
+2026-02-20 20:01:05 - AgentSystem.services.ai - INFO - AI Service Manager initialized with 3 providers
+2026-02-20 20:01:07 - AgentSystem.modules.continuous_learning - WARNING - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-20 20:01:08 - AgentSystem.modules.knowledge_graph - WARNING - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-20 20:01:08 - AgentSystem.modules.sensory_input - WARNING - Sensory input dependencies not available. Install system PortAudio libraries (e.g., sudo apt-get install portaudio19-dev) and then run: pip install opencv-python numpy pyaudio SpeechRecognition pillow
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - Initialized research agent: research_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - Initialized code agent: code_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - Initialized security agent: security_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.core.agent_swarm - INFO - Initialized vision agent: vision_001
+2026-02-20 20:01:08 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - Discovered current instances: {}
+2026-02-20 20:01:09 - AgentSystem - INFO - Logging initialized at level INFO
+2026-02-20 20:01:09 - AgentSystem.core.agent - INFO - Agent 'AutoAgent' (bf016643-4ebe-405a-b599-d2901d302d82) initialized
+2026-02-20 20:01:09 - AgentSystem.__main__ - INFO - Registered browser module
+2026-02-20 20:01:09 - AgentSystem.__main__ - INFO - Registered email module
+2026-02-20 20:01:09 - AgentSystem.__main__ - INFO - Starting background services...
+Bottle v0.13.4 server starting up (using WSGIRefServer())...
+Listening on http://0.0.0.0:8080/
+Hit Ctrl-C to quit.
+
+
+=== AutoAgent SUPERCHARGED Server Mode ===
+🚀 Multi-Modal AI: Vision, Audio, Code Generation
+🤖 Agent Swarms: Coordinated specialist agents
+⚡ Real-time Streaming: Live AI responses
+📊 Predictive Analytics: AI-powered insights
+🔄 Auto-scaling: Dynamic load balancing
+💳 Overage Billing: Credits-per-task model for Pro tier
+📚 Automated Documentation: User guides and API docs
+🛠️ Customer Support: 24/7 AI chatbots and ticketing
+Starting server at http://0.0.0.0:8080
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.monitoring.realtime_dashboard - WARNING - Failed to initialize DB connection (continuing without DB): Multiple exceptions: [Errno 111] Connect call failed ('::1', 5432, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 5432)
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.monitoring.realtime_dashboard - INFO - Initialized Redis connection
+2026-02-20 20:01:09 - AgentSystem.__main__ - WARNING - Database connection not available, some services may fail
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.monitoring.realtime_dashboard - INFO - Started metrics collection
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.analytics.predictive_analytics - INFO - Started analytics loop
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - Started auto-scaling loop
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.scaling.auto_scaler - INFO - Started health check loop
+2026-02-20 20:01:09 - AgentSystem.security.security_automation_engine - INFO - Security Automation Engine initialized successfully
+INFO:AgentSystem.security.security_automation_engine:Security Automation Engine initialized successfully
+2026-02-20 20:01:09 - AgentSystem.documentation.doc_generator - INFO - Documentation Generator initialized
+INFO:AgentSystem.documentation.doc_generator:Documentation Generator initialized
+2026-02-20 20:01:09 - AgentSystem.support.customer_support - INFO - Customer Support System initialized
+INFO:AgentSystem.support.customer_support:Customer Support System initialized
+2026-02-20 20:01:09 - AgentSystem.__main__ - WARNING - EcommerceChurnPrevention module not found
+WARNING:AgentSystem.__main__:EcommerceChurnPrevention module not found
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Initialized advanced load balancing for services
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Initialized advanced load balancing for services
+2026-02-20 20:01:09 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Started predictive scaling analysis loop
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Started predictive scaling analysis loop
+2026-02-20 20:01:09 - AgentSystem.usage.overage_billing - WARNING - Database not available, skipping overage billing background tasks
+WARNING:AgentSystem.usage.overage_billing:Database not available, skipping overage billing background tasks
+2026-02-20 20:01:09 - AgentSystem.security.security_automation_engine - INFO - Continuous security scanning started
+INFO:AgentSystem.security.security_automation_engine:Continuous security scanning started
+2026-02-20 20:01:09 - AgentSystem.documentation.doc_generator - INFO - Documentation Generator started
+INFO:AgentSystem.documentation.doc_generator:Documentation Generator started
+2026-02-20 20:01:09 - AgentSystem.support.customer_support - WARNING - Database not available, skipping customer support background tasks
+WARNING:AgentSystem.support.customer_support:Database not available, skipping customer support background tasks
+2026-02-20 20:01:09 - AgentSystem.__main__ - INFO - Background services started successfully
+INFO:AgentSystem.__main__:Background services started successfully
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.monitoring.realtime_dashboard - WARNING - Alert created: Active Agents Critical Alert - active_agents is 4.00, threshold: 0
+WARNING:AgentSystem.AgentSystem.monitoring.realtime_dashboard:Alert created: Active Agents Critical Alert - active_agents is 4.00, threshold: 0
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Retraining predictive model for ai-provider-service
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Retraining predictive model for ai-provider-service
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Updated predictions for ai-provider-service
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Updated predictions for ai-provider-service
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Retraining predictive model for task-processor
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Retraining predictive model for task-processor
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Updated predictions for task-processor
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Updated predictions for task-processor
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Retraining predictive model for streaming-service
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Retraining predictive model for streaming-service
+2026-02-20 20:01:10 - AgentSystem.AgentSystem.scaling.advanced_load_balancer - INFO - Updated predictions for streaming-service
+INFO:AgentSystem.AgentSystem.scaling.advanced_load_balancer:Updated predictions for streaming-service
+2026-02-20 20:01:10 - AgentSystem.security.security_automation_engine - ERROR - Error in continuous scan loop: 'NoneType' object has no attribute 'acquire'
+ERROR:AgentSystem.security.security_automation_engine:Error in continuous scan loop: 'NoneType' object has no attribute 'acquire'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Generating initial documentation set
+INFO:AgentSystem.documentation.doc_generator:Generating initial documentation set
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Generating user guide
+INFO:AgentSystem.documentation.doc_generator:Generating user guide
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - WARNING - User guide template not found, using basic rendering
+WARNING:AgentSystem.documentation.doc_generator:User guide template not found, using basic rendering
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - User guide generated at docs/user_guide.html
+INFO:AgentSystem.documentation.doc_generator:User guide generated at docs/user_guide.html
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Generating API documentation
+INFO:AgentSystem.documentation.doc_generator:Generating API documentation
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - WARNING - API docs template not found, using basic rendering
+WARNING:AgentSystem.documentation.doc_generator:API docs template not found, using basic rendering
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - API documentation generated at docs/api_docs.html
+INFO:AgentSystem.documentation.doc_generator:API documentation generated at docs/api_docs.html
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Generating knowledge base
+INFO:AgentSystem.documentation.doc_generator:Generating knowledge base
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - ERROR - Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+ERROR:AgentSystem.documentation.doc_generator:Error generating content: 'AIServiceManager' object has no attribute 'generate_text'
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - WARNING - Knowledge base template not found, using basic rendering
+WARNING:AgentSystem.documentation.doc_generator:Knowledge base template not found, using basic rendering
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Knowledge base generated at docs/knowledge_base.html
+INFO:AgentSystem.documentation.doc_generator:Knowledge base generated at docs/knowledge_base.html
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Generating documentation index page
+INFO:AgentSystem.documentation.doc_generator:Generating documentation index page
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - WARNING - Index template not found, using basic rendering
+WARNING:AgentSystem.documentation.doc_generator:Index template not found, using basic rendering
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Documentation index page generated at docs/index.html
+INFO:AgentSystem.documentation.doc_generator:Documentation index page generated at docs/index.html
+2026-02-20 20:01:10 - AgentSystem.documentation.doc_generator - INFO - Initial documentation generation completed
+INFO:AgentSystem.documentation.doc_generator:Initial documentation generation completed
+127.0.0.1 - - [20/Feb/2026 20:02:04] "GET /health HTTP/1.1" 200 100

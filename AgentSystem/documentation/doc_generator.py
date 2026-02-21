@@ -13,7 +13,7 @@ import json
 import re
 from pathlib import Path
 import shutil
-import aioredis
+import redis.asyncio as aioredis
 import asyncpg
 from AgentSystem.services.ai import ai_service
 

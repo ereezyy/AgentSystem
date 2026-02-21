@@ -11,7 +11,7 @@ from datetime import datetime
 from decimal import Decimal
 import stripe
 import asyncpg
-import aioredis
+import redis.asyncio as aioredis
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,10 @@ class OverageBilling:
 
     async def start(self):
         """Start the overage billing system with background processing"""
+        if not self.db_pool:
+            logger.warning("Database not available, skipping overage billing background tasks")
+            return
+
         self._running = True
         self._billing_task = asyncio.create_task(self._billing_loop())
         logger.info("Overage billing system started")
