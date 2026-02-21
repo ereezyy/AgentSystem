@@ -200,7 +200,7 @@ async def get_strategic_insights(
         raise HTTPException(status_code=500, detail=f"Failed to get strategic insights: {str(e)}")
 
 @router.get("/models/performance")
-async def get_model_performance(
+def get_model_performance(
     model_type: Optional[str] = Query(None),
     current_tenant: dict = Depends(get_current_tenant),
     db: Session = Depends(get_db)
@@ -253,7 +253,7 @@ async def get_model_performance(
         raise HTTPException(status_code=500, detail=f"Failed to get model performance: {str(e)}")
 
 @router.get("/predictions/history/{tenant_id}")
-async def get_prediction_history(
+def get_prediction_history(
     tenant_id: str,
     prediction_type: Optional[str] = Query(None),
     start_date: Optional[str] = Query(None),
@@ -369,7 +369,7 @@ async def retrain_model(
         raise HTTPException(status_code=500, detail=f"Failed to retrain model: {str(e)}")
 
 @router.post("/feedback/prediction/{prediction_id}")
-async def submit_prediction_feedback(
+def submit_prediction_feedback(
     prediction_id: str,
     feedback_data: Dict[str, Any],
     current_tenant: dict = Depends(get_current_tenant),
@@ -415,7 +415,7 @@ async def submit_prediction_feedback(
         raise HTTPException(status_code=500, detail=f"Failed to submit feedback: {str(e)}")
 
 @router.get("/alerts/{tenant_id}")
-async def get_bi_alerts(
+def get_bi_alerts(
     tenant_id: str,
     severity: Optional[str] = Query(None, regex="^(info|warning|critical|urgent)$"),
     acknowledged: bool = Query(False),
@@ -487,7 +487,7 @@ async def refresh_strategic_insights(
             raise HTTPException(status_code=403, detail="Access denied to tenant data")
 
         # Refresh insights in background
-        async def refresh_insights_task():
+        def refresh_insights_task():
             try:
                 with predictive_bi.Session() as session:
                     # Call the stored procedure to generate new insights
@@ -509,7 +509,7 @@ async def refresh_strategic_insights(
         raise HTTPException(status_code=500, detail=f"Failed to refresh insights: {str(e)}")
 
 @router.get("/dashboard/{tenant_id}")
-async def get_predictive_dashboard(
+def get_predictive_dashboard(
     tenant_id: str,
     current_tenant: dict = Depends(get_current_tenant)
 ):
