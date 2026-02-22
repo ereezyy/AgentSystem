@@ -12,7 +12,7 @@ from typing import Dict, List, Any, Optional, AsyncGenerator, Callable
 from dataclasses import dataclass, asdict
 from enum import Enum
 import openai
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 import anthropic
 from ..utils.logger import get_logger
 
@@ -136,6 +136,7 @@ class StreamingService:
     def __init__(self):
         self.active_sessions: Dict[str, StreamingSession] = {}
         self.openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        self.async_openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         self.anthropic_client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
 
     async def start_openai_stream(self, messages: List[Dict], model: str = "gpt-4", **kwargs) -> str:
@@ -154,14 +155,14 @@ class StreamingService:
         try:
             session.status = StreamStatus.STREAMING
 
-            response = self.openai_client.chat.completions.create(
+            response = await self.async_openai_client.chat.completions.create(
                 model=model,
                 messages=messages,
                 stream=True,
                 **kwargs
             )
 
-            for chunk in response:
+            async for chunk in response:
                 if session.interrupt_requested:
                     break
 
