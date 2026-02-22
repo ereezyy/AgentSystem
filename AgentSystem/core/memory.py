@@ -9,6 +9,8 @@ import time
 import json
 import uuid
 import sqlite3
+import threading
+import contextlib
 from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -70,34 +72,65 @@ class Memory:
         
         # Initialize database
         self.db_path = os.path.join(self.storage_path, "memory.db")
+        self._db_lock = threading.Lock()
+        # Persistent connection
+        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._init_db()
         
         logger.debug(f"Memory system initialized with storage at {self.storage_path}")
+
+    @contextlib.contextmanager
+    def _db_transaction(self):
+        """Context manager for database transactions"""
+        with self._db_lock:
+            cursor = self._conn.cursor()
+            try:
+                yield cursor
+                self._conn.commit()
+            except Exception:
+                self._conn.rollback()
+                raise
+            finally:
+                cursor.close()
+
+    @contextlib.contextmanager
+    def _db_cursor(self):
+        """Context manager for database read operations"""
+        with self._db_lock:
+            cursor = self._conn.cursor()
+            try:
+                yield cursor
+            finally:
+                cursor.close()
+
+    def close(self):
+        """Close the database connection"""
+        if hasattr(self, "_conn") and self._conn:
+            self._conn.close()
+            self._conn = None
+
+    def __del__(self):
+        self.close()
     
     def _init_db(self) -> None:
         """Initialize the SQLite database"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        # Create tables if they don't exist
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS memories (
-            id TEXT PRIMARY KEY,
-            content TEXT,
-            type TEXT,
-            created_at REAL,
-            importance REAL,
-            metadata TEXT,
-            embedding TEXT
-        )
-        ''')
-        
-        # Create indices
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_type ON memories (type)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_importance ON memories (importance)')
-        
-        conn.commit()
-        conn.close()
+        with self._db_transaction() as cursor:
+            # Create tables if they don't exist
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS memories (
+                id TEXT PRIMARY KEY,
+                content TEXT,
+                type TEXT,
+                created_at REAL,
+                importance REAL,
+                metadata TEXT,
+                embedding TEXT
+            )
+            ''')
+
+            # Create indices
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_type ON memories (type)')
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_importance ON memories (importance)')
         
         logger.debug("Memory database initialized")
     
@@ -159,30 +192,25 @@ class Memory:
         Args:
             item: Memory item to store
         """
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        # Serialize complex data
-        content = json.dumps(item.content) if isinstance(item.content, (dict, list)) else str(item.content)
-        metadata = json.dumps(item.metadata)
-        embedding = json.dumps(item.embedding) if item.embedding else None
-        
-        # Insert into database
-        cursor.execute(
-            'INSERT OR REPLACE INTO memories VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (
-                item.id,
-                content,
-                item.type,
-                item.created_at,
-                item.importance,
-                metadata,
-                embedding
+        with self._db_transaction() as cursor:
+            # Serialize complex data
+            content = json.dumps(item.content) if isinstance(item.content, (dict, list)) else str(item.content)
+            metadata = json.dumps(item.metadata)
+            embedding = json.dumps(item.embedding) if item.embedding else None
+
+            # Insert into database
+            cursor.execute(
+                'INSERT OR REPLACE INTO memories VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (
+                    item.id,
+                    content,
+                    item.type,
+                    item.created_at,
+                    item.importance,
+                    metadata,
+                    embedding
+                )
             )
-        )
-        
-        conn.commit()
-        conn.close()
         
         logger.debug(f"Stored memory {item.id} in long-term storage")
     
@@ -202,13 +230,9 @@ class Memory:
                 return item
         
         # Then check long-term memory
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT * FROM memories WHERE id = ?', (memory_id,))
-        row = cursor.fetchone()
-        
-        conn.close()
+        with self._db_cursor() as cursor:
+            cursor.execute('SELECT * FROM memories WHERE id = ?', (memory_id,))
+            row = cursor.fetchone()
         
         if not row:
             return None
@@ -274,13 +298,9 @@ class Memory:
         params.append(max_items)
         
         # Execute query
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute(query, tuple(params))
-        rows = cursor.fetchall()
-        
-        conn.close()
+        with self._db_cursor() as cursor:
+            cursor.execute(query, tuple(params))
+            rows = cursor.fetchall()
         
         # Process results
         for row in rows:
@@ -370,44 +390,39 @@ class Memory:
                 return True
         
         # Then try to update in long-term memory
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        # First check if the item exists
-        cursor.execute('SELECT id FROM memories WHERE id = ?', (memory_id,))
-        if not cursor.fetchone():
-            conn.close()
-            return False
-        
-        # Build update query
-        query = 'UPDATE memories SET '
-        params = []
-        
-        for key, value in kwargs.items():
-            if key in ['content', 'type', 'importance', 'metadata', 'embedding']:
-                query += f'{key} = ?, '
-                
-                # Serialize complex data
-                if key == 'content' and isinstance(value, (dict, list)):
-                    params.append(json.dumps(value))
-                elif key == 'metadata':
-                    params.append(json.dumps(value))
-                elif key == 'embedding':
-                    params.append(json.dumps(value))
-                else:
-                    params.append(value)
-        
-        # Remove trailing comma and space
-        query = query[:-2]
-        
-        query += ' WHERE id = ?'
-        params.append(memory_id)
-        
-        cursor.execute(query, tuple(params))
-        conn.commit()
-        conn.close()
-        
-        return cursor.rowcount > 0
+        with self._db_transaction() as cursor:
+            # First check if the item exists
+            cursor.execute('SELECT id FROM memories WHERE id = ?', (memory_id,))
+            if not cursor.fetchone():
+                return False
+
+            # Build update query
+            query = 'UPDATE memories SET '
+            params = []
+
+            for key, value in kwargs.items():
+                if key in ['content', 'type', 'importance', 'metadata', 'embedding']:
+                    query += f'{key} = ?, '
+
+                    # Serialize complex data
+                    if key == 'content' and isinstance(value, (dict, list)):
+                        params.append(json.dumps(value))
+                    elif key == 'metadata':
+                        params.append(json.dumps(value))
+                    elif key == 'embedding':
+                        params.append(json.dumps(value))
+                    else:
+                        params.append(value)
+
+            # Remove trailing comma and space
+            query = query[:-2]
+
+            query += ' WHERE id = ?'
+            params.append(memory_id)
+
+            cursor.execute(query, tuple(params))
+
+            return cursor.rowcount > 0
     
     def forget(self, memory_id: str) -> bool:
         """
@@ -428,14 +443,9 @@ class Memory:
                 break
         
         # Remove from long-term memory
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute('DELETE FROM memories WHERE id = ?', (memory_id,))
-        conn.commit()
-        conn.close()
-        
-        removed = removed or cursor.rowcount > 0
+        with self._db_transaction() as cursor:
+            cursor.execute('DELETE FROM memories WHERE id = ?', (memory_id,))
+            removed = removed or cursor.rowcount > 0
         
         if removed:
             logger.debug(f"Removed memory {memory_id}")
