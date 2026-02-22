@@ -600,7 +600,7 @@ class SensoryInputModule:
         self.buffer_lock = threading.Lock()
         
         # Unified event queue for efficient processing
-        self.event_queue = queue.Queue()
+        self.event_queue = queue.Queue(maxsize=1000)
 
         logger.info(f"Initialized SensoryInputModule (dependencies available: {SENSORY_IMPORTS_AVAILABLE})")
 
@@ -619,20 +619,12 @@ class SensoryInputModule:
             event: The sensory event
         """
         try:
-            self.event_queue.put(event)
+            self.event_queue.put(event, block=False)
+        except queue.Full:
+            logger.warning("Event queue full, dropping sensory event")
         except Exception as e:
             logger.error(f"Error queuing sensory event: {e}")
 
-        """
-        Handle raw event from processors by putting it into the processing queue
-
-        Args:
-            event: The sensory event
-        """
-        try:
-            self.event_queue.put(event)
-        except Exception as e:
-            logger.error(f"Error queuing sensory event: {e}")
 
     def get_tools(self) -> Dict[str, Any]:
         """Get tools provided by this module"""

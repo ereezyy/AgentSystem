@@ -64,3 +64,29 @@
 2026-02-22 22:23:40 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:605 - Initialized SensoryInputModule (dependencies available: True)
 2026-02-22 22:23:40 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:905 - Started sensory event processing
 2026-02-22 22:23:40 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:936 - Stopped sensory event processing
+2026-02-22 22:47:50 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-22 22:47:50 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-22 22:47:50 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-22 22:47:50 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-22 22:47:50 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-22 22:47:50 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-22 22:47:50 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-22 22:47:50 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-22 22:47:50 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-22 22:47:50 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:605 - Initialized SensoryInputModule (dependencies available: True)
+2026-02-22 22:47:50 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:907 - Started sensory event processing
+2026-02-22 22:47:51 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:624 - Event queue full, dropping sensory event
+2026-02-22 22:47:51 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:938 - Stopped sensory event processing
+2026-02-22 22:48:48 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-22 22:48:48 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-22 22:48:48 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:62 - Continuous learning dependencies not available. Install with: pip install requests beautifulsoup4 nltk scikit-learn
+2026-02-22 22:48:48 - AgentSystem.modules.continuous_learning - INFO - continuous_learning.py:63 - Fallback mechanisms will be used for basic functionality.
+2026-02-22 22:48:48 - AgentSystem.services.ai - ERROR - ai.py:256 - No AI providers available - system will have limited functionality
+2026-02-22 22:48:48 - AgentSystem.services.ai - INFO - ai.py:189 - AI Service Manager initialized with 0 providers
+2026-02-22 22:48:48 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:71 - Sentence Transformers not available. Install with: pip install sentence-transformers
+2026-02-22 22:48:48 - AgentSystem.modules.continuous_learning - WARNING - continuous_learning.py:895 - WebResearcher not available
+2026-02-22 22:48:48 - AgentSystem.modules.knowledge_graph - WARNING - knowledge_graph.py:44 - Knowledge graph dependencies not available. Install with: pip install networkx scikit-learn nltk
+2026-02-22 22:48:48 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:605 - Initialized SensoryInputModule (dependencies available: True)
+2026-02-22 22:48:48 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:897 - Started sensory event processing
+2026-02-22 22:48:48 - AgentSystem.modules.sensory_input - WARNING - sensory_input.py:624 - Event queue full, dropping sensory event
+2026-02-22 22:48:48 - AgentSystem.modules.sensory_input - INFO - sensory_input.py:928 - Stopped sensory event processing
