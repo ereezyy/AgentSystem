@@ -121,5 +121,40 @@ class TestMemoryPerformance(unittest.TestCase):
         with self.assertRaises(sqlite3.ProgrammingError):
             conn.execute("SELECT 1")
 
+
+    def test_context_manager(self):
+        """Test usage as a context manager."""
+        # Using a separate directory for this test to avoid conflicts
+        cm_test_dir = self.test_dir + "_cm"
+        if os.path.exists(cm_test_dir):
+            shutil.rmtree(cm_test_dir)
+
+        try:
+            with Memory(storage_path=cm_test_dir) as mem:
+                self.assertIsNotNone(mem._conn)
+                # Should be able to do operations
+                mem.add("test_cm_content", importance=0.8)
+                conn_ref = mem._conn
+
+            # Should be closed after exit
+            self.assertIsNone(mem._conn)
+
+            # Check that connection is actually closed
+            with self.assertRaises(sqlite3.ProgrammingError):
+                conn_ref.execute("SELECT 1")
+
+            # Verify persistence (by opening a new instance)
+            new_mem = Memory(storage_path=cm_test_dir)
+            try:
+                with new_mem._db_cursor() as cursor:
+                    cursor.execute("SELECT count(*) FROM memories")
+                    count = cursor.fetchone()[0]
+                    self.assertEqual(count, 1)
+            finally:
+                new_mem.close()
+        finally:
+            if os.path.exists(cm_test_dir):
+                shutil.rmtree(cm_test_dir)
+
 if __name__ == "__main__":
     unittest.main()
