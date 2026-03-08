@@ -209,8 +209,24 @@ class Agent:
         Args:
             file_path: Path to save state
         """
-        # TODO: Implement state saving
-        pass
+        state_data = {
+            "id": self.id,
+            "created_at": self.created_at,
+            "config": self.config.to_dict()
+        }
+
+        if self.state_manager and hasattr(self.state_manager, "to_dict"):
+            state_data["state"] = self.state_manager.to_dict()
+
+        if self.memory_manager and hasattr(self.memory_manager, "to_dict"):
+            state_data["memory"] = self.memory_manager.to_dict()
+
+        try:
+            with open(file_path, 'w') as f:
+                json.dump(state_data, f, indent=2)
+            logger.info(f"Saved agent state to {file_path}")
+        except Exception as e:
+            logger.error(f"Error saving agent state to {file_path}: {e}")
     
     def load_state(self, file_path: str) -> None:
         """
@@ -219,8 +235,26 @@ class Agent:
         Args:
             file_path: Path to load state from
         """
-        # TODO: Implement state loading
-        pass
+        try:
+            with open(file_path, 'r') as f:
+                state_data = json.load(f)
+
+            self.id = state_data.get("id", self.id)
+            self.created_at = state_data.get("created_at", self.created_at)
+
+            if "config" in state_data:
+                self.config = AgentConfig.from_dict(state_data["config"])
+
+            if "state" in state_data and self.state_manager and hasattr(self.state_manager, "load_from_dict"):
+                self.state_manager.load_from_dict(state_data["state"])
+
+            if "memory" in state_data and self.memory_manager and hasattr(self.memory_manager, "load_from_dict"):
+                self.memory_manager.load_from_dict(state_data["memory"])
+
+            logger.info(f"Loaded agent state from {file_path}")
+
+        except Exception as e:
+            logger.error(f"Error loading agent state from {file_path}: {e}")
     
     def __str__(self) -> str:
         """String representation"""
