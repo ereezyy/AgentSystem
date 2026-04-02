@@ -373,7 +373,7 @@ async def get_churn_predictions(
                     time_to_churn_days=row['time_to_churn_days'],
                     key_risk_factors=json.loads(row['key_risk_factors']) if row['key_risk_factors'] else [],
                     protective_factors=json.loads(row['protective_factors']) if row['protective_factors'] else [],
-                    recommended_interventions=[],  # TODO: Extract from stored data
+                    recommended_interventions=[InterventionTypeAPI(i) for i in json.loads(row['recommended_interventions'])] if row.get('recommended_interventions') else [],
                     early_warning_signals=json.loads(row['early_warning_signals']) if row['early_warning_signals'] else [],
                     feature_importance=json.loads(row['feature_importance']) if row['feature_importance'] else {},
                     model_used=ChurnModelAPI(row['model_used']),
@@ -419,7 +419,7 @@ async def create_intervention_plan(
             time_to_churn_days=result['time_to_churn_days'],
             key_risk_factors=json.loads(result['key_risk_factors']) if result['key_risk_factors'] else [],
             protective_factors=json.loads(result['protective_factors']) if result['protective_factors'] else [],
-            recommended_interventions=[],  # Will be set by intervention plan
+            recommended_interventions=[InterventionType(i) for i in json.loads(result['recommended_interventions'])] if result.get('recommended_interventions') else [],
             prediction_date=result['prediction_date'],
             model_used=ChurnModel(result['model_used']),
             feature_importance=json.loads(result['feature_importance']) if result['feature_importance'] else {},

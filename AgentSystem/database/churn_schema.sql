@@ -37,6 +37,7 @@ CREATE TABLE analytics.churn_predictions (
     time_to_churn_days INTEGER,
     key_risk_factors JSONB DEFAULT '[]',
     protective_factors JSONB DEFAULT '[]',
+    recommended_interventions JSONB DEFAULT '[]',
     early_warning_signals JSONB DEFAULT '[]',
     feature_importance JSONB DEFAULT '{}',
     model_used analytics.churn_model_type NOT NULL,

@@ -1116,10 +1116,10 @@ class ChurnPredictor:
                     INSERT INTO analytics.churn_predictions (
                         prediction_id, tenant_id, customer_id, churn_probability,
                         risk_level, confidence_score, time_to_churn_days,
-                        key_risk_factors, protective_factors, early_warning_signals,
+                        key_risk_factors, protective_factors, recommended_interventions, early_warning_signals,
                         feature_importance, model_used, prediction_date
                     ) VALUES (
-                        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
                     )
                 """
                 await conn.execute(
@@ -1133,6 +1133,7 @@ class ChurnPredictor:
                     prediction.time_to_churn_days,
                     json.dumps(prediction.key_risk_factors),
                     json.dumps(prediction.protective_factors),
+                    json.dumps([i.value for i in prediction.recommended_interventions]),
                     json.dumps(prediction.early_warning_signals),
                     json.dumps(prediction.feature_importance),
                     prediction.model_used.value,
