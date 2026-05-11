@@ -1,3 +1,5 @@
+![Apex Mind Avatar](assets/apex_mind_avatar.png)
+
 # 🤖 AgentSystem
 
 **Distributed AI orchestration system optimized for edge computing**
@@ -180,7 +182,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Author
 
-**Eddy Woods** ([@ereezyy](https://github.com/ereezyy))  
+**Eddy Woods** ([@ereezyy](https://github.com/ereezyy))
 *AI Engineer & Game Developer*
 
 ---
