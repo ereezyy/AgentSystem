@@ -388,7 +388,6 @@ async def get_churn_predictions(
 @router.post("/interventions/plan", response_model=InterventionPlanResponse)
 async def create_intervention_plan(
     request: InterventionPlanRequest,
-    background_tasks: BackgroundTasks,
     tenant_id: UUID = Depends(get_current_tenant),
     token: str = Depends(security)
 ):
@@ -457,7 +456,6 @@ async def create_intervention_plan(
 async def execute_intervention(
     plan_id: UUID,
     request: InterventionExecutionRequest,
-    background_tasks: BackgroundTasks,
     tenant_id: UUID = Depends(get_current_tenant),
     token: str = Depends(security)
 ):
@@ -778,7 +776,6 @@ async def get_churn_risk_summary(
 @router.post("/campaigns", response_model=RetentionCampaignResponse)
 async def create_retention_campaign(
     request: RetentionCampaignRequest,
-    background_tasks: BackgroundTasks,
     tenant_id: UUID = Depends(get_current_tenant),
     token: str = Depends(security)
 ):
@@ -910,7 +907,6 @@ async def monitor_intervention_effectiveness(
 
 @router.post("/refresh-dashboard")
 async def refresh_churn_dashboard(
-    background_tasks: BackgroundTasks,
     tenant_id: UUID = Depends(get_current_tenant),
     token: str = Depends(security)
 ):
@@ -929,7 +925,6 @@ async def refresh_churn_dashboard(
 
 @router.post("/escalate-alerts")
 async def escalate_alerts(
-    background_tasks: BackgroundTasks,
     tenant_id: UUID = Depends(get_current_tenant),
     token: str = Depends(security)
 ):
