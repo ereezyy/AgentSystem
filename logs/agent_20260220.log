@@ -1,0 +1,8 @@
+2026-02-20 22:48:54 - AgentSystem - INFO - logger.py:97 - Logging initialized at level INFO
+2026-02-20 22:48:54 - AgentSystem.AgentSystem - INFO - __init__.py:22 - AgentSystem v0.1.0 initializing
+2026-02-20 22:48:54 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'test_agent' (2584fbaf-6dd9-4263-85b2-b361a8d5e16c) initialized
+2026-02-20 22:48:54 - AgentSystem.core.state - INFO - state.py:83 - Agent status changed: IDLE -> THINKING
+2026-02-20 22:48:54 - AgentSystem.core.state - INFO - state.py:179 - Started task 'Test Task' (fe665442-3d28-49f9-9e28-08372a05e310)
+2026-02-20 22:48:54 - AgentSystem.core.agent - INFO - agent.py:227 - Saved agent state to test_data_state_loading/agent_state.json
+2026-02-20 22:48:54 - AgentSystem.core.agent - INFO - agent.py:104 - Agent 'agent' (a4ca8dfc-d180-422e-8356-a74915318b07) initialized
+2026-02-20 22:48:54 - AgentSystem.core.agent - INFO - agent.py:254 - Loaded agent state from test_data_state_loading/agent_state.json
