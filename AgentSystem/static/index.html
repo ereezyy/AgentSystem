@@ -6,6 +6,7 @@
     <title>AgentSystem Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/css/microcopy-components.css">
 </head>
 <body>
     <div class="container-fluid">
@@ -80,7 +81,7 @@
                     <section id="tasks" class="section-content" style="display:none;">
                         <h2>Task Management</h2>
                         <div class="mb-3">
-                            <button class="btn btn-primary" onclick="openTaskModal()">Create New Task</button>
+                            <button class="btn btn-primary" onclick="openTaskModal()" id="create-task-btn" data-microcopy-key="task_create_button">Create New Task</button>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -229,22 +230,30 @@
                 <div class="modal-body">
                     <form id="task-form">
                         <div class="mb-3">
-                            <label for="task-name" class="form-label">Task Name</label>
-                            <input type="text" class="form-control" id="task-name" required>
+                            <label for="task-name" class="form-label" id="task-name-label" data-microcopy-key="form_task_name">Task Name</label>
+                            <input type="text" class="form-control" id="task-name" required placeholder="e.g., Analyze customer feedback from Q1">
                         </div>
                         <div class="mb-3">
                             <label for="task-description" class="form-label">Description</label>
                             <textarea class="form-control" id="task-description" rows="3" required></textarea>
+                            <div class="d-flex justify-content-end">
+                                <small class="form-text text-muted"><span id="char-count">0</span> chars</small>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="task-priority" class="form-label">Priority (1-10)</label>
-                            <input type="number" class="form-control" id="task-priority" value="5" min="1" max="10">
+                            <label for="task-priority" class="form-label">Priority</label>
+                            <input type="range" class="form-range" id="task-priority" min="1" max="10" value="5">
+                             <div class="d-flex justify-content-between">
+                                <small>Low</small>
+                                <small>Normal</small>
+                                <small>Urgent</small>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeTaskModal()">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitTask()">Submit Task</button>
+                    <button type="button" class="btn btn-primary" onclick="submitTask()" id="submit-task-btn" data-microcopy-key="task_submit_button">Submit Task</button>
                 </div>
             </div>
         </div>
@@ -252,6 +261,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="/static/app.js"></script>
+    <script src="/static/js/microcopy.js"></script>
+    <script src="/static/js/app-improved.js"></script>
 </body>
 </html>

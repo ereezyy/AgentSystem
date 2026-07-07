@@ -32,7 +32,8 @@ from AgentSystem.monitoring.realtime_dashboard import dashboard_service
 from AgentSystem.analytics.predictive_analytics import analytics_engine
 from AgentSystem.scaling.auto_scaler import auto_scaler
 from AgentSystem.scaling.advanced_load_balancer import advanced_load_balancer
-from AgentSystem.usage.overage_billing import OverageBilling
+# from AgentSystem.usage.overage_billing import OverageBilling
+from AgentSystem.microcopy_service import microcopy_service
 
 # Set up logger
 logger = get_logger(__name__)
@@ -402,6 +403,29 @@ def run_server_mode(agent: Agent, host: str, port: int):
             "timestamp": time.time(),
             "version": "2.0.0"
         }
+
+    # MICROCOPY ENDPOINTS
+
+    @app.route('/api/microcopy/variants')
+    def get_microcopy_variants():
+        response.content_type = 'application/json'
+        return {
+            "success": True,
+            "variants": microcopy_service.get_active_variants()
+        }
+
+    @app.route('/api/microcopy/interactions', method='POST')
+    def track_microcopy_interaction():
+        data = request.json
+        if not data or 'variant_id' not in data:
+            response.status = 400
+            response.content_type = 'application/json'
+            return {"success": False, "message": "variant_id required"}
+
+        success = microcopy_service.track_interaction(data['variant_id'], data)
+
+        response.content_type = 'application/json'
+        return {"success": success}
 
     @app.route('/task', method='POST')
     def run_task():
@@ -861,7 +885,7 @@ def run_server_mode(agent: Agent, host: str, port: int):
         # Check if tenant has the e-commerce churn prevention pack (placeholder logic)
         async with dashboard_service.db_pool.acquire() as conn:
             has_pack = await conn.fetchval(
-                "SELECT COUNT(*) > 0 FROM tenant_management.tenants WHERE id = $1 AND industry_pack = 'ecommerce_churn_prevention'",
+                "SELECT COUNT(*) > 0 FROM tenant_management.tenants WHERE id =  AND industry_pack = 'ecommerce_churn_prevention'",
                 data['tenant_id']
             )
             if not has_pack:
@@ -885,7 +909,7 @@ def run_server_mode(agent: Agent, host: str, port: int):
         # Check if tenant has the e-commerce churn prevention pack (placeholder logic)
         async with dashboard_service.db_pool.acquire() as conn:
             has_pack = await conn.fetchval(
-                "SELECT COUNT(*) > 0 FROM tenant_management.tenants WHERE id = $1 AND industry_pack = 'ecommerce_churn_prevention'",
+                "SELECT COUNT(*) > 0 FROM tenant_management.tenants WHERE id =  AND industry_pack = 'ecommerce_churn_prevention'",
                 data['tenant_id']
             )
             if not has_pack:
@@ -1070,75 +1094,30 @@ def main():
         # Create a new event loop
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        loop.run_until_complete(asyncio.ensure_future(dashboard_service.metrics_collector.start_metrics_collection()))
+        loop.run_until_complete(asyncio.ensure_future(analytics_engine.start_analytics()))
+        loop.run_until_complete(asyncio.ensure_future(auto_scaler.start_scaling()))
+        loop.run_until_complete(asyncio.ensure_future(advanced_load_balancer.initialize_advanced_balancing()))
 
-        async def start_background_services():
-            global overage_billing, security_engine, doc_generator, customer_support, churn_prevention
-            logger.info("Starting background services...")
-            try:
-                # Initialize connections first
-                await dashboard_service.initialize_connections()
+        # Initialize and start overage billing system
+        # overage_billing = OverageBilling(dashboard_service.db_pool, dashboard_service.redis_client)
+        # loop.run_until_complete(asyncio.ensure_future(overage_billing.start()))
 
-                # Check if connections are available (basic check)
-                if not dashboard_service.db_pool:
-                     logger.warning("Database connection not available, some services may fail")
+        # Initialize and start security automation engine with continuous scanning
+        # from AgentSystem.security.security_automation_engine import SecurityAutomationEngine
+        # security_engine = SecurityAutomationEngine({}, dashboard_service.db_pool, dashboard_service.redis_client)
+        # loop.run_until_complete(asyncio.ensure_future(security_engine.start_continuous_scanning()))
 
-                # Synchronous start methods (calling create_task internally)
-                dashboard_service.metrics_collector.start_metrics_collection()
-                analytics_engine.start_analytics()
-                auto_scaler.start_scaling()
+        # Initialize and start documentation generator
+        # from AgentSystem.documentation.doc_generator import DocGenerator
+        # doc_generator = DocGenerator(dashboard_service.db_pool, dashboard_service.redis_client)
+        # loop.run_until_complete(asyncio.ensure_future(doc_generator.start()))
+        # loop.run_until_complete(asyncio.ensure_future(doc_generator.generate_initial_docs()))
 
-                # Initialize dependent services
-                # Initialize and start overage billing system
-                overage_billing = OverageBilling(dashboard_service.db_pool, dashboard_service.redis_client)
-
-                # Initialize and start security automation engine with continuous scanning
-                from AgentSystem.security.security_automation_engine import SecurityAutomationEngine
-                security_engine = SecurityAutomationEngine({}, dashboard_service.db_pool, dashboard_service.redis_client)
-
-                # Initialize and start documentation generator
-                from AgentSystem.documentation.doc_generator import DocGenerator
-                doc_generator = DocGenerator(dashboard_service.db_pool, dashboard_service.redis_client)
-
-                # Initialize and start customer support system
-                from AgentSystem.support.customer_support import CustomerSupport
-                customer_support = CustomerSupport(dashboard_service.db_pool, dashboard_service.redis_client)
-
-                # Initialize churn prevention
-                try:
-                    from AgentSystem.industry_packs.ecommerce_churn_prevention import EcommerceChurnPrevention
-                    # Assuming it takes similar args or just init it if possible
-                    # churn_prevention = EcommerceChurnPrevention(dashboard_service.db_pool) # hypothetical
-                    pass
-                except ImportError:
-                    logger.warning("EcommerceChurnPrevention module not found")
-
-                # Async start methods
-                await advanced_load_balancer.initialize_advanced_balancing()
-                if overage_billing: await overage_billing.start()
-                if security_engine: await security_engine.start_continuous_scanning()
-                if doc_generator:
-                    await doc_generator.start()
-                    # await doc_generator.generate_initial_docs() # This might be blocking/slow
-                    asyncio.create_task(doc_generator.generate_initial_docs())
-                if customer_support: await customer_support.start()
-
-                logger.info("Background services started successfully")
-            except Exception as e:
-                logger.error(f"Error in start_background_services: {e}")
-                import traceback
-                traceback.print_exc()
-
-        def run_loop_in_thread(loop):
-            asyncio.set_event_loop(loop)
-            loop.run_forever()
-
-        # Start the loop in a daemon thread
-        t = threading.Thread(target=run_loop_in_thread, args=(loop,), daemon=True)
-        t.start()
-
-        # Schedule the startup coroutine
-        asyncio.run_coroutine_threadsafe(start_background_services(), loop)
-
+        # Initialize and start customer support system
+        # from AgentSystem.support.customer_support import CustomerSupport
+        # customer_support = CustomerSupport(dashboard_service.db_pool, dashboard_service.redis_client)
+        # loop.run_until_complete(asyncio.ensure_future(customer_support.start()))
     except Exception as e:
         logger.error(f"Error starting dashboard metrics collection, analytics, or auto-scaling: {e}")
 
