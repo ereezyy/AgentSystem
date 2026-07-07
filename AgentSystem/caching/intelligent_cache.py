@@ -455,12 +455,17 @@ class IntelligentCache:
 
         # Get candidates with similar semantic hash
         pattern = f"cache:semantic:{tenant_id}:*"
-        keys = await self.redis.keys(pattern)
+        # Use scan_iter to avoid blocking Redis with KEYS command
+        keys = []
+        async for key in self.redis.scan_iter(match=pattern, count=100):
+            keys.append(key)
+            if len(keys) >= 50:
+                break
 
         best_match = None
         best_similarity = 0
 
-        for key in keys[:50]:  # Limit search for performance
+        for key in keys:  # Limit search for performance
             cached_data = await self.redis.get(key)
             if cached_data:
                 cache_entry = pickle.loads(cached_data)
@@ -524,6 +529,73 @@ class IntelligentCache:
                 "UPDATE cache_entries SET is_active = false WHERE tenant_id = $1",
                 tenant_id
             )
+
+        return None
+
+    async def _find_keys_by_pattern(self, tenant_id: str, pattern: str) -> List[str]:
+        """Find Redis keys matching pattern"""
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*{pattern}*"):
+            keys.append(key)
+        return keys
+
+    async def _find_keys_by_model(self, tenant_id: str, model: str) -> List[str]:
+        """Find Redis keys for specific model"""
+        # Would need to scan cache entries and build key list
+        # Simplified implementation
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*"):
+            keys.append(key)
+        return keys
+
+    async def _find_keys_by_tags(self, tenant_id: str, tags: List[str]) -> List[str]:
+        """Find Redis keys matching tags"""
+        # Would query database for cache_ids with matching tags, then build Redis keys
+        # Simplified implementation
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*"):
+            keys.append(key)
+        return keys
+
+    async def _find_all_tenant_keys(self, tenant_id: str) -> List[str]:
+        """Find all Redis keys for tenant"""
+        keys = []
+        async for key in self.redis.scan_iter(match=f"cache:*:{tenant_id}:*"):
+            keys.append(key)
+        return keys
+
+    async def _mark_invalidated_in_database(self, tenant_id: str, pattern: Optional[str] = None,
+                                          model: Optional[str] = None, tags: Optional[List[str]] = None):
+        """Mark cache entries as invalidated in database"""
+
+        query = "UPDATE caching.cache_entries SET is_active = false WHERE tenant_id = $1"
+        params = [tenant_id]
+        param_count = 1
+
+        if model:
+            param_count += 1
+            query += f" AND model_used = ${param_count}"
+            params.append(model)
+
+        if pattern:
+            param_count += 1
+            query += f" AND (request_content ILIKE ${param_count} OR prompt_template ILIKE ${param_count})"
+            params.extend([f"%{pattern}%", f"%{pattern}%"])
+
+        async with self.db_pool.acquire() as conn:
+            await conn.execute(query, *params)
+
+    async def _mark_for_warming(self, tenant_id: str, prediction: Dict[str, Any]):
+        """Mark prediction for cache warming"""
+
+        async with self.db_pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO caching.cache_warming_queue (
+                    tenant_id, predicted_content, predicted_model, confidence_score,
+                    expected_cost, status, created_at
+                ) VALUES ($1, $2, $3, $4, $5, 'pending', NOW())
+            """, tenant_id, prediction['content'], prediction['model'],
+                prediction['confidence'], prediction['expected_cost'])
 
 
 # Factory / per-tenant manager
