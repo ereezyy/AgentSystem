@@ -61,7 +61,7 @@ class AudioProcessor:
         
     def set_event_callback(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """
-        Set a callback for new audio events
+        Set callback for new events
 
         Args:
             callback: Function to call when a new event is generated
@@ -205,6 +205,7 @@ class AudioProcessor:
                 if text:
                     logger.debug(f"Recognized speech: {text}")
                     
+                    # Create event
                     event = {
                         'type': 'speech',
                         'text': text,
@@ -212,18 +213,17 @@ class AudioProcessor:
                         'confidence': 0.8  # Estimated confidence
                     }
 
-                    # Call callback if set
+                    # Notify callback
                     if self.event_callback:
                         try:
                             self.event_callback(event)
                         except Exception as e:
-                            logger.error(f"Error in event callback: {e}")
+                            logger.error(f"Error in audio event callback: {e}")
 
-                    # Add to queue (non-blocking)
+                    # Add to internal queue (non-blocking)
                     try:
                         self.audio_queue.put(event, block=False)
                     except queue.Full:
-                        # Drop oldest if full
                         try:
                             self.audio_queue.get_nowait()
                             self.audio_queue.put(event, block=False)
@@ -267,14 +267,14 @@ class AudioProcessor:
                         }
                     }
 
-                    # Call callback if set
+                    # Notify callback
                     if self.event_callback:
                         try:
                             self.event_callback(event)
                         except Exception as e:
-                            logger.error(f"Error in event callback: {e}")
+                            logger.error(f"Error in audio features callback: {e}")
 
-                    # Add to queue (non-blocking)
+                    # Add to internal queue
                     try:
                         self.audio_queue.put(event, block=False)
                     except queue.Full:
@@ -340,7 +340,7 @@ class VideoProcessor:
     
     def set_event_callback(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """
-        Set a callback for new video events
+        Set callback for new events
 
         Args:
             callback: Function to call when a new event is generated
@@ -543,14 +543,14 @@ class VideoProcessor:
                 'thumbnail': thumbnail_b64
             }
             
-            # Call callback if set
+            # Notify callback
             if self.event_callback:
                 try:
                     self.event_callback(event)
                 except Exception as e:
-                    logger.error(f"Error in event callback: {e}")
+                    logger.error(f"Error in video event callback: {e}")
 
-            # Add to queue (non-blocking to prevent slowdowns)
+            # Add to internal queue (non-blocking to prevent slowdowns)
             try:
                 self.video_queue.put(event, block=False)
             except queue.Full:
@@ -600,25 +600,32 @@ class SensoryInputModule:
         self.event_buffer = []
         self.buffer_lock = threading.Lock()
         
-        # Register internal callbacks for unified processing
-        if self.audio_processor:
-            self.audio_processor.set_event_callback(self._handle_raw_event)
-        if self.video_processor:
-            self.video_processor.set_event_callback(self._handle_raw_event)
+        # Unified event queue for efficient processing
+        self.event_queue = queue.Queue(maxsize=1000)
 
         logger.info(f"Initialized SensoryInputModule (dependencies available: {SENSORY_IMPORTS_AVAILABLE})")
+
+        # Configure processors to use the unified queue
+        if self.audio_processor:
+            self.audio_processor.set_event_callback(self._handle_raw_event)
+
+        if self.video_processor:
+            self.video_processor.set_event_callback(self._handle_raw_event)
     
     def _handle_raw_event(self, event: Dict[str, Any]) -> None:
         """
-        Handle raw event from processors
+        Handle raw event from processors by putting it into the processing queue
 
         Args:
             event: The sensory event
         """
         try:
-            self.event_queue.put(event)
+            self.event_queue.put(event, block=False)
+        except queue.Full:
+            logger.warning("Event queue full, dropping sensory event")
         except Exception as e:
-            logger.error(f"Error queuing raw event: {e}")
+            logger.error(f"Error queuing sensory event: {e}")
+
 
     def get_tools(self) -> Dict[str, Any]:
         """Get tools provided by this module"""
@@ -713,7 +720,7 @@ class SensoryInputModule:
                 }
             }
         }
-    
+
     def start_audio_recording(self, device_index: Optional[int] = None) -> Dict[str, Any]:
         """
         Start recording audio from microphone
@@ -908,7 +915,8 @@ class SensoryInputModule:
             }
         
         self.is_processing = False
-        # Signal thread to stop
+
+        # Unblock the processing thread if it's waiting
         try:
             self.event_queue.put(None)
         except:
@@ -928,24 +936,24 @@ class SensoryInputModule:
         """Thread function for continuous event processing"""
         while self.is_processing:
             try:
-                # Get event from unified queue
+                # Get next event from queue (blocking)
+                # Use a timeout to periodically check is_processing flag
                 try:
-                    # Timeout allows checking self.is_processing periodically if no events
                     event = self.event_queue.get(timeout=1.0)
                 except queue.Empty:
                     continue
                 
-                # Check for sentinel
+                # Check for sentinel to stop processing
                 if event is None:
                     break
-                
+
                 # Process event through callbacks
                 for callback in self.event_callbacks:
                     try:
                         callback(event)
                     except Exception as e:
                         logger.error(f"Error in event callback: {e}")
-
+                
                 # Add to buffer
                 with self.buffer_lock:
                     self.event_buffer.append(event)
@@ -955,7 +963,9 @@ class SensoryInputModule:
                 
             except Exception as e:
                 logger.error(f"Error in event processing: {e}")
-                time.sleep(0.1)  # Prevent tight loop on errors
+                # No sleep needed here as get() blocks, but if we catch exception we might want to avoid tight loop
+                # if the exception was not from get()
+                time.sleep(0.1)
     
     def get_latest_sensory_events(self, max_events: int = 10) -> Dict[str, Any]:
         """
