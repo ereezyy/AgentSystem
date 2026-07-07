@@ -361,7 +361,133 @@ class IntelligentCache:
             return False
         return row["cnt"] > 15000 or row["mb"] > self.max_size_mb_per_tenant
 
-    async def _evict_lru(self, tenant_id: str, fraction: float = 0.2):
+        return CacheStats(
+            tenant_id=tenant_id,
+            total_requests=total_requests,
+            cache_hits=cache_hits,
+            exact_hits=stats_data['exact_hits'] or 0,
+            semantic_hits=stats_data['semantic_hits'] or 0,
+            partial_hits=stats_data['partial_hits'] or 0,
+            template_hits=stats_data['template_hits'] or 0,
+            cache_miss=stats_data['cache_miss'] or 0,
+            hit_rate=hit_rate,
+            cost_savings=stats_data['total_cost_savings'] or 0,
+            storage_used_mb=storage_data['storage_mb'] or 0,
+            avg_response_time_ms=stats_data['avg_response_time'] or 0,
+            period_start=datetime.now() - timedelta(days=days),
+            period_end=datetime.now()
+        )
+
+    async def warm_cache(self, tenant_id: str, predictions: List[Dict[str, Any]]):
+        """
+        Predictive cache warming based on usage patterns
+        """
+
+        warmed_count = 0
+
+        for prediction in predictions:
+            # Check if already cached
+            cached = await self.get_cached_response(
+                tenant_id=tenant_id,
+                request_content=prediction['content'],
+                model=prediction['model']
+            )
+
+            if not cached:
+                # Generate response and cache it
+                # This would integrate with the arbitrage engine
+                # For now, we'll just mark it for warming
+                await self._mark_for_warming(tenant_id, prediction)
+                warmed_count += 1
+
+        logger.info(f"Warmed {warmed_count} cache entries for tenant {tenant_id}")
+
+        return warmed_count
+
+    # Private helper methods
+    def _generate_exact_hash(self, content: str, model: str, temperature: float, max_tokens: int) -> str:
+        """Generate exact match hash"""
+
+        hash_input = f"{content}:{model}:{temperature}:{max_tokens}"
+        return hashlib.sha256(hash_input.encode()).hexdigest()
+
+    async def _generate_semantic_hash(self, content: str) -> Optional[str]:
+        """Generate semantic similarity hash using embeddings"""
+
+        if not self.embedding_model:
+            return None
+
+        try:
+            # Generate embedding
+            embedding = await asyncio.to_thread(self.embedding_model.encode, content)
+
+            # Create hash from embedding (simplified)
+            embedding_bytes = embedding.tobytes()
+            return hashlib.md5(embedding_bytes).hexdigest()
+        except Exception as e:
+            logger.error(f"Error generating semantic hash: {e}")
+            return None
+
+    async def _check_exact_match(self, tenant_id: str, exact_hash: str) -> Optional[CacheHit]:
+        """Check for exact hash match in cache"""
+
+        cache_key = f"cache:exact:{tenant_id}:{exact_hash}"
+        cached_data = await self.redis.get(cache_key)
+
+        if cached_data:
+            cache_entry = pickle.loads(cached_data)
+            return CacheHit(
+                cache_entry=cache_entry,
+                similarity_score=1.0,
+                cache_level=CacheLevel.EXACT_MATCH,
+                adaptation_needed=False,
+                estimated_cost_savings=cache_entry.cost_saved
+            )
+
+        return None
+
+    async def _check_semantic_match(self, tenant_id: str, semantic_hash: str,
+                                  content: str) -> Optional[CacheHit]:
+        """Check for semantic similarity match"""
+
+        if not self.embedding_model:
+            return None
+
+        # Get candidates with similar semantic hash
+        pattern = f"cache:semantic:{tenant_id}:*"
+        keys = await self.redis.keys(pattern)
+
+        best_match = None
+        best_similarity = 0
+
+        for key in keys[:50]:  # Limit search for performance
+            cached_data = await self.redis.get(key)
+            if cached_data:
+                cache_entry = pickle.loads(cached_data)
+
+                # Calculate semantic similarity
+                similarity = await self._calculate_similarity(content, cache_entry.request_content)
+
+                if similarity > self.config['similarity_threshold'] and similarity > best_similarity:
+                    best_similarity = similarity
+                    best_match = cache_entry
+
+        if best_match:
+            return CacheHit(
+                cache_entry=best_match,
+                similarity_score=best_similarity,
+                cache_level=CacheLevel.SEMANTIC_MATCH,
+                adaptation_needed=best_similarity < 0.95,
+                estimated_cost_savings=best_match.cost_saved * best_similarity
+            )
+
+        return None
+
+    async def _check_partial_match(self, tenant_id: str, content: str,
+                                 model: str) -> Optional[CacheHit]:
+        """Check for partial content match"""
+
+        # Look for entries with similar keywords/phrases
         async with self.db_pool.acquire() as conn:
             count = await conn.fetchval("""
                 SELECT COUNT(*) FROM cache_entries
