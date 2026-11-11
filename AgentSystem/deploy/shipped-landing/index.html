@@ -10,8 +10,8 @@
   <meta property="og:title" content="Eddy Woods LLC | Shipped Deck">
   <meta property="og:description" content="A swipeable, accessible showcase of shipped products and tools.">
   <meta property="og:url" content="https://dead-air.show/">
-  <meta property="og:image" content="https://dead-air.show/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
+  <script>document.documentElement.classList.add("js");</script>
   <style>
     :root {
       --bg: #05070f;
@@ -21,7 +21,7 @@
       --line: rgba(146, 183, 255, 0.3);
       --card-bg: linear-gradient(170deg, rgba(16, 28, 58, 0.9), rgba(8, 12, 23, 0.95));
       --accent: #62d4ff;
-      --accent-2: #7a8dff;
+      --accent-2: #62d4ff;
       --focus: #9ee9ff;
       --radius: 20px;
     }
@@ -30,11 +30,11 @@
       margin: 0;
       color: var(--text);
       background:
-        radial-gradient(65vw 65vw at 15% 5%, rgba(75, 100, 255, 0.24), transparent 72%),
+        radial-gradient(65vw 65vw at 15% 5%, rgba(48, 196, 232, 0.24), transparent 72%),
         radial-gradient(75vw 75vw at 100% 100%, rgba(41, 205, 255, 0.2), transparent 74%),
         var(--bg);
       min-height: 100%;
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
     }
     .skip-link {
       position: absolute;
@@ -103,6 +103,7 @@
       background: rgba(11, 19, 39, 0.92);
       color: var(--text);
       padding: 0.48rem 0.8rem;
+      min-height: 44px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -122,8 +123,10 @@
       overscroll-behavior-inline: contain;
       scrollbar-width: thin;
     }
-    .deck:focus {
-      outline: none;
+    .deck:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+      border-radius: 8px;
     }
     .card {
       scroll-snap-align: center;
@@ -132,10 +135,14 @@
       background: var(--card-bg);
       box-shadow: 0 14px 32px rgba(3, 7, 17, 0.56);
       min-height: 280px;
+      opacity: 1;
+      transform: none;
+    }
+    .js .card {
       opacity: 0;
       transform: translateX(18px) rotateY(-4deg);
     }
-    .card[data-ready="true"] {
+    .js .card[data-ready="true"] {
       opacity: 1;
       transform: none;
       transition: opacity 360ms ease, transform 420ms ease;
@@ -222,7 +229,7 @@
     <header class="hero">
       <p class="eyebrow">Eddy Woods LLC</p>
       <h1>Shipped Work, <span style="color: var(--accent);">dealt as a live deck.</span></h1>
-      <p>Swipe or use arrow keys to move card by card. Every card opens WaveForge while this consolidated landing flow is staged.</p>
+      <p>Swipe or use arrow keys to move card by card. Every card opens WaveForge.</p>
       <div class="controls" aria-label="Deck controls">
         <p id="deck-hint">Deck order: DistroBuzz, Maestro, WaveForge, Lisa, Social Forest, Skill Scanner, LLM Guard, HVACFix.</p>
         <div class="buttons">
@@ -233,53 +240,50 @@
       <div class="deck-wrap">
         <div class="deck" id="deck" tabindex="0" aria-describedby="deck-hint">
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from DistroBuzz card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="DistroBuzz abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="dbz" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#21d0ff"/><stop offset="1" stop-color="#7f8fff"/></linearGradient></defs>
+                  <defs><linearGradient id="dbz" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#21d0ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <circle cx="32" cy="32" r="22" fill="none" stroke="url(#dbz)" stroke-width="4"/>
                   <path d="M18 34C24 26 40 26 46 18M18 46C28 42 38 42 46 34" stroke="#d4ecff" stroke-width="3" stroke-linecap="round"/>
                   <circle cx="46" cy="18" r="3.5" fill="#21d0ff"/>
                 </svg>
               </div>
               <h2>DistroBuzz</h2>
-              <p>Listed in this deck by request. Repository docs in this branch do not define product behavior, so copy remains neutral.</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from Maestro card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="Maestro abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="mtr" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#63d5ff"/><stop offset="1" stop-color="#8e74ff"/></linearGradient></defs>
+                  <defs><linearGradient id="mtr" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#63d5ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <rect x="10" y="10" width="44" height="44" rx="12" fill="none" stroke="url(#mtr)" stroke-width="4"/>
                   <path d="M17 42L25 24L32 39L39 19L47 42" stroke="#f2f8ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <h2>Maestro</h2>
-              <p>Included per requested order. No explicit function description was found in this repository snapshot.</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="WaveForge abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="wvf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2ce0ff"/><stop offset="1" stop-color="#5670ff"/></linearGradient></defs>
+                  <defs><linearGradient id="wvf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2ce0ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <path d="M12 36C20 18 24 54 32 36C40 18 44 54 52 36" fill="none" stroke="url(#wvf)" stroke-width="4" stroke-linecap="round"/>
                   <rect x="12" y="42" width="40" height="6" rx="3" fill="#cfe8ff"/>
                 </svg>
               </div>
               <h2>WaveForge</h2>
-              <p>AI music visualizer videos for musicians and creators. Verified live at build time (HTTP 200).</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from Lisa card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="Lisa abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="lsa" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7ce0ff"/><stop offset="1" stop-color="#7f8cff"/></linearGradient></defs>
+                  <defs><linearGradient id="lsa" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7ce0ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <circle cx="32" cy="22" r="9" fill="none" stroke="url(#lsa)" stroke-width="4"/>
                   <path d="M18 50C20 39 26 35 32 35C38 35 44 39 46 50" fill="none" stroke="#e8f4ff" stroke-width="4" stroke-linecap="round"/>
                 </svg>
@@ -291,66 +295,59 @@
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from Social Forest card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="Social Forest abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="sfr" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#3fe9c6"/><stop offset="1" stop-color="#4f9eff"/></linearGradient></defs>
+                  <defs><linearGradient id="sfr" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#3fe9c6"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <path d="M32 10L47 36H17L32 10Z" fill="none" stroke="url(#sfr)" stroke-width="4" stroke-linejoin="round"/>
                   <path d="M32 24V50" stroke="#d8f8ff" stroke-width="4" stroke-linecap="round"/>
                 </svg>
               </div>
               <h2>Social Forest</h2>
-              <p>Included based on request. Current repository content does not document a specific feature set for this product.</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from Skill Scanner card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="Skill Scanner abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="skl" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78f0ff"/><stop offset="1" stop-color="#7f8fff"/></linearGradient></defs>
+                  <defs><linearGradient id="skl" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78f0ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <circle cx="28" cy="28" r="14" fill="none" stroke="url(#skl)" stroke-width="4"/>
                   <path d="M38 38L49 49" stroke="#deedff" stroke-width="4" stroke-linecap="round"/>
                   <path d="M21 28L26 33L35 23" stroke="#deedff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <h2>Skill Scanner</h2>
-              <p>Referenced as a small tool on agentlooper.org. In-repo functional details were not located, so this copy stays non-speculative.</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from LLM Guard card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="LLM Guard abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="lmg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5dd1ff"/><stop offset="1" stop-color="#8f8aff"/></linearGradient></defs>
+                  <defs><linearGradient id="lmg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5dd1ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <path d="M32 10L48 17V30C48 40 42 48 32 54C22 48 16 40 16 30V17L32 10Z" fill="none" stroke="url(#lmg)" stroke-width="4" stroke-linejoin="round"/>
                   <path d="M24 31L29 36L40 25" stroke="#ebf6ff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <h2>LLM Guard</h2>
-              <p>Presented as part of the tool set request. This repository did not provide a precise product description to quote directly.</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
           <article class="card">
-            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer" aria-label="Open WaveForge from HVACFix card">
+            <a class="card-link" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">
               <div class="logo" role="img" aria-label="HVACFix abstract logo">
                 <svg viewBox="0 0 64 64" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
-                  <defs><linearGradient id="hvf" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#86f2ff"/><stop offset="1" stop-color="#6f7fff"/></linearGradient></defs>
+                  <defs><linearGradient id="hvf" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#86f2ff"/><stop offset="1" stop-color="#62d4ff"/></linearGradient></defs>
                   <rect x="12" y="12" width="40" height="40" rx="11" fill="none" stroke="url(#hvf)" stroke-width="4"/>
                   <path d="M22 32H42M32 22V42" stroke="#def2ff" stroke-width="3.4" stroke-linecap="round"/>
                 </svg>
               </div>
               <h2>HVACFix</h2>
-              <p>HVACFix is currently reachable and returns HTTP 200 from https://hvacfix.net at build verification time.</p>
               <span class="cta">Open WaveForge</span>
             </a>
           </article>
         </div>
-      </div>
-      <div class="meta">
-        Link checks in this staging branch: <strong>waveforge.net</strong> and <strong>hvacfix.net</strong> returned HTTP 200; <strong>agentlooper.org/skill-scanner</strong> returned HTTP 200 during this run; several requested names are present with neutral copy due to missing in-repo product definitions.
       </div>
     </header>
     <footer><span id="year"></span> Eddy Woods LLC</footer>

@@ -5,42 +5,54 @@ It is not deployed by this PR.
 
 ## Scope
 
-`shipped-landing.conf` is intended to route these domains to one static landing page at `/var/www/shipped/index.html`:
+`shipped-landing.conf` is intended to route only these dead-air hostnames to one static landing page at `/var/www/shipped/index.html`:
 
 - `dead-air.show`
-- `agentlooper.org`
-- `proofchain.us`
-- `self.proofchain.us`
+- `www.dead-air.show`
 
 No other vhost should be changed.
 
-## Notes on TLS paths
+## Apply procedure (staging only)
 
-The TLS certificate paths are intentionally placeholders:
+Replace the existing vhost file in place (do not add a second file with the same `server_name`):
 
-- `/etc/letsencrypt/live/REPLACE_WITH_EXISTING_CERT/fullchain.pem`
-- `/etc/letsencrypt/live/REPLACE_WITH_EXISTING_CERT/privkey.pem`
+- Existing file to replace: `/etc/nginx/sites-available/dead-air.show.conf`
 
-Before any staging rollout, replace them with the exact existing cert paths currently used for those hostnames.
-
-## Validation command
-
-Run syntax validation before reload:
-
-```bash
-sudo nginx -t
-```
-
-## Rollback
-
-1. Restore the previous server blocks for these four hostnames.
-2. Re-run:
+1. Create a dated backup directory outside any webroot and back up the current file:
+   ```bash
+   BACKUP_DIR="/var/backups/nginx/$(date +%F-%H%M%S)"
+   sudo mkdir -p "$BACKUP_DIR"
+   sudo cp -a /etc/nginx/sites-available/dead-air.show.conf "$BACKUP_DIR/dead-air.show.conf"
+   ```
+2. Copy in the proposed file content to `/etc/nginx/sites-available/dead-air.show.conf`.
+3. Ensure docroots exist:
+   ```bash
+   sudo mkdir -p /var/www/shipped /var/www/acme-dead-air
+   ```
+4. Validate nginx config:
    ```bash
    sudo nginx -t
    ```
-3. Reload nginx after validation:
+5. Reload only after successful validation:
    ```bash
    sudo systemctl reload nginx
    ```
 
-If validation fails, do not reload.
+If `nginx -t` fails, do not reload.
+
+## Rollback
+
+1. Restore the same backed-up file to `/etc/nginx/sites-available/dead-air.show.conf`.
+2. Re-run:
+   ```bash
+   sudo nginx -t
+   ```
+3. Reload nginx:
+   ```bash
+   sudo systemctl reload nginx
+   ```
+
+## Notes
+
+- Legacy redirects for `/legal/`, `/podcast`, `/rss`, and `/episodes` are not included in this proposal.
+- Out of scope for this claim: Lisa implementation changes, WaveForge/HVACFix product changes, iptables, and rizz.
