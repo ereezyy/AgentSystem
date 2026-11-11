@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Eddy Woods LLC | Immersive Product Constellation</title>
   <meta name="description" content="Everything Eddy Woods has shipped, in one immersive destination with direct product access.">
+  <meta property="og:title" content="Everything Eddy Woods has shipped, in one place.">
+  <meta property="og:description" content="Tap a product to take a closer look.">
+  <meta name="twitter:title" content="Everything Eddy Woods has shipped, in one place.">
+  <meta name="twitter:description" content="Tap a product to take a closer look.">
   <meta name="theme-color" content="#060d14">
   <script>document.documentElement.classList.add("js");</script>
   <style>
@@ -37,12 +41,12 @@
     .skip-link:focus { top: 0.7rem; }
     .scene-wrap {
       position: relative;
-      min-height: 100vh;
       overflow: hidden;
       background:
         radial-gradient(circle at 14% 20%, rgba(94, 212, 246, 0.15), transparent 42%),
         radial-gradient(circle at 84% 74%, rgba(62, 181, 213, 0.18), transparent 40%);
     }
+    .js .scene-wrap { min-height: 100vh; }
     canvas {
       width: 100%;
       height: 100%;
@@ -116,7 +120,8 @@
     }
     .product-nav button:hover,
     .product-nav button:focus-visible {
-      outline: none;
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
       border-color: rgba(187, 241, 255, 0.92);
       transform: translateY(-2px);
     }
@@ -172,7 +177,8 @@
     }
     .detail-panel .cta:hover,
     .detail-panel .cta:focus-visible {
-      outline: none;
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
       border-color: rgba(199, 245, 255, 0.98);
       transform: translateY(-2px);
     }
@@ -225,7 +231,8 @@
     footer a:hover, footer a:focus-visible {
       color: #c8f5ff;
       background: rgba(83, 196, 227, 0.16);
-      outline: none;
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
     }
     .focus-ring:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
     @media (max-width: 900px) {
@@ -262,7 +269,7 @@
   </style>
 </head>
 <body>
-  <a class="skip-link focus-ring" href="#fallback-products">Skip to products</a>
+  <a class="skip-link focus-ring" href="#nav">Skip to products</a>
   <div class="scene-wrap" id="sceneWrap">
     <canvas id="scene" aria-hidden="true"></canvas>
     <div class="grain" aria-hidden="true"></div>
@@ -335,6 +342,7 @@
       var clearZone = { x: 0, y: 0, w: 0, h: 0 };
       var panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
       var railZone = { x: -9999, y: -9999, w: 0, h: 0 };
+      var rafId = 0;
       function createStars() {
         stars = [];
         for (var i = 0; i < 430; i++) {
@@ -446,7 +454,9 @@
         if (direction === "up") return { x: x, y: rect.y - r - 10 };
         return { x: x, y: y };
       }
-      function drawBody(screenX, screenY, radius, idx, glow) {
+      function drawBody(screenX, screenY, radius, idx, glow, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
         var grad = ctx.createRadialGradient(screenX - radius * 0.2, screenY - radius * 0.2, radius * 0.2, screenX, screenY, radius * 1.3);
         grad.addColorStop(0, "rgba(220,248,255,0.93)");
         grad.addColorStop(0.18, palette[idx % palette.length]);
@@ -592,8 +602,9 @@
           ctx.arc(screenX, screenY, radius * 0.2, 0, Math.PI * 2);
         }
         ctx.stroke();
+        ctx.restore();
       }
-      function render() {
+      function renderFrame(timeMs) {
         var w = canvas.width;
         var h = canvas.height;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -608,10 +619,10 @@
         sky.addColorStop(1, "rgba(6,10,18,0)");
         ctx.fillStyle = sky;
         ctx.fillRect(0, 0, sw, sh);
-        camera.z += (target.z - camera.z) * (reduce ? 0.25 : 0.09);
-        pan.x += ((pointer.x - 0.5) * 0.4 - pan.x) * 0.08;
-        pan.y += ((pointer.y - 0.5) * 0.32 - pan.y) * 0.08;
-        var t = performance.now() * 0.001;
+        camera.z += (target.z - camera.z) * (reduce ? 0.3 : 0.09);
+        pan.x += ((pointer.x - 0.5) * 0.4 - pan.x) * (reduce ? 0.3 : 0.08);
+        pan.y += ((pointer.y - 0.5) * 0.32 - pan.y) * (reduce ? 0.3 : 0.08);
+        var t = (timeMs || performance.now()) * 0.001;
         for (var s = 0; s < stars.length; s++) {
           var star = stars[s];
           var depth = 1 / (star.z + camera.z * 0.03);
@@ -619,7 +630,7 @@
           var y = (star.y + pan.y * depth * 0.8) * sh * 0.43 + sh * 0.53;
           if (x < -4 || y < -4 || x > sw + 4 || y > sh + 4) continue;
           if (x > clearZone.x && x < clearZone.x + clearZone.w && y > clearZone.y && y < clearZone.y + clearZone.h) continue;
-          var tw = 0.78 + Math.sin(t * (0.8 + star.speed) + star.twinkle) * 0.22;
+          var tw = reduce ? 1 : (0.78 + Math.sin(t * (0.8 + star.speed) + star.twinkle) * 0.22);
           ctx.fillStyle = "rgba(205,242,255," + (0.1 + depth * 0.2 * tw).toFixed(3) + ")";
           ctx.beginPath();
           ctx.arc(x, y, star.r * depth * 1.7, 0, Math.PI * 2);
@@ -628,37 +639,38 @@
         for (var b = 0; b < bokeh.length; b++) {
           var bk = bokeh[b];
           var bz = 1 / (bk.z + camera.z * 0.02);
-          var bxh = (bk.x + Math.sin(t * 0.08 + bk.drift) * 0.02 + pan.x * bz * 0.22) * sw * 0.5 + sw * 0.5;
-          var byh = (bk.y + Math.cos(t * 0.07 + bk.drift) * 0.02 + pan.y * bz * 0.2) * sh * 0.48 + sh * 0.54;
+          var bxh = (bk.x + (reduce ? 0 : Math.sin(t * 0.08 + bk.drift) * 0.02) + pan.x * bz * 0.22) * sw * 0.5 + sw * 0.5;
+          var byh = (bk.y + (reduce ? 0 : Math.cos(t * 0.07 + bk.drift) * 0.02) + pan.y * bz * 0.2) * sh * 0.48 + sh * 0.54;
           if (bxh > clearZone.x && bxh < clearZone.x + clearZone.w && byh > clearZone.y && byh < clearZone.y + clearZone.h) continue;
           var br = bk.r * bz * 2.8;
-          if (br > 12) br = 12;
+          if (br > 9) br = 9;
           if (br < 2) br = 2;
           var halo = ctx.createRadialGradient(bxh, byh, 0, bxh, byh, br);
-          halo.addColorStop(0, "rgba(186,236,251,0.12)");
+          halo.addColorStop(0, "rgba(186,236,251,0.08)");
           halo.addColorStop(1, "rgba(98,212,255,0)");
           ctx.fillStyle = halo;
           ctx.beginPath();
           ctx.arc(bxh, byh, br, 0, Math.PI * 2);
           ctx.fill();
         }
+        var activeAnchor = null;
         for (var i = 0; i < bodies.length; i++) {
           var body = bodies[i];
-          var z = body.z - camera.z + 3.15;
+          var z = body.z - camera.z + 3.45;
           if (z <= 0.2) continue;
-          if (i !== active && z < 1.18) continue;
+          if (i !== active && z < 1.34) continue;
           var depthScale = 1 / z;
           var bx = sw * 0.5 + (body.x + pan.x * 0.5) * sw * 0.54 * depthScale * 3.2;
           var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
-          var focusBoost = i === active ? 1.35 : 0.94;
-          var r = Math.max(9, sw * 0.118 * depthScale * body.size * focusBoost);
-          if (i !== active) r = Math.min(r, 74);
-          if (i === active) r = Math.min(r, 178);
+          var focusBoost = i === active ? 1.42 : 0.82;
+          var r = Math.max(8, sw * 0.112 * depthScale * body.size * focusBoost);
+          if (i !== active) r = Math.min(r, 58);
+          if (i === active) r = Math.min(r, 150);
           var keptHeadline = keepOutOfRect(bx, by, r, clearZone, "down");
           bx = keptHeadline.x;
           by = keptHeadline.y;
           if (i === active && window.innerWidth > 900) {
-            var targetX = sw * 0.44;
+            var targetX = sw * 0.4;
             var targetY = sh * 0.6;
             if (panelZone.x < sw * 0.9) {
               targetX = Math.min(targetX, panelZone.x - r - 34);
@@ -671,18 +683,32 @@
             var keptRail = keepOutOfRect(bx, by, r, railZone, "up");
             bx = keptRail.x;
             by = keptRail.y;
+          } else if (i === active) {
+            var mobileTargetX = sw * 0.5;
+            var mobileTargetY = Math.max(sh * 0.38, railZone.y - r - 86);
+            bx += (mobileTargetX - bx) * 0.24;
+            by += (mobileTargetY - by) * 0.22;
+            var keptPanelMobile = keepOutOfRect(bx, by, r, panelZone, "up");
+            bx = keptPanelMobile.x;
+            by = keptPanelMobile.y;
           }
           if (i !== active) {
             var nonActiveRail = keepOutOfRect(bx, by, r, railZone, "up");
             bx = nonActiveRail.x;
             by = nonActiveRail.y;
           }
+          if (circleIntersectsRect(bx, by, r, clearZone)) {
+            if (i === active) {
+              var forcedDown = keepOutOfRect(bx, by, r, clearZone, "down");
+              bx = forcedDown.x;
+              by = forcedDown.y;
+            } else {
+              continue;
+            }
+          }
           bx = Math.max(r + 14, Math.min(sw - r - 14, bx));
           by = Math.max(r + 14, Math.min(sh - r - 14, by));
           var glow = i === active ? 1 : 0;
-          if (bx > clearZone.x && bx < clearZone.x + clearZone.w && by > clearZone.y && by < clearZone.y + clearZone.h) {
-            glow = 0;
-          }
           if (glow) {
             var halo = ctx.createRadialGradient(bx, by, r * 0.2, bx, by, r * 3);
             halo.addColorStop(0, "rgba(126,228,255,0.38)");
@@ -692,10 +718,25 @@
             ctx.arc(bx, by, r * 3, 0, Math.PI * 2);
             ctx.fill();
           }
-          drawBody(bx, by, r, i, glow);
+          var alpha = i === active ? 1 : 0.35;
+          drawBody(bx, by, r, i, glow, alpha);
+          if (i === active) activeAnchor = { x: bx, y: by, r: r };
           body._sx = bx; body._sy = by; body._sr = r;
         }
-        requestAnimationFrame(render);
+        if (activeAnchor && window.innerWidth > 900 && panelZone.x > -9000) {
+          var tx = panelZone.x;
+          var ty = panelZone.y + Math.min(panelZone.h * 0.3, 140);
+          ctx.beginPath();
+          ctx.moveTo(activeAnchor.x + activeAnchor.r * 0.94, activeAnchor.y - activeAnchor.r * 0.24);
+          ctx.lineTo(tx, ty);
+          ctx.strokeStyle = "rgba(161,234,253,0.54)";
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+      }
+      function render() {
+        renderFrame(performance.now());
+        rafId = requestAnimationFrame(render);
       }
       function nearestBody(x, y) {
         var best = null;
@@ -746,11 +787,24 @@
         if (event.key === "ArrowLeft") setActive((active - 1 + products.length) % products.length);
       });
       window.addEventListener("resize", resize);
+      document.addEventListener("visibilitychange", function () {
+        if (reduce) return;
+        if (document.hidden) {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = 0;
+        } else if (!rafId) {
+          render();
+        }
+      });
       createStars();
       createBodies();
       resize();
       setActive(Number(new URLSearchParams(window.location.search).get("focus")) || 0);
-      render();
+      if (reduce) {
+        renderFrame(performance.now());
+      } else {
+        render();
+      }
       document.getElementById("year").textContent = new Date().getFullYear();
     })();
   </script>

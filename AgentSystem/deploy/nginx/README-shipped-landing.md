@@ -35,6 +35,9 @@ Replace the existing vhost file in place (do not add a second file with the same
 4. Install the landing page file:
    ```bash
    sudo install -m 0644 deploy/shipped-landing/index.html /var/www/shipped/index.html
+   sudo install -d -m 0755 /var/www/shipped/fonts
+   sudo install -m 0644 deploy/shipped-landing/fonts/*.woff2 /var/www/shipped/fonts/
+   sudo install -m 0644 deploy/shipped-landing/fonts/*.txt /var/www/shipped/fonts/
    ```
 5. Validate nginx config:
    ```bash
@@ -69,4 +72,6 @@ If `nginx -t` fails, do not reload.
 - `/rss`, `/podcast/`, and `/episodes/` return `410` because the old Dead Air radio destination was intentionally removed.
 - Certbot renewal on this host uses the nginx authenticator flow, not the ACME webroot path in this file.
 - Rollback does not remove `/var/www/shipped` or `/var/www/acme-dead-air`; leaving those directories in place is harmless.
+- Rollback also leaves `/var/www/shipped/fonts` in place; that is harmless.
+- Optional performance tuning: add `location ~* \.woff2$ { expires 365d; }` if long-lived font caching is desired.
 - Out of scope for this claim: Lisa implementation changes, WaveForge/HVACFix product changes, iptables, and rizz.
