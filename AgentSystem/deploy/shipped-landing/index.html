@@ -11,14 +11,9 @@
   <meta name="twitter:title" content="Everything Eddy Woods has shipped, in one place.">
   <meta name="twitter:description" content="A professional case-study archive of shipped projects, live products, cold storage systems, and open-source frameworks.">
   <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ebf8ff'/%3E%3Cstop offset='45%25' stop-color='%2362d4ff'/%3E%3Cstop offset='100%25' stop-color='%23050b12'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23050b12'/%3E%3Ccircle cx='32' cy='32' r='20' fill='url(%23g)'/%3E%3Cpath d='M19 24a14 14 0 0 1 0 16M24 21a18 18 0 0 1 0 22M29 18a22 22 0 0 1 0 28' stroke='%23dff7ff' stroke-width='3.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
   <meta name="theme-color" content="#060d14">
-  <script>
-    (function () {
-      var params = new URLSearchParams(location.search);
-      document.documentElement.classList.add("js");
-      if (params.get("view") === "archive") document.documentElement.classList.add("archive-shot");
-    })();
-  </script>
+  <script>document.documentElement.classList.add("js");</script>
   <style>
     @font-face { font-family: "Syne"; src: url("./fonts/syne-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
     @font-face { font-family: "Syne"; src: url("./fonts/syne-800.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
@@ -40,6 +35,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; }
     body { background: var(--bg); color: var(--ink); font-family: "Manrope", "Segoe UI", sans-serif; }
+    [hidden] { display: none !important; }
 
     .skip-link {
       position: absolute;
@@ -50,6 +46,9 @@
       color: #000;
       border-radius: 0.5rem;
       padding: 0.54rem 0.7rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
     }
     .skip-link:focus { top: 0.7rem; }
 
@@ -75,7 +74,6 @@
         radial-gradient(circle at 84% 74%, rgba(62, 181, 213, 0.18), transparent 40%);
     }
     .js .scene-wrap { min-height: min(100vh, 920px); }
-    .archive-shot .scene-wrap { display: none !important; }
     #scene { display: none; width: 100%; height: 100%; }
     .js #scene { display: block; }
 
@@ -100,9 +98,9 @@
     .hero-block::before {
       content: "";
       position: absolute;
-      inset: -0.74rem -0.92rem -0.56rem -0.92rem;
+      inset: -0.74rem -1rem -0.74rem -1rem;
       border-radius: 18px;
-      background: linear-gradient(180deg, rgba(5, 11, 18, 0.86), rgba(5, 11, 18, 0.56));
+      background: radial-gradient(circle at 20% 0%, rgba(12, 27, 43, 0.82), rgba(5, 11, 18, 0.88) 54%, rgba(5, 11, 18, 0.64));
       z-index: -1;
     }
     .hero-kicker {
@@ -140,7 +138,7 @@
       pointer-events: auto;
     }
     .scene-nav button {
-      border: 1px solid rgba(132, 221, 250, 0.35);
+      border: 1px solid rgba(132, 221, 250, 0.72);
       background: rgba(9, 21, 34, 0.82);
       color: #d9f5ff;
       min-height: 44px;
@@ -154,6 +152,10 @@
       border-color: rgba(194, 244, 255, 0.95);
       background: linear-gradient(180deg, rgba(34, 67, 94, 0.96), rgba(14, 31, 48, 0.96));
       transform: translateY(-2px);
+    }
+    .scene-nav button:hover {
+      border-color: rgba(198, 246, 255, 0.98);
+      background: rgba(22, 44, 64, 0.92);
     }
 
     .panel {
@@ -345,12 +347,22 @@
         flex-wrap: nowrap;
         overflow-x: auto;
         overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: calc(1.1rem + env(safe-area-inset-left));
+        padding-inline: calc(1.1rem + env(safe-area-inset-left)) calc(1.1rem + env(safe-area-inset-right));
         max-width: none;
+      }
+      .scene-nav button {
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .scene-nav button, .btn { transition: none; }
+    }
+    @media (max-width: 480px) {
+      .footer-sep { display: none; }
     }
   </style>
 </head>
@@ -379,7 +391,6 @@
         <p class="panel-tagline" id="panelTagline">The origin project that proved the workflow in a real facilities context.</p>
         <p id="panelLine">"I remember going to fixmyy.com for the first time and being amazed that I vibecoded a working facility management app."</p>
         <div class="cta-row">
-          <a class="btn focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a>
           <a class="btn secondary focus-ring" id="panelLive" href="https://fixmyy.com" target="_blank" rel="noopener noreferrer">Open live site</a>
         </div>
       </aside>
@@ -388,7 +399,7 @@
 
   <main id="archive" class="archive">
     <h2>Case-study archive</h2>
-    <p class="archive-intro">Every project here shipped. Each card covers the problem it took on, how it was solved, the hardest hurdle, where it stands today, and what’s next.</p>
+    <p class="archive-intro">Every project here was built for real. Each card covers the problem it took on, how it was solved, the hardest hurdle, where it stands today, and what's next.</p>
 
     <section class="group" id="origin">
       <h3>1) Origin</h3>
@@ -411,15 +422,15 @@
         <article class="card" id="case-waveforge">
           <div class="card-head"><h4>WaveForge</h4><span class="badge">Live</span></div>
           <p class="one-liner">A music-video generator built for release workflows.</p>
-          <p class="story">Musicians needed a way to move from finished audio to release-ready visuals without building a video team. WaveForge solved that with a web product, a dedicated render worker, and direct tooling integrations including MCP and n8n. A key hurdle was render memory stability under heavy jobs, which required infrastructure-level tuning to keep output reliable.</p>
-          <p class="outlook">Outlook: WaveForge is positioned to expand from reliable release video generation into broader partner-driven media workflows.</p>
-          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Open waveforge.net</a></div>
+          <p class="story">Musicians needed a way to move from finished audio to release-ready visuals without building a video team. WaveForge solved that with a web product and a dedicated render worker tuned for reliable output at scale. A key hurdle was render memory stability under heavy jobs, which required infrastructure-level tuning to keep output consistent.</p>
+          <p class="outlook">Outlook: WaveForge is expanding from release-video production into broader partner-led media workflow delivery.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
         </article>
 
         <article class="card" id="case-maestro">
           <div class="card-head"><h4>Maestro</h4><span class="badge">Preview</span></div>
-          <p class="one-liner">A founder-preview release studio for reactive video packaging.</p>
-          <p class="story">The project set out to reduce release friction from upload to visual preview. Maestro solved that by shipping a focused Next.js preview surface with clear style output and export behavior. Its central hurdle was scope pressure, and the breakthrough was locking to a practical preview-first build that could ship now.</p>
+          <p class="one-liner">A release studio for reactive video packaging.</p>
+          <p class="story">The project set out to reduce release friction from upload to visual preview. Maestro solved that by shipping a focused Next.js preview surface with clear style output and export behavior. Its central hurdle was balancing broad release ideas with a focused first product that users could run immediately.</p>
           <p class="outlook" data-draft="eddy-review">Outlook: Maestro can mature into a dedicated release front-end that complements WaveForge’s production render stack.</p>
           <div class="cta-row"><a class="btn secondary" href="https://maestro.agentlooper.org" target="_blank" rel="noopener noreferrer">Open maestro preview</a></div>
         </article>
@@ -427,7 +438,7 @@
         <article class="card" id="case-distrobuzz">
           <div class="card-head"><h4>DistroBuzz</h4><span class="badge">Preview</span></div>
           <p class="one-liner">An open-source distribution platform with status, retries, and fallback logic.</p>
-          <p class="story">Independent artists needed a clearer way to track multi-platform distribution flow from one upload. DistroBuzz solved that with explicit per-platform states, retry orchestration, fallback handling, and a public demo path. The hardest hurdle was safe integration into larger production systems, handled by feature-flag rollout so incomplete database state never crashed hosts.</p>
+          <p class="story">Independent artists needed a clearer way to track multi-platform distribution flow from one upload. DistroBuzz solved that with explicit per-platform states, retry orchestration, fallback handling, and a public demo path. The hardest hurdle was integrating into larger production systems without destabilizing them during rollout.</p>
           <p class="outlook" data-draft="eddy-review">Outlook: DistroBuzz is set up to become the dependable distribution layer behind future WaveForge release pipelines.</p>
           <div class="cta-row"><a class="btn secondary" href="https://distro-buzz-web.vercel.app" target="_blank" rel="noopener noreferrer">Open distro-buzz demo</a></div>
         </article>
@@ -436,7 +447,7 @@
           <div class="card-head"><h4>Lisa</h4><span class="badge">Live</span></div>
           <p class="one-liner">Your personal AI assistant</p>
           <p class="story">A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</p>
-          <p class="story" data-draft="eddy-review">Lisa is a voice-first AI assistant built on Twilio and modern realtime voice AI so she can answer the phone directly. She introduces herself as AI up front, then keeps the conversation warm, brief, and confident. Her public interaction style avoids hard-selling, fake urgency, and outcome promises.</p>
+          <p class="story" data-draft="eddy-review">Lisa started as a voice assistant that picks up when you can't and grew into a general-purpose helper.</p>
           
         </article>
 
@@ -444,7 +455,7 @@
           <div class="card-head"><h4>Nightline / HVACFix</h4><span class="badge">Live</span></div>
           <p class="one-liner">After-hours call automation with safety-first triage.</p>
           <p class="story">After-hours service teams needed emergency triage without waking on-call technicians for every routine issue. Nightline solved that with a voice stack, severity tiers, and strict safety routing that separates emergencies from next-day work orders. A key hurdle was unclear speech in high-risk scenarios, which led to a global safety design for ambiguous inputs.</p>
-          <p class="outlook">Outlook: Nightline is positioned to grow as a reliable after-hours operations layer for service companies.</p>
+          <p class="outlook">Outlook: Nightline is growing into a trusted after-hours operations layer for service companies.</p>
           <div class="cta-row"><a class="btn secondary" href="https://hvacfix.net" target="_blank" rel="noopener noreferrer">Open hvacfix.net</a></div>
         </article>
 
@@ -460,7 +471,7 @@
           <div class="card-head"><h4>IronHaven</h4><span class="badge">Live</span></div>
           <p class="one-liner">A browser-first cyberpunk MMO with AI-driven world systems.</p>
           <p class="story">The goal was to ship a persistent browser MMO with procedural systems and AI-driven NPC behavior. IronHaven solved that with a TypeScript + React + Three.js stack tuned for real-time gameplay and active iteration. A concrete hurdle was dependency conflict in the rendering stack, resolved through version pinning and CI-aligned refactors.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: IronHaven is ready to keep expanding its world systems while stabilizing direct-domain player access.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: IronHaven is entering its next build cycle with deeper world systems and steadier player onboarding.</p>
           <div class="cta-row"><a class="btn secondary" href="https://agentlooper.org/ironhaven/" target="_blank" rel="noopener noreferrer">Open IronHaven</a></div>
         </article>
       </div>
@@ -473,7 +484,7 @@
         <article class="card" id="case-skill-scanner">
           <div class="card-head"><h4>Skill Scanner</h4><span class="badge">Live</span></div>
           <p class="one-liner">Scans AI skill files for hidden backdoors and instruction-layer attacks.</p>
-          <p class="story">The problem was that seemingly simple skill files can hide malicious logic and data exfiltration behavior. Skill Scanner solved it with a public scan service focused on high-risk patterns in skill and script payloads. A major hurdle was fulfillment reliability across shared checkout rails, solved by strict product-gated webhook handling.</p>
+          <p class="story">The problem was that seemingly simple skill files can hide malicious logic and data exfiltration behavior. Skill Scanner solved it with a public scan service focused on high-risk patterns in skill and script payloads. A major hurdle was ensuring every scan and license flow stayed clean and reliable as usage scaled.</p>
           <p class="outlook">Outlook: Skill Scanner is set to remain the front-line scanning surface in the Agent Defense Kit stack.</p>
           <div class="cta-row"><a class="btn secondary" href="https://agentlooper.org/skill-scanner/" target="_blank" rel="noopener noreferrer">Open Skill Scanner</a></div>
         </article>
@@ -481,7 +492,7 @@
         <article class="card" id="case-redteam">
           <div class="card-head"><h4>REDTEAM</h4><span class="badge">Live</span></div>
           <p class="one-liner">A diagnostic toolkit for probing LLM vulnerability classes from CLI workflows.</p>
-          <p class="story">Security teams needed repeatable diagnostics, not one-off prompt tests, to evaluate model risk. REDTEAM solved that with CLI-based probes, structured outputs, and CI-ready reporting flow. The hardest hurdle was preventing cross-product fulfillment mistakes in shared commerce infrastructure, solved by tightening webhook routing and idempotent controls.</p>
+          <p class="story">Security teams needed repeatable diagnostics, not one-off prompt tests, to evaluate model risk. REDTEAM solved that with CLI-based probes, structured outputs, and CI-ready reporting flow. The hardest hurdle was keeping delivery and licensing accurate under real purchase traffic.</p>
           <p class="outlook">Outlook: REDTEAM is built to keep scaling as the executable diagnostics layer of the Agent Defense Kit.</p>
           <div class="cta-row"><a class="btn secondary" href="https://agentlooper.org/redteam/" target="_blank" rel="noopener noreferrer">Open REDTEAM</a></div>
         </article>
@@ -510,8 +521,8 @@
 
         <article class="card" id="case-deadair">
           <div class="card-head"><h4>Dead Air FM radio</h4><span class="badge">Cold storage, backups kept</span></div>
-          <p class="one-liner">A 24/7 internet radio stack with automation, interaction, and generated host segments.</p>
-          <p class="story">Running an always-on station required scheduling, stream metadata, listener requests, and generated break content working as one chain. Dead Air solved that with a full broadcast pipeline including stream engine, metadata flow, and interaction APIs. The recurring hurdle was keeping now-playing and vote/request state in sync with live output under constant uptime pressure.</p>
+          <p class="one-liner">An internet radio stack with automation, interaction, and generated host segments.</p>
+          <p class="story">Running an always-on station required scheduling, stream metadata, listener requests, and generated break content working in one coordinated pipeline. Dead Air solved that with a full broadcast pipeline including stream engine, metadata flow, and interaction APIs. The recurring hurdle was keeping now-playing and vote/request state in sync with live output under constant uptime pressure.</p>
           <p class="outlook" data-draft="eddy-review">Outlook: Dead Air’s broadcast engineering can be carried directly into the next live audio project when that channel returns.</p>
           
         </article>
@@ -526,7 +537,7 @@
           <div class="card-head"><h4>AgentSystem</h4><span class="badge">Open source</span></div>
           <p class="one-liner">Distributed orchestration for edge-ready agent workloads.</p>
           <p class="story">Teams needed a way to coordinate multi-worker agent execution across distributed hardware and model providers. AgentSystem solved that with queue-driven orchestration patterns designed for practical edge deployment. A central hurdle was keeping complex integration surfaces maintainable as the system expanded.</p>
-          <p class="outlook">Outlook: AgentSystem is positioned to keep maturing as a durable orchestration core for production agent fleets.</p>
+          <p class="outlook">Outlook: AgentSystem is maturing into a durable orchestration core for production agent fleets.</p>
           <div class="cta-row"><a class="btn secondary" href="https://github.com/ereezyy/AgentSystem" target="_blank" rel="noopener noreferrer">Open GitHub repo</a></div>
         </article>
 
@@ -543,22 +554,20 @@
           <p class="one-liner">A Python SDK for autonomous agents and benchmark workflows.</p>
           <p class="story">Builders needed a repeatable way to stand up autonomous workflows without rebuilding common primitives every time. AgentSDK solved that with client libraries, examples, and benchmark-oriented tooling in one package. One hurdle was balancing broad capability with clean public documentation teams can trust and apply quickly.</p>
           <p class="outlook">Outlook: AgentSDK is set to remain the onboarding and implementation bridge for new autonomous builds.</p>
-          <div class="cta-row"><a class="btn secondary" href="https://github.com/ereezyy/AgentSDK" target="_blank" rel="noopener noreferrer">Open GitHub repo</a></div>
         </article>
 
         <article class="card">
           <div class="card-head"><h4>AgentSwarm</h4><span class="badge">Open source</span></div>
-          <p class="one-liner">Real-time monitoring and alerting patterns for blockchain activity.</p>
-          <p class="story">High-volume chain data needs fast filtering before it becomes useful action. AgentSwarm solved that with event-driven monitoring and alert logic tuned for autonomous response patterns. Its hurdle was maintaining broad scope while core product priorities shifted elsewhere.</p>
+          <p class="one-liner">Real-time monitoring and alerting patterns for live data feeds.</p>
+          <p class="story">High-volume live feeds need fast filtering before they become useful action. AgentSwarm solved that with event-driven monitoring and alert logic tuned for autonomous response patterns. Its hurdle was maintaining broad scope while core product priorities shifted elsewhere.</p>
           <p class="outlook" data-draft="eddy-review">Outlook: AgentSwarm’s event-ingestion architecture can continue as a reusable foundation for future monitoring products.</p>
-          <div class="cta-row"><a class="btn secondary" href="https://github.com/ereezyy/AgentSwarm" target="_blank" rel="noopener noreferrer">Open GitHub repo</a></div>
         </article>
 
         <article class="card" id="case-syndicate">
           <div class="card-head"><h4>THE SYNDICATE</h4><span class="badge">Framework</span></div>
           <p class="one-liner">A swarm architecture with hard handoffs between drafting, gating, and execution.</p>
-          <p class="story">Autonomous outreach systems fail fast when one agent can draft, approve, and send without control points. THE SYNDICATE solved that by splitting responsibilities across SNIPER (drafting), AUDITOR (gatekeeping with veto authority), and EXO (exclusive execution authority). The hardest hurdle was preventing unsafe or low-quality outbound behavior, beaten through auditable state-machine folder flow, explicit pass/fail gates, and a strict weekly send cap.</p>
-          <p class="story">Each staged draft carries a message, audit record, fit note, and verdict before anything can ship. EXO guardrails lock behavior around safe operational practice, including no amend-to-hide history, no force-push on main, no hook bypass, controlled deploy timing, and no secret echoing.</p>
+          <p class="story">Autonomous outreach systems fail fast when one agent can draft, approve, and send without control points. THE SYNDICATE solved that by splitting responsibilities across SNIPER drafts, AUDITOR gates with veto authority, and EXO ships. The hardest hurdle was preventing unsafe or low-quality outbound behavior, solved through auditable state-machine flow and explicit pass/fail gates.</p>
+          <p class="story">Each staged draft carries a message, audit record, fit note, and verdict before anything can ship, so every outbound action can be traced from intent to release.</p>
           <p class="outlook" data-draft="eddy-review">Outlook: THE SYNDICATE is poised to become a reference operating model for governed autonomous outbound systems.</p>
           
         </article>
@@ -587,25 +596,25 @@
           <div class="cta-row"><a class="btn secondary" href="https://github.com/ereezyy/agent-compliance-lora" target="_blank" rel="noopener noreferrer">Open GitHub repo</a></div>
         </article>
 
+      </div>
+    </section>
+
+    <section class="group" id="games-experiments">
+      <h3>6) Experiments and concepts</h3>
+      <p class="group-note">Published game and experiment tracks that informed product craft.</p>
+      <div class="grid">
         <article class="card">
           <div class="card-head"><h4>fleet kernel</h4><span class="badge">Experiment</span></div>
           <p class="one-liner">A governance concept for registry, trust levels, loop brakes, and kill-switch control.</p>
           <p class="story" data-draft="eddy-review">As autonomous fleets grow, operators need hard controls over identity, trust progression, and emergency shutdown behavior. fleet kernel addresses that problem as an architecture concept spanning registry, message board, ledger, trust laddering, loop brakes, and kill-switch controls. The hurdle was designing a governance model strict enough for real incidents while preserving enough flexibility for normal autonomous operation.</p>
           <p class="outlook" data-draft="eddy-review">Outlook: fleet kernel can graduate into a concrete control-plane implementation that anchors safe multi-agent operations.</p>
-          
         </article>
-      </div>
-    </section>
 
-    <section class="group" id="games-experiments">
-      <h3>6) Games &amp; experiments</h3>
-      <p class="group-note">Published game and experiment tracks that informed product craft.</p>
-      <div class="grid">
         <article class="card" id="case-solhorse">
           <div class="card-head"><h4>Sol Horse</h4><span class="badge">Experiment</span></div>
-          <p class="one-liner">A Solana horse-racing game project with genetics, training, and tournament systems.</p>
-          <p class="story">The project aimed to combine progression gameplay with blockchain-native asset logic in one racing experience. Sol Horse solved that by connecting breeding, training, and competitive loops in a playable architecture. A clear hurdle was deployment continuity, since the record confirms code and design direction but not an active public production endpoint.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: Sol Horse remains a strong foundation for a future on-chain racing relaunch.</p>
+          <p class="one-liner">A horse-racing sim game project with genetics, training, and tournament systems.</p>
+          <p class="story">The project aimed to combine progression gameplay with simulation depth in one racing experience. Sol Horse solved that by connecting breeding, training, and competitive loops in a playable architecture. A clear hurdle was deployment continuity, since public release status changed while core game systems continued evolving.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: Sol Horse remains a strong foundation for a future racing-sim relaunch.</p>
           
         </article>
 
@@ -619,8 +628,8 @@
 
         <article class="card" id="case-agentcasino">
           <div class="card-head"><h4>AgentCasino</h4><span class="badge">Experiment</span></div>
-          <p class="one-liner">A social-casino testnet experiment for AI-agent gameplay loops.</p>
-          <p class="story">The experiment explored whether autonomous agents could participate in a shared game economy with real-time interaction. AgentCasino solved that by pairing game-loop mechanics with devnet token assumptions in a controlled environment. Its main hurdle was intentionally holding the project in testnet R&amp;D mode rather than forcing premature production rollout.</p>
+          <p class="one-liner">An AI-run casino-games experiment for autonomous gameplay loops.</p>
+          <p class="story">The experiment explored whether autonomous agents could participate in shared casino-style game loops with real-time interaction. AgentCasino solved that by pairing game mechanics with a controlled AI-participant environment. Its main hurdle was intentionally keeping the project in R&amp;D mode rather than forcing premature production rollout.</p>
           <p class="outlook">Outlook: AgentCasino remains a focused testbed for agent-native gameplay and economic simulation design.</p>
           
         </article>
@@ -630,11 +639,11 @@
 
   <footer>
     <span id="year">2026</span> Eddy Woods LLC
-    <span aria-hidden="true"> · </span>
+    <span class="footer-sep" aria-hidden="true"> · </span>
     <a href="/legal/privacy">Privacy</a>
-    <span aria-hidden="true"> · </span>
+    <span class="footer-sep" aria-hidden="true"> · </span>
     <a href="/legal/terms">Terms</a>
-    <span aria-hidden="true"> · </span>
+    <span class="footer-sep" aria-hidden="true"> · </span>
     <a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">WaveForge</a>
   </footer>
 
@@ -642,9 +651,6 @@
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       var params = new URLSearchParams(location.search);
-      var viewMode = params.get("view");
-      var focusCard = params.get("focusCard");
-      var singleCard = params.get("singleCard") === "1";
       var featured = [
         {
           name: "FixMyY",
@@ -660,14 +666,14 @@
         },
         {
           name: "Maestro",
-          tagline: "A founder-preview release studio centered on reactive video preview.",
-          line: "Shipped in preview form after scope creep, with a practical no-heavy-backend approach.",
+          tagline: "A release studio centered on reactive video preview.",
+          line: "Shipped as a focused preview experience that keeps upload and visual feedback tightly connected.",
           live: "https://maestro.agentlooper.org"
         },
         {
           name: "DistroBuzz",
           tagline: "An open-source distribution pipeline with retry and fallback orchestration.",
-          line: "Demo is live, while integrated rollout paths remain feature-flagged for safe deployment.",
+          line: "Demo is live, with integration designed for safe rollout into larger production stacks.",
           live: "https://distro-buzz-web.vercel.app"
         },
         {
@@ -690,7 +696,7 @@
         },
         {
           name: "IronHaven",
-          tagline: "A live browser-first cyberpunk MMO lane.",
+          tagline: "A live browser-first cyberpunk MMO.",
           line: "Sustained through dependency and CI hurdles while continuing active development.",
           live: "https://agentlooper.org/ironhaven/"
         },
@@ -711,11 +717,6 @@
       var panelLine = document.getElementById("panelLine");
       var panelLive = document.getElementById("panelLive");
       var heroBlock = document.getElementById("heroBlock");
-      if (viewMode === "archive") {
-        var sceneWrapEl = document.getElementById("sceneWrap");
-        if (sceneWrapEl) sceneWrapEl.style.display = "none";
-      }
-
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var pointer = { x: 0.5, y: 0.5 };
       var pan = { x: 0, y: 0 };
@@ -867,6 +868,8 @@
         if (item.live) {
           panelLive.hidden = false;
           panelLive.href = item.live;
+          panelLive.textContent = item.name === "WaveForge" ? "Explore on WaveForge" : "Open live site";
+          panelLive.className = item.name === "WaveForge" ? "btn focus-ring" : "btn secondary focus-ring";
         } else {
           panelLive.hidden = true;
         }
@@ -874,9 +877,10 @@
         for (var i = 0; i < chips.length; i++) {
           chips[i].setAttribute("aria-current", i === active ? "true" : "false");
           if (i === active && window.innerWidth <= 900) {
-            chips[i].scrollIntoView({ block: "nearest", inline: "nearest", behavior: reduce ? "auto" : "smooth" });
+            chips[i].scrollIntoView({ block: "nearest", inline: "center", behavior: reduce ? "auto" : "smooth" });
           }
         }
+        if (reduce) renderFrame(performance.now());
       }
 
       function resize() {
@@ -1111,11 +1115,15 @@
       });
 
       window.addEventListener("wheel", function (e) {
+        var t = e.target;
+        if (t && (t.closest("a, button, input, textarea, select, [contenteditable='true']"))) return;
         target.z += e.deltaY * 0.0016;
         target.z = Math.max(0, Math.min(bodies[bodies.length - 1].z, target.z));
       }, { passive: true });
 
       window.addEventListener("keydown", function (e) {
+        var t = e.target;
+        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable || t.closest("a, button"))) return;
         if (e.key >= "1" && e.key <= "9") setActive(Number(e.key) - 1);
         if (e.key === "ArrowRight") setActive((active + 1) % featured.length);
         if (e.key === "ArrowLeft") setActive((active - 1 + featured.length) % featured.length);
@@ -1146,29 +1154,12 @@
       } else {
         render();
       }
-      document.getElementById("year").textContent = "2026";
+      document.getElementById("year").textContent = new Date().getFullYear();
       function alignHashTarget() {
-        var selector = focusCard ? ("#" + focusCard) : location.hash;
+        var selector = location.hash;
         if (!selector) return;
         var hashTarget = document.querySelector(selector);
         if (hashTarget) hashTarget.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
-      }
-      if (singleCard && focusCard) {
-        var selected = document.getElementById(focusCard);
-        var cards = document.querySelectorAll("article.card");
-        for (var ci = 0; ci < cards.length; ci++) {
-          cards[ci].style.display = cards[ci].id === focusCard ? "block" : "none";
-        }
-        var groups = document.querySelectorAll("section.group");
-        for (var gi = 0; gi < groups.length; gi++) {
-          if (groups[gi].contains(selected)) continue;
-          groups[gi].style.display = "none";
-        }
-        var archiveTitle = document.querySelector("#archive > h2");
-        if (archiveTitle) archiveTitle.style.display = "none";
-        var archiveIntro = document.querySelector("#archive > .archive-intro");
-        if (archiveIntro) archiveIntro.style.display = "none";
-        window.scrollTo(0, 0);
       }
       alignHashTarget();
       window.addEventListener("load", function () {

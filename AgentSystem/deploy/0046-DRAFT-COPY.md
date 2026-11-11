@@ -1,4 +1,4 @@
-# DRAFT COPY — Eddy review needed
+# 0046 DRAFT COPY — Eddy review needed
 
 Lines marked `data-draft="eddy-review"` in `deploy/shipped-landing/index.html`.
 
@@ -12,13 +12,13 @@ Outlook: Maestro can mature into a dedicated release front-end that complements 
 Outlook: DistroBuzz is set up to become the dependable distribution layer behind future WaveForge release pipelines.
 
 ## Lisa — Story
-Lisa is a voice-first AI assistant built on Twilio and modern realtime voice AI so she can answer the phone directly. She introduces herself as AI up front, then keeps the conversation warm, brief, and confident. Her public interaction style avoids hard-selling, fake urgency, and outcome promises.
+Lisa started as a voice assistant that picks up when you can't and grew into a general-purpose helper.
 
 ## Clawmo (formerly Social Forest) — Outlook
 Outlook: Clawmo can keep growing as a unified OSINT workspace with deeper cross-module investigation flow.
 
 ## IronHaven — Outlook
-Outlook: IronHaven is ready to keep expanding its world systems while stabilizing direct-domain player access.
+Outlook: IronHaven is entering its next build cycle with deeper world systems and steadier player onboarding.
 
 ## AgentLooper — Outlook
 Outlook: AgentLooper’s architecture remains a strong relaunch base for modular autonomous-service products.
@@ -48,7 +48,7 @@ As autonomous fleets grow, operators need hard controls over identity, trust pro
 Outlook: fleet kernel can graduate into a concrete control-plane implementation that anchors safe multi-agent operations.
 
 ## Sol Horse — Outlook
-Outlook: Sol Horse remains a strong foundation for a future on-chain racing relaunch.
+Outlook: Sol Horse remains a strong foundation for a future racing-sim relaunch.
 
 ## DeckWizard — Outlook
 Outlook: DeckWizard will continue as a polished utility demo and design reference for future interactive assistants.

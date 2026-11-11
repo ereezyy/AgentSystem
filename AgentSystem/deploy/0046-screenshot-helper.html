@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0046 screenshot helper</title>
+  <style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#050b12;}</style>
+</head>
+<body>
+  <iframe id="shot" src="./shipped-landing/index.html"></iframe>
+  <script>
+    const frame = document.getElementById('shot');
+    const params = new URLSearchParams(location.search);
+    const hash = params.get('hash');
+    const clickLabel = params.get('click');
+    const card = params.get('card');
+    const archiveOnly = params.get('archive') === '1';
+    if (hash) frame.src = './shipped-landing/index.html#' + hash;
+    frame.addEventListener('load', () => {
+      const doc = frame.contentDocument;
+      if (!doc) return;
+      if (archiveOnly) {
+        const wrap = doc.getElementById('sceneWrap');
+        if (wrap) wrap.style.display = 'none';
+      }
+      if (card) {
+        const el = doc.getElementById(card);
+        if (el) el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+      }
+      if (clickLabel) {
+        const buttons = [...doc.querySelectorAll('#sceneNav button')];
+        const target = buttons.find(b => b.textContent.trim() === clickLabel);
+        if (target) {
+          target.click();
+          target.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'auto' });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
