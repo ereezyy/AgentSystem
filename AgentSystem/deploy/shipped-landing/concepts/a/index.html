@@ -67,9 +67,8 @@
     }
     .headline p {
       margin: 0;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      font-size: clamp(0.88rem, 1.9vw, 1rem);
       color: #c6eaf7;
       font-weight: 600;
     }
@@ -147,9 +146,10 @@
       font-family: "Syne", "Manrope", sans-serif;
       font-weight: 800;
       letter-spacing: -0.02em;
-      font-size: clamp(1.18rem, 3.15vw, 2.3rem);
+      font-size: clamp(1.06rem, 2.65vw, 2.1rem);
       line-height: 1.04;
-      overflow-wrap: anywhere;
+      overflow-wrap: normal;
+      word-break: normal;
     }
     .detail-panel .lisa-tag,
     .detail-panel .lisa-line {
@@ -232,12 +232,23 @@
         top: auto;
         right: 0.7rem;
         left: 0.7rem;
-        bottom: 7.7rem;
+        bottom: calc(4.9rem + env(safe-area-inset-bottom));
+        max-height: min(43vh, 320px);
+        overflow: auto;
         width: auto;
         transform: none;
       }
       .detail-panel[data-open="true"] { transform: none; }
-      .product-nav { right: 0.7rem; left: 0.7rem; }
+      .product-nav {
+        right: 0.7rem;
+        left: 0.7rem;
+        bottom: calc(0.7rem + env(safe-area-inset-bottom));
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 0.2rem;
+        max-width: none;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       .detail-panel, .product-nav button { transition: none; }
@@ -308,18 +319,32 @@
       var camera = { z: 0 };
       var target = { z: 0 };
       var stars = [];
+      var bokeh = [];
       var bodies = [];
       var active = 0;
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var palette = ["#66d9ff", "#8be6ff", "#7fd7f0", "#9fe7ff", "#4dc7ec", "#6bd5ff", "#79ddf2"];
+      var clearZone = { x: 0, y: 0, w: 0, h: 0 };
       function createStars() {
         stars = [];
-        for (var i = 0; i < 240; i++) {
+        for (var i = 0; i < 430; i++) {
           stars.push({
             x: Math.random() * 2 - 1,
             y: Math.random() * 2 - 1,
-            z: Math.random() * 1.2 + 0.15,
-            r: Math.random() * 1.8 + 0.35
+            z: Math.random() * 1.8 + 0.2,
+            r: Math.random() * 1.05 + 0.18,
+            twinkle: Math.random() * Math.PI * 2,
+            speed: Math.random() * 0.022 + 0.005
+          });
+        }
+        bokeh = [];
+        for (var j = 0; j < 14; j++) {
+          bokeh.push({
+            x: Math.random() * 2 - 1,
+            y: Math.random() * 2 - 1,
+            z: Math.random() * 0.42 + 0.12,
+            r: Math.random() * 5 + 3,
+            drift: Math.random() * Math.PI * 2
           });
         }
       }
@@ -361,6 +386,16 @@
         canvas.height = Math.floor(h * dpr);
         canvas.style.width = w + "px";
         canvas.style.height = h + "px";
+        var headline = document.querySelector(".headline");
+        if (headline) {
+          var rect = headline.getBoundingClientRect();
+          clearZone = {
+            x: rect.left - 28,
+            y: rect.top - 24,
+            w: rect.width + 44,
+            h: rect.height + 32
+          };
+        }
       }
       function drawBody(screenX, screenY, radius, idx, glow) {
         var grad = ctx.createRadialGradient(screenX - radius * 0.2, screenY - radius * 0.2, radius * 0.2, screenX, screenY, radius * 1.3);
@@ -527,28 +562,48 @@
         camera.z += (target.z - camera.z) * (reduce ? 0.25 : 0.09);
         pan.x += ((pointer.x - 0.5) * 0.4 - pan.x) * 0.08;
         pan.y += ((pointer.y - 0.5) * 0.32 - pan.y) * 0.08;
+        var t = performance.now() * 0.001;
         for (var s = 0; s < stars.length; s++) {
           var star = stars[s];
           var depth = 1 / (star.z + camera.z * 0.03);
           var x = (star.x + pan.x * depth * 0.8) * sw * 0.44 + sw * 0.5;
           var y = (star.y + pan.y * depth * 0.8) * sh * 0.43 + sh * 0.53;
           if (x < -4 || y < -4 || x > sw + 4 || y > sh + 4) continue;
-          if (y < sh * 0.34 && x < sw * 0.76) continue;
-          ctx.fillStyle = "rgba(200,241,255," + (0.18 + depth * 0.25).toFixed(3) + ")";
+          if (x > clearZone.x && x < clearZone.x + clearZone.w && y > clearZone.y && y < clearZone.y + clearZone.h) continue;
+          var tw = 0.78 + Math.sin(t * (0.8 + star.speed) + star.twinkle) * 0.22;
+          ctx.fillStyle = "rgba(205,242,255," + (0.1 + depth * 0.2 * tw).toFixed(3) + ")";
           ctx.beginPath();
-          ctx.arc(x, y, star.r * depth * 2, 0, Math.PI * 2);
+          ctx.arc(x, y, star.r * depth * 1.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        for (var b = 0; b < bokeh.length; b++) {
+          var bk = bokeh[b];
+          var bz = 1 / (bk.z + camera.z * 0.02);
+          var bxh = (bk.x + Math.sin(t * 0.08 + bk.drift) * 0.02 + pan.x * bz * 0.22) * sw * 0.5 + sw * 0.5;
+          var byh = (bk.y + Math.cos(t * 0.07 + bk.drift) * 0.02 + pan.y * bz * 0.2) * sh * 0.48 + sh * 0.54;
+          if (bxh > clearZone.x && bxh < clearZone.x + clearZone.w && byh > clearZone.y && byh < clearZone.y + clearZone.h) continue;
+          var br = bk.r * bz * 2.8;
+          if (br > 12) br = 12;
+          if (br < 2) br = 2;
+          var halo = ctx.createRadialGradient(bxh, byh, 0, bxh, byh, br);
+          halo.addColorStop(0, "rgba(186,236,251,0.12)");
+          halo.addColorStop(1, "rgba(98,212,255,0)");
+          ctx.fillStyle = halo;
+          ctx.beginPath();
+          ctx.arc(bxh, byh, br, 0, Math.PI * 2);
           ctx.fill();
         }
         for (var i = 0; i < bodies.length; i++) {
           var body = bodies[i];
-          var z = body.z - camera.z + 4;
+          var z = body.z - camera.z + 2.55;
           if (z <= 0.2) continue;
           var depthScale = 1 / z;
           var bx = sw * 0.5 + (body.x + pan.x * 0.5) * sw * 0.54 * depthScale * 3.2;
           var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
-          var r = Math.max(9, sw * 0.12 * depthScale * body.size);
+          var focusBoost = i === active ? 1.56 : 1;
+          var r = Math.max(10, sw * 0.128 * depthScale * body.size * focusBoost);
           var glow = i === active ? 1 : 0;
-          if (by < sh * 0.34 && bx < sw * 0.72) {
+          if (bx > clearZone.x && bx < clearZone.x + clearZone.w && by > clearZone.y && by < clearZone.y + clearZone.h) {
             glow = 0;
           }
           if (glow) {
