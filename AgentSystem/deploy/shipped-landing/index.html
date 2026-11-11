@@ -100,7 +100,7 @@
       left: clamp(1rem, 4vw, 3.2rem);
       right: clamp(1rem, 4vw, 3.2rem);
       z-index: 12;
-      max-width: min(860px, 92vw);
+      max-width: min(860px, calc(100vw - 450px - 6rem));
       pointer-events: auto;
     }
     .hero-block::before {
@@ -339,7 +339,8 @@
     }
 
     @media (max-width: 900px) {
-      .scene-ui {
+      .js .scene-wrap { min-height: 0; }
+      .js .scene-ui {
         position: relative;
         inset: auto;
         display: flex;
@@ -533,7 +534,7 @@
         <article class="card" id="case-agentlooper">
           <div class="card-head"><h4>AgentLooper</h4><span class="badge">Cold storage, backups kept</span></div>
           <p class="one-liner">A platform that evolved from learning-loop service to storefront and local-jobs flow.</p>
-          <p class="story">AgentLooper had to support changing needs across multiple phases: recursive learning service, security-tool commerce, and quote-to-close workflow support. It solved that by adapting one platform to several product jobs over time. Its biggest hurdle was preserving operational safety as product identity shifted, especially across payments and fulfillment boundaries.</p>
+          <p class="story">AgentLooper had to support changing needs across multiple phases, from recursive learning service to later product workflows. It solved that by adapting one platform to several product jobs over time. Its biggest hurdle was preserving operational safety as product identity shifted.</p>
           <p class="outlook">Outlook: AgentLooper’s architecture remains a strong relaunch base for modular autonomous-service products.</p>
           
         </article>
@@ -628,7 +629,6 @@
 
     <section class="group" id="games-experiments">
       <h3>6) Experiments and concepts</h3>
-      <p class="group-note">Games and experiments.</p>
       <div class="grid">
         <article class="card">
           <div class="card-head"><h4>fleet kernel</h4><span class="badge">Experiment</span></div>
@@ -1018,6 +1018,7 @@
             activeAnchor = { x: ax, y: ay, r: ar, glow: glowRadius };
           }
         }
+        if (window.innerWidth <= 900) activeAnchor = null;
 
         var activeSlot = activeAnchor ? {
           x: activeAnchor.x - activeAnchor.glow,
