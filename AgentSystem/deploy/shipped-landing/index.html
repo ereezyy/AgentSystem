@@ -340,6 +340,7 @@
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var palette = ["#66d9ff", "#8be6ff", "#7fd7f0", "#9fe7ff", "#4dc7ec", "#6bd5ff", "#79ddf2"];
       var clearZone = { x: 0, y: 0, w: 0, h: 0 };
+      var panelRect = { x: -9999, y: -9999, w: 0, h: 0 };
       var panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
       var railZone = { x: -9999, y: -9999, w: 0, h: 0 };
       var rafId = 0;
@@ -415,15 +416,27 @@
           };
         }
         var panelEl = document.querySelector(".detail-panel");
-        if (panelEl && window.innerWidth > 900) {
+        if (panelEl) {
           var pRect = panelEl.getBoundingClientRect();
-          panelZone = {
+          panelRect = {
+            x: pRect.left,
+            y: pRect.top,
+            w: pRect.width,
+            h: pRect.height
+          };
+          panelZone = window.innerWidth > 900 ? {
             x: pRect.left - 24,
             y: pRect.top - 18,
             w: pRect.width + 38,
             h: pRect.height + 34
+          } : {
+            x: pRect.left - 8,
+            y: pRect.top - 6,
+            w: pRect.width + 16,
+            h: pRect.height + 12
           };
         } else {
+          panelRect = { x: -9999, y: -9999, w: 0, h: 0 };
           panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
         }
         var navEl = document.querySelector(".product-nav");
@@ -653,84 +666,136 @@
           ctx.arc(bxh, byh, br, 0, Math.PI * 2);
           ctx.fill();
         }
+        var activeBody = bodies[active];
         var activeAnchor = null;
+        if (activeBody) {
+          var activeZ = activeBody.z - camera.z + 3.45;
+          if (activeZ > 0.2) {
+            var activeDepth = 1 / activeZ;
+            var ax = sw * 0.5 + (activeBody.x + pan.x * 0.5) * sw * 0.54 * activeDepth * 3.2;
+            var ay = sh * 0.55 + (activeBody.y + pan.y * 0.45) * sh * 0.48 * activeDepth * 3.2;
+            var ar = Math.max(14, sw * 0.112 * activeDepth * activeBody.size * 1.42);
+            if (window.innerWidth > 900) {
+              ar = Math.min(Math.max(ar, 96), 150);
+            } else {
+              ar = Math.min(Math.max(ar, Math.min(110, Math.max(72, sw * 0.18))), 120);
+            }
+            var keepHeadlineActive = keepOutOfRect(ax, ay, ar, clearZone, "down");
+            ax = keepHeadlineActive.x;
+            ay = keepHeadlineActive.y;
+            if (window.innerWidth > 900) {
+              var desktopTargetX = panelRect.x > 0 ? panelRect.x - ar - 52 : sw * 0.36;
+              var desktopTargetY = Math.max(clearZone.y + clearZone.h + ar + 20, Math.min(sh * 0.62, sh * 0.56));
+              ax += (desktopTargetX - ax) * 0.3;
+              ay += (desktopTargetY - ay) * 0.24;
+              var keepPanelDesktop = keepOutOfRect(ax, ay, ar, panelZone, "left");
+              ax = keepPanelDesktop.x;
+              ay = keepPanelDesktop.y;
+              var keepRailDesktop = keepOutOfRect(ax, ay, ar, railZone, "up");
+              ax = keepRailDesktop.x;
+              ay = keepRailDesktop.y;
+            } else {
+              var panelTop = panelRect.y > 0 ? panelRect.y : sh * 0.72;
+              var mobileTargetX = sw * 0.5;
+              var mobileTargetY = Math.min(panelTop - ar - 30, sh * 0.56);
+              mobileTargetY = Math.max(Math.min(480, sh * 0.57), Math.max(200, sh * 0.32), mobileTargetY);
+              ax += (mobileTargetX - ax) * 0.34;
+              ay += (mobileTargetY - ay) * 0.3;
+              var keepPanelMobile = keepOutOfRect(ax, ay, ar, panelZone, "up");
+              ax = keepPanelMobile.x;
+              ay = keepPanelMobile.y;
+              var keepRailMobile = keepOutOfRect(ax, ay, ar, railZone, "up");
+              ax = keepRailMobile.x;
+              ay = keepRailMobile.y;
+            }
+            if (circleIntersectsRect(ax, ay, ar, clearZone)) {
+              var forceDownActive = keepOutOfRect(ax, ay, ar, clearZone, "down");
+              ax = forceDownActive.x;
+              ay = forceDownActive.y;
+            }
+            ax = Math.max(ar + 14, Math.min(sw - ar - 14, ax));
+            ay = Math.max(ar + 14, Math.min(sh - ar - 14, ay));
+            activeAnchor = { x: ax, y: ay, r: ar };
+          }
+        }
+        var activeSlot = activeAnchor ? {
+          x: activeAnchor.x - activeAnchor.r * 2.05,
+          y: activeAnchor.y - activeAnchor.r * 2.05,
+          w: activeAnchor.r * 4.1,
+          h: activeAnchor.r * 4.1
+        } : null;
         for (var i = 0; i < bodies.length; i++) {
+          if (i === active) continue;
           var body = bodies[i];
           var z = body.z - camera.z + 3.45;
-          if (z <= 0.2) continue;
-          if (i !== active && z < 1.34) continue;
+          if (z <= 0.2 || z < 1.34) {
+            body._sx = undefined; body._sy = undefined; body._sr = undefined;
+            continue;
+          }
           var depthScale = 1 / z;
           var bx = sw * 0.5 + (body.x + pan.x * 0.5) * sw * 0.54 * depthScale * 3.2;
           var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
-          var focusBoost = i === active ? 1.42 : 0.82;
-          var r = Math.max(8, sw * 0.112 * depthScale * body.size * focusBoost);
-          if (i !== active) r = Math.min(r, 58);
-          if (i === active) r = Math.min(r, 150);
+          var r = Math.max(8, sw * 0.112 * depthScale * body.size * 0.82);
+          r = Math.min(r, 52);
           var keptHeadline = keepOutOfRect(bx, by, r, clearZone, "down");
           bx = keptHeadline.x;
           by = keptHeadline.y;
-          if (i === active && window.innerWidth > 900) {
-            var targetX = sw * 0.4;
-            var targetY = sh * 0.6;
-            if (panelZone.x < sw * 0.9) {
-              targetX = Math.min(targetX, panelZone.x - r - 34);
+          var nonActiveRail = keepOutOfRect(bx, by, r, railZone, "up");
+          bx = nonActiveRail.x;
+          by = nonActiveRail.y;
+          if (activeAnchor) {
+            var dx = bx - activeAnchor.x;
+            var dy = by - activeAnchor.y;
+            var dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+            var minDist = activeAnchor.r * 2 + r;
+            if (dist < minDist) {
+              bx = activeAnchor.x + (dx / dist) * minDist;
+              by = activeAnchor.y + (dy / dist) * minDist;
             }
-            bx += (targetX - bx) * 0.24;
-            by += (targetY - by) * 0.18;
-            var keptPanel = keepOutOfRect(bx, by, r, panelZone, "left");
-            bx = keptPanel.x;
-            by = keptPanel.y;
-            var keptRail = keepOutOfRect(bx, by, r, railZone, "up");
-            bx = keptRail.x;
-            by = keptRail.y;
-          } else if (i === active) {
-            var mobileTargetX = sw * 0.5;
-            var mobileTargetY = Math.max(sh * 0.38, railZone.y - r - 86);
-            bx += (mobileTargetX - bx) * 0.24;
-            by += (mobileTargetY - by) * 0.22;
-            var keptPanelMobile = keepOutOfRect(bx, by, r, panelZone, "up");
-            bx = keptPanelMobile.x;
-            by = keptPanelMobile.y;
-          }
-          if (i !== active) {
-            var nonActiveRail = keepOutOfRect(bx, by, r, railZone, "up");
-            bx = nonActiveRail.x;
-            by = nonActiveRail.y;
-          }
-          if (circleIntersectsRect(bx, by, r, clearZone)) {
-            if (i === active) {
-              var forcedDown = keepOutOfRect(bx, by, r, clearZone, "down");
-              bx = forcedDown.x;
-              by = forcedDown.y;
-            } else {
+            if (activeSlot && circleIntersectsRect(bx, by, r, activeSlot)) {
+              bx = activeAnchor.x + (dx / dist) * (minDist + 18);
+              by = activeAnchor.y + (dy / dist) * (minDist + 18);
+            }
+            var ndx = bx - activeAnchor.x;
+            var ndy = by - activeAnchor.y;
+            if (Math.sqrt(ndx * ndx + ndy * ndy) < minDist) {
+              body._sx = undefined; body._sy = undefined; body._sr = undefined;
               continue;
             }
           }
+          if (circleIntersectsRect(bx, by, r, clearZone) || circleIntersectsRect(bx, by, r, railZone)) {
+            body._sx = undefined; body._sy = undefined; body._sr = undefined;
+            continue;
+          }
           bx = Math.max(r + 14, Math.min(sw - r - 14, bx));
           by = Math.max(r + 14, Math.min(sh - r - 14, by));
-          var glow = i === active ? 1 : 0;
-          if (glow) {
-            var halo = ctx.createRadialGradient(bx, by, r * 0.2, bx, by, r * 3);
-            halo.addColorStop(0, "rgba(126,228,255,0.38)");
-            halo.addColorStop(1, "rgba(98,212,255,0)");
-            ctx.fillStyle = halo;
-            ctx.beginPath();
-            ctx.arc(bx, by, r * 3, 0, Math.PI * 2);
-            ctx.fill();
-          }
-          var alpha = i === active ? 1 : 0.35;
-          drawBody(bx, by, r, i, glow, alpha);
-          if (i === active) activeAnchor = { x: bx, y: by, r: r };
+          drawBody(bx, by, r, i, 0, 0.35);
           body._sx = bx; body._sy = by; body._sr = r;
         }
-        if (activeAnchor && window.innerWidth > 900 && panelZone.x > -9000) {
-          var tx = panelZone.x;
-          var ty = panelZone.y + Math.min(panelZone.h * 0.3, 140);
+        if (activeAnchor) {
+          var halo = ctx.createRadialGradient(activeAnchor.x, activeAnchor.y, activeAnchor.r * 0.2, activeAnchor.x, activeAnchor.y, activeAnchor.r * 3);
+          halo.addColorStop(0, "rgba(126,228,255,0.38)");
+          halo.addColorStop(1, "rgba(98,212,255,0)");
+          ctx.fillStyle = halo;
           ctx.beginPath();
-          ctx.moveTo(activeAnchor.x + activeAnchor.r * 0.94, activeAnchor.y - activeAnchor.r * 0.24);
+          ctx.arc(activeAnchor.x, activeAnchor.y, activeAnchor.r * 3, 0, Math.PI * 2);
+          ctx.fill();
+          drawBody(activeAnchor.x, activeAnchor.y, activeAnchor.r, active, 1, 1);
+          activeBody._sx = activeAnchor.x; activeBody._sy = activeAnchor.y; activeBody._sr = activeAnchor.r;
+        }
+        if (activeAnchor && window.innerWidth > 900 && panelRect.x > -9000) {
+          var tx = panelRect.x;
+          var ty = Math.max(panelRect.y + 22, Math.min(panelRect.y + panelRect.h - 22, activeAnchor.y));
+          var vx = tx - activeAnchor.x;
+          var vy = ty - activeAnchor.y;
+          var vLen = Math.sqrt(vx * vx + vy * vy) || 1;
+          var sx = activeAnchor.x + (vx / vLen) * activeAnchor.r;
+          var sy = activeAnchor.y + (vy / vLen) * activeAnchor.r;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
           ctx.lineTo(tx, ty);
-          ctx.strokeStyle = "rgba(161,234,253,0.54)";
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = "rgba(175,240,255,0.74)";
+          ctx.lineWidth = 1.8;
           ctx.stroke();
         }
       }
