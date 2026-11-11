@@ -100,7 +100,7 @@
       left: clamp(1rem, 4vw, 3.2rem);
       right: clamp(1rem, 4vw, 3.2rem);
       z-index: 12;
-      max-width: min(860px, calc(100vw - 450px - 6rem));
+      max-width: min(860px, calc(100vw - 450px - 3.2rem - 3rem - 1rem));
       pointer-events: auto;
     }
     .hero-block::before {
@@ -383,6 +383,15 @@
         overflow: visible;
         padding-inline: 0;
         max-width: none;
+      }
+    }
+    @media (min-width: 901px) and (max-width: 1100px) {
+      .hero-block {
+        max-width: min(860px, calc(100vw - 450px - 3.2rem - 3rem - 1rem));
+      }
+      .hero-title {
+        font-size: clamp(2.05rem, 4.2vw, 5.3rem);
+        text-wrap: balance;
       }
     }
 
