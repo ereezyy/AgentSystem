@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Eddy Woods LLC | Immersive Product Constellation</title>
-  <meta name="description" content="Everything Eddy Woods has shipped, in one immersive destination with direct product access.">
+  <title>Eddy Woods LLC | Shipped Project Archive</title>
+  <meta name="description" content="A case-study archive of shipped projects by Eddy Woods LLC, from FixMyY to WaveForge, security tools, frameworks, and experiments.">
   <meta property="og:title" content="Everything Eddy Woods has shipped, in one place.">
-  <meta property="og:description" content="Tap a product to take a closer look.">
+  <meta property="og:description" content="A professional case-study archive of shipped projects, live products, cold storage systems, and open-source frameworks.">
   <meta property="og:url" content="https://dead-air.show/">
   <meta name="twitter:title" content="Everything Eddy Woods has shipped, in one place.">
-  <meta name="twitter:description" content="Tap a product to take a closer look.">
+  <meta name="twitter:description" content="A professional case-study archive of shipped projects, live products, cold storage systems, and open-source frameworks.">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#060d14">
   <script>document.documentElement.classList.add("js");</script>
@@ -18,29 +18,49 @@
     @font-face { font-family: "Syne"; src: url("./fonts/syne-800.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
     @font-face { font-family: "Manrope"; src: url("./fonts/manrope-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
     @font-face { font-family: "Manrope"; src: url("./fonts/manrope-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+
     :root {
       --bg: #050b12;
       --ink: #ebf8ff;
-      --muted: #97b7c6;
+      --muted: #9ec1d1;
       --line: rgba(130, 220, 248, 0.34);
       --cyan: #62d4ff;
       --focus: #baf2ff;
-      --grain: 0.1;
+      --surface: rgba(9, 20, 33, 0.92);
+      --surface-2: rgba(7, 15, 26, 0.95);
+      --chip: rgba(14, 33, 50, 0.94);
     }
+
     * { box-sizing: border-box; }
     html, body { margin: 0; }
-    body { background: var(--bg); color: var(--ink); font-family: "Manrope", "Segoe UI", sans-serif; min-height: 100vh; }
+    body { background: var(--bg); color: var(--ink); font-family: "Manrope", "Segoe UI", sans-serif; }
+
     .skip-link {
       position: absolute;
       top: -3rem;
       left: 0.7rem;
-      z-index: 40;
+      z-index: 50;
       background: #fff;
       color: #000;
       border-radius: 0.5rem;
       padding: 0.54rem 0.7rem;
     }
     .skip-link:focus { top: 0.7rem; }
+
+    .nojs-hero {
+      padding: 1rem 1rem 0.4rem;
+      border-bottom: 1px solid rgba(98, 212, 255, 0.18);
+    }
+    .nojs-hero h1 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(2rem, 10vw, 3.6rem);
+      line-height: 0.96;
+      letter-spacing: -0.03em;
+    }
+    .nojs-hero p { color: #b8d9e6; max-width: 60ch; }
+    .js .nojs-hero { display: none; }
+
     .scene-wrap {
       position: relative;
       overflow: hidden;
@@ -48,82 +68,71 @@
         radial-gradient(circle at 14% 20%, rgba(94, 212, 246, 0.15), transparent 42%),
         radial-gradient(circle at 84% 74%, rgba(62, 181, 213, 0.18), transparent 40%);
     }
-    .js .scene-wrap { min-height: 100vh; }
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .scene-wrap > canvas,
-    .scene-wrap > .grain {
+    .js .scene-wrap { min-height: min(100vh, 920px); }
+    #scene { display: none; width: 100%; height: 100%; }
+    .js #scene { display: block; }
+
+    .scene-ui {
       display: none;
-    }
-    .js .scene-wrap > canvas,
-    .js .scene-wrap > .grain {
-      display: block;
-    }
-    .grain {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background-image: radial-gradient(rgba(217, 246, 255, 0.11) 0.7px, transparent 0.7px);
-      background-size: 3px 3px;
-      mix-blend-mode: soft-light;
-      opacity: var(--grain);
+      z-index: 3;
     }
-    .headline {
-      display: none;
+    .js .scene-ui { display: block; }
+
+    .hero-block {
       position: absolute;
       top: clamp(1rem, 3vw, 2rem);
       left: clamp(1rem, 4vw, 3.2rem);
       right: clamp(1rem, 4vw, 3.2rem);
       z-index: 12;
       max-width: min(860px, 92vw);
+      pointer-events: auto;
     }
-    .js .headline { display: block; }
-    .headline::before {
+    .hero-block::before {
       content: "";
       position: absolute;
       inset: -0.74rem -0.92rem -0.56rem -0.92rem;
       border-radius: 18px;
-      background: linear-gradient(180deg, rgba(5, 11, 18, 0.84), rgba(5, 11, 18, 0.54));
-      pointer-events: none;
+      background: linear-gradient(180deg, rgba(5, 11, 18, 0.86), rgba(5, 11, 18, 0.56));
       z-index: -1;
     }
-    .headline p {
+    .hero-kicker {
       margin: 0;
+      color: #c8eaf6;
+      font-size: clamp(0.86rem, 1.9vw, 1rem);
       letter-spacing: 0.02em;
-      font-size: clamp(0.88rem, 1.9vw, 1rem);
-      color: #c6eaf7;
       font-weight: 600;
     }
-    .headline h1 {
+    .hero-title {
       margin: 0.52rem 0 0;
-      font-family: "Syne", "Manrope", sans-serif;
-      font-size: clamp(2.05rem, 7vw, 5.4rem);
+      font-family: "Syne", sans-serif;
+      font-size: clamp(2.05rem, 7vw, 5.3rem);
       line-height: 0.95;
       letter-spacing: -0.03em;
       text-wrap: balance;
       text-shadow: 0 10px 44px rgba(9, 18, 31, 0.82);
     }
-    .headline .sub {
+    .hero-sub {
       margin-top: 0.74rem;
-      max-width: 55ch;
-      color: #a6c7d5;
-      font-size: clamp(0.98rem, 2.2vw, 1.18rem);
+      max-width: 56ch;
+      color: #b0d1dd;
+      font-size: clamp(1rem, 2.2vw, 1.18rem);
     }
-    .product-nav {
-      display: none;
+
+    .scene-nav {
       position: absolute;
       left: clamp(1rem, 4vw, 3rem);
       bottom: clamp(1rem, 3vw, 2.2rem);
       z-index: 14;
+      max-width: min(920px, 95vw);
+      display: flex;
       flex-wrap: wrap;
       gap: 0.55rem;
-      max-width: min(850px, 95vw);
+      pointer-events: auto;
     }
-    .js .product-nav { display: flex; }
-    .product-nav button {
+    .scene-nav button {
       border: 1px solid rgba(132, 221, 250, 0.35);
       background: rgba(9, 21, 34, 0.82);
       color: #d9f5ff;
@@ -132,61 +141,45 @@
       padding: 0.46rem 0.84rem;
       font: 600 0.84rem/1 "Manrope", sans-serif;
       cursor: pointer;
-      backdrop-filter: blur(8px);
       transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
     }
-    .product-nav button[aria-current="true"] {
+    .scene-nav button[aria-current="true"] {
       border-color: rgba(194, 244, 255, 0.95);
       background: linear-gradient(180deg, rgba(34, 67, 94, 0.96), rgba(14, 31, 48, 0.96));
       transform: translateY(-2px);
     }
-    .product-nav button:hover,
-    .product-nav button:focus-visible {
-      outline: 3px solid var(--focus);
-      outline-offset: 2px;
-      border-color: rgba(187, 241, 255, 0.92);
-      transform: translateY(-2px);
-    }
-    .detail-panel {
-      display: none;
+
+    .panel {
       position: absolute;
       right: clamp(1rem, 4vw, 3rem);
       top: 50%;
       transform: translateY(-50%);
-      width: min(430px, calc(100vw - 2rem));
+      width: min(450px, calc(100vw - 2rem));
       border: 1px solid rgba(142, 227, 252, 0.3);
       border-radius: 22px;
-      background: linear-gradient(170deg, rgba(8, 17, 29, 0.9), rgba(6, 12, 22, 0.92));
-      box-shadow: 0 26px 70px rgba(3, 9, 17, 0.67), inset 0 0 0 1px rgba(130, 221, 249, 0.12);
-      padding: 1rem 1rem 1.05rem;
+      background: linear-gradient(170deg, rgba(8, 17, 29, 0.92), rgba(6, 12, 22, 0.96));
+      box-shadow: 0 26px 70px rgba(3, 9, 17, 0.67);
+      padding: 1rem;
       z-index: 13;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 240ms ease, transform 320ms cubic-bezier(.2,.65,.2,1);
-    }
-    .js .detail-panel { display: block; }
-    .detail-panel[data-open="true"] {
-      opacity: 1;
       pointer-events: auto;
-      transform: translateY(-50%) translateX(0);
     }
-    .detail-panel h2 {
+    .panel h2 {
       margin: 0;
-      font-family: "Syne", "Manrope", sans-serif;
-      font-weight: 800;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(1.1rem, 2.8vw, 2rem);
+      line-height: 1.03;
       letter-spacing: -0.02em;
-      font-size: clamp(1.06rem, 2.65vw, 2.1rem);
-      line-height: 1.04;
-      overflow-wrap: normal;
-      word-break: normal;
     }
-    .detail-panel .lisa-tag,
-    .detail-panel .lisa-line {
-      margin: 0.58rem 0 0;
-      color: #cbeef9;
-    }
-    .detail-panel .cta {
+    .panel p { color: #c5e8f4; margin: 0.6rem 0 0; }
+    .panel .panel-tagline { font-weight: 600; }
+
+    .cta-row {
       margin-top: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+    .btn {
       min-height: 44px;
       border-radius: 12px;
       border: 1px solid rgba(166, 233, 253, 0.5);
@@ -199,48 +192,116 @@
       font-weight: 600;
       background: linear-gradient(180deg, rgba(16, 36, 53, 0.95), rgba(11, 25, 38, 0.95));
     }
-    .detail-panel .cta:hover,
-    .detail-panel .cta:focus-visible {
-      outline: 3px solid var(--focus);
-      outline-offset: 2px;
-      border-color: rgba(199, 245, 255, 0.98);
-      transform: translateY(-2px);
+    .btn.secondary {
+      background: var(--chip);
+      border-color: rgba(112, 199, 228, 0.6);
+      color: #cbefff;
     }
-    .hint {
-      margin-top: 0.62rem;
-      color: #92b5c4;
-      font-size: 0.84rem;
+
+    .archive {
+      padding: clamp(1rem, 3vw, 2rem);
+      max-width: 1280px;
+      margin: 0 auto;
     }
-    .hint-touch { display: none; }
-    .fallback {
-      padding: 1rem;
-      background: #071018;
-      border-top: 1px solid rgba(131, 220, 248, 0.28);
+    .archive h2 {
+      margin: 1.6rem 0 0.6rem;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(1.5rem, 3.5vw, 2.8rem);
+      letter-spacing: -0.02em;
     }
-    .js .fallback { display: none; }
-    .fallback ul {
+    .archive-intro {
       margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 0.55rem;
+      color: var(--muted);
+      max-width: 72ch;
     }
-    .fallback a {
-      min-height: 44px;
-      border: 1px solid rgba(129, 217, 245, 0.36);
-      border-radius: 12px;
+
+    .group {
+      margin-top: 1.2rem;
+      border: 1px solid rgba(110, 197, 226, 0.24);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(8, 17, 30, 0.85), rgba(6, 13, 24, 0.9));
+      padding: clamp(0.85rem, 2vw, 1.2rem);
+    }
+    .group h3 {
+      margin: 0;
+      font-size: clamp(1.15rem, 2vw, 1.7rem);
+      font-family: "Syne", sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .group p.group-note {
+      color: var(--muted);
+      margin: 0.4rem 0 0.9rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 0.85rem;
+    }
+
+    article.card {
+      border: 1px solid rgba(116, 205, 232, 0.28);
+      border-radius: 16px;
+      padding: 0.9rem;
+      background: var(--surface);
+      box-shadow: inset 0 1px 0 rgba(151, 229, 252, 0.12);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+    .card h4 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+    .badge {
+      border: 1px solid rgba(117, 208, 236, 0.5);
+      color: #cbf0fa;
+      background: rgba(17, 40, 58, 0.94);
+      border-radius: 999px;
+      font-size: 0.74rem;
+      line-height: 1;
+      padding: 0.36rem 0.55rem;
+      white-space: nowrap;
+      min-height: 28px;
       display: inline-flex;
       align-items: center;
-      padding: 0.63rem 0.77rem;
-      text-decoration: none;
-      color: #d7f4ff;
-      background: rgba(11, 23, 35, 0.74);
     }
+
+    .one-liner {
+      margin: 0.55rem 0;
+      color: #d7f2fb;
+      font-weight: 600;
+    }
+
+    .story, .outlook {
+      margin: 0.55rem 0 0;
+      color: #c1e2ef;
+      line-height: 1.46;
+    }
+
+    .card .cta-row { margin-top: 0.75rem; }
+
+    .focus-ring:focus-visible,
+    .btn:focus-visible,
+    .scene-nav button:focus-visible,
+    footer a:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
     footer {
       margin: 1rem;
       text-align: center;
       color: #a6c8d5;
       font-size: 0.88rem;
+      border-top: 1px solid rgba(106, 194, 224, 0.2);
+      padding-top: 1rem;
     }
     footer a, footer a:visited {
       color: #88e4ff;
@@ -252,79 +313,248 @@
       text-underline-offset: 0.18em;
       border-radius: 8px;
     }
-    footer a:hover, footer a:focus-visible {
-      color: #c8f5ff;
-      background: rgba(83, 196, 227, 0.16);
-      outline: 3px solid var(--focus);
-      outline-offset: 2px;
-    }
-    .focus-ring:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
     @media (max-width: 900px) {
-      .detail-panel {
+      .panel {
         top: auto;
         right: 0.7rem;
         left: 0.7rem;
         bottom: calc(4.9rem + env(safe-area-inset-bottom));
-        max-height: min(43vh, 320px);
+        max-height: min(44vh, 340px);
         overflow: auto;
         width: auto;
         transform: none;
       }
-      .detail-panel[data-open="true"] { transform: none; }
-      .product-nav {
+      .scene-nav {
         right: 0.7rem;
         left: 0.7rem;
         bottom: calc(0.7rem + env(safe-area-inset-bottom));
         flex-wrap: nowrap;
         overflow-x: auto;
         overflow-y: hidden;
-        padding-bottom: 0.2rem;
         max-width: none;
       }
     }
+
     @media (prefers-reduced-motion: reduce) {
-      .detail-panel, .product-nav button { transition: none; }
-      .scene-wrap { scroll-behavior: auto; }
-    }
-    @media (pointer: coarse), (hover: none) {
-      .hint-desktop { display: none; }
-      .hint-touch { display: inline; }
+      .scene-nav button, .btn { transition: none; }
     }
   </style>
 </head>
 <body>
-  <a class="skip-link focus-ring" href="#nav">Skip to products</a>
-  <div class="scene-wrap" id="sceneWrap">
+  <a class="skip-link focus-ring" href="#archive">Skip to case studies</a>
+
+  <header class="nojs-hero">
+    <p class="hero-kicker">Eddy Woods LLC</p>
+    <h1>Everything Eddy Woods has shipped, in one place.</h1>
+    <p>A case-study archive across live products, cold-storage systems, open-source frameworks, and experiments.</p>
+  </header>
+
+  <section class="scene-wrap" id="sceneWrap" aria-label="Featured shipped projects constellation">
     <canvas id="scene" aria-hidden="true"></canvas>
-    <div class="grain" aria-hidden="true"></div>
-    <header class="headline">
-      <p>Eddy Woods LLC</p>
-      <h1>Everything Eddy Woods has shipped, in one place.</h1>
-      <p class="sub">Tap a product to take a closer look.</p>
-    </header>
-    <nav class="product-nav" id="nav" aria-label="Shipped products in order"></nav>
-    <aside class="detail-panel" id="panel" data-open="true">
-      <h2 id="panelTitle">DistroBuzz</h2>
-      <p id="lisaTag" class="lisa-tag" hidden><strong>Your personal AI assistant</strong></p>
-      <p id="lisaLine" class="lisa-line" hidden>A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</p>
-      <a id="panelCta" class="cta focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore DistroBuzz</a>
-      <p class="hint">
-        <span class="hint-desktop">Drag to orbit. Scroll to drift. Press 1-7 to jump.</span>
-        <span class="hint-touch">Swipe to orbit.</span>
-      </p>
-    </aside>
-  </div>
-  <section id="fallback-products" class="fallback">
-    <ul>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore DistroBuzz</a></li>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore Maestro</a></li>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore WaveForge</a></li>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Lisa<br>Your personal AI assistant<br>A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</a></li>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore Social Forest</a></li>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore the small agentlooper.org tools</a></li>
-      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore HVACFix</a></li>
-    </ul>
+    <div class="scene-ui" id="sceneUi">
+      <div class="hero-block" id="heroBlock">
+        <p class="hero-kicker">Eddy Woods LLC</p>
+        <h1 class="hero-title">Everything Eddy Woods has shipped, in one place.</h1>
+        <p class="hero-sub">Featured highlights from the full archive below. Tap a product for a closer look.</p>
+      </div>
+
+      <nav class="scene-nav" id="sceneNav" aria-label="Featured products"></nav>
+
+      <aside class="panel" id="panel" aria-live="polite">
+        <h2 id="panelTitle">FixMyY</h2>
+        <p class="panel-tagline" id="panelTagline">The origin project that proved the workflow in a real facilities context.</p>
+        <p id="panelLine">"I remember going to fixmyy.com for the first time and being amazed that I vibecoded a working facility management app."</p>
+        <div class="cta-row">
+          <a class="btn focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a>
+          <a class="btn secondary focus-ring" id="panelLive" href="https://fixmyy.com" target="_blank" rel="noopener noreferrer">Open live site</a>
+        </div>
+      </aside>
+    </div>
   </section>
+
+  <main id="archive" class="archive">
+    <h2>Case-study archive</h2>
+    <p class="archive-intro">This archive uses the Nov 11 sourced fact sheet and repo inventory as its source of truth. It excludes unbacked marketing statistics, internal-only metrics, and claims not in the record.</p>
+
+    <section class="group" id="origin">
+      <h3>1) Origin</h3>
+      <p class="group-note">FixMyY opened the lane for everything that followed.</p>
+      <div class="grid">
+        <article class="card" id="case-fixmyy">
+          <div class="card-head"><h4>FixMyY</h4><span class="badge">Live</span></div>
+          <p class="one-liner">A facilities-management app built from a working YMCA maintenance workflow.</p>
+          <p class="story">"I remember going to fixmyy.com for the first time and being amazed that I vibecoded a working facility management app." It was built to run work orders, preventive maintenance schedules, and equipment workflows from one place. The implementation used a React + Supabase stack with AI-assisted work-order parsing, and it shipped through security hardening, RLS recursion fixes, and performance cleanup documented in repo history.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: this foundation can be refreshed into a modern operations console for service-heavy organizations while preserving the practical maintenance-first workflow that made it useful.</p>
+          <div class="cta-row">
+            <a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a>
+            <a class="btn secondary" href="https://fixmyy.com" target="_blank" rel="noopener noreferrer">Open fixmyy.com</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="live-products">
+      <h3>2) Live products</h3>
+      <p class="group-note">Production and founder-preview systems that are up today.</p>
+      <div class="grid">
+        <article class="card" id="case-waveforge">
+          <div class="card-head"><h4>WaveForge</h4><span class="badge">Live</span></div>
+          <p class="one-liner">A music-video generator for release workflows.</p>
+          <p class="story">WaveForge was built to let artists and producers move from song files to ready-to-publish visuals without running a full video team. It uses a web app plus a dedicated render worker stack, with productized integrations like MCP and an n8n node. The hardest parts were render-memory stability, onboarding flow breaks, and product-boundary issues in shared checkout/webhook infrastructure, all documented in the operating notes.</p>
+          <p class="outlook">Outlook: continue conversion and reliability work before expanding into broader API and agency layers.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Open waveforge.net</a></div>
+        </article>
+
+        <article class="card" id="case-maestro">
+          <div class="card-head"><h4>Maestro</h4><span class="badge">Preview</span></div>
+          <p class="one-liner">A founder-preview release studio for reactive music video packaging.</p>
+          <p class="story">Maestro aimed to remove release friction by making upload-to-preview immediate in a founder-friendly format. It shipped as a Next.js preview stack with no heavy backend coupling in its core preview loop. The main blocker was scope creep, and the practical fix was to ship a clear v0.5 preview with constrained surface area.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: if validated against real release workflows, Maestro can be positioned as a focused release front-end alongside WaveForge production infrastructure.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://maestro.agentlooper.org" target="_blank" rel="noopener noreferrer">Open maestro preview</a></div>
+        </article>
+
+        <article class="card" id="case-distrobuzz">
+          <div class="card-head"><h4>DistroBuzz</h4><span class="badge">Preview</span></div>
+          <p class="one-liner">An open-source distribution pipeline with status, retries, and fallback logic.</p>
+          <p class="story">DistroBuzz was built to simplify one-upload distribution workflows for independent music releases. The project introduced explicit per-platform status handling, retry logic, and fallback patterns, and it later gained a WaveForge integration path behind feature flags. A key hurdle was rollout safety: integration code was gated so hosts without migration state would not crash.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: align DistroBuzz and Maestro framing into one clear public narrative before wider rollout decisions.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://distro-buzz-web.vercel.app" target="_blank" rel="noopener noreferrer">Open distro-buzz demo</a></div>
+        </article>
+
+        <article class="card" id="case-lisa">
+          <div class="card-head"><h4>Lisa</h4><span class="badge">Live</span></div>
+          <p class="one-liner">Your personal AI assistant</p>
+          <p class="story">A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</p>
+          <p class="story" data-draft="eddy-review">Lisa is a voice-first AI assistant built on Twilio and modern realtime voice AI so she can answer the phone directly. She introduces herself as AI up front, then keeps the conversation warm, brief, and confident. Her public interaction style avoids hard-selling, fake urgency, and outcome promises.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
+        </article>
+
+        <article class="card" id="case-hvacfix">
+          <div class="card-head"><h4>Nightline / HVACFix</h4><span class="badge">Live</span></div>
+          <p class="one-liner">After-hours call automation with safety-first triage rules.</p>
+          <p class="story">Nightline was built to handle after-hours service calls without forcing every issue through emergency escalation. The system separates voice processing, triage policy, and lead intake, with clear safeguards around high-risk cases and language parity. Hurdles included speech-recognition ambiguity in safety-critical moments and external messaging approvals that affect owner-notification workflows.</p>
+          <p class="outlook">Outlook: continue owner-notification, ops integration, and deployment hardening once external approvals clear.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://hvacfix.net" target="_blank" rel="noopener noreferrer">Open hvacfix.net</a></div>
+        </article>
+
+        <article class="card" id="case-clawmo">
+          <div class="card-head"><h4>Clawmo (formerly Social Forest)</h4><span class="badge">Live</span></div>
+          <p class="one-liner">An OSINT suite that grew from username search into broader reconnaissance modules.</p>
+          <p class="story">This line began as Social Forest, focused on cross-network username discovery, then evolved into Clawmo with expanded modules and a renamed public surface. It solved a practical need: bundling multiple OSINT techniques under one consistent interface. The main hurdle was product-shape clarity during rebrand and scope expansion across modules.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: clarify the long-term Clawmo scope around repeatable investigation workflows instead of feature sprawl.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://clawmo.net" target="_blank" rel="noopener noreferrer">Open clawmo.net</a></div>
+        </article>
+
+        <article class="card" id="case-ironhaven">
+          <div class="card-head"><h4>IronHaven</h4><span class="badge">Live</span></div>
+          <p class="one-liner">A browser-first cyberpunk MMO with AI-driven systems.</p>
+          <p class="story">IronHaven pursued a persistent browser game that combines AI-driven NPC behavior with procedural world systems. The stack centered on TypeScript, React/Three.js, and physics/runtime tuning. Key blockers were dependency-version conflicts and CI instability, both addressed through pinning, refactors, and dependency alignment in commit history.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: stabilize direct-domain delivery and continue playability iteration while preserving rapid build cadence.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://agentlooper.org/ironhaven/" target="_blank" rel="noopener noreferrer">Open IronHaven</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="agent-defense-kit">
+      <h3>3) Agent Defense Kit</h3>
+      <p class="group-note">Eddy's selected group name for the live agentlooper.org security tooling.</p>
+      <div class="grid">
+        <article class="card" id="case-skill-scanner">
+          <div class="card-head"><h4>Skill Scanner</h4><span class="badge">Live</span></div>
+          <p class="one-liner">Scans AI skill files for backdoors, secret exfiltration patterns, and hidden instruction attacks.</p>
+          <p class="story">Skill Scanner targeted the practical risk that agent skill files can carry stealthy payloads. It shipped as an always-on scanning endpoint with explicit limits and monetization controls. A major hurdle in this cluster was keeping product fulfillment isolated from unrelated products after shared webhook routing caused cross-product leakage.</p>
+          <p class="outlook">Outlook: continue hardening and tighten integration boundaries across the defense kit surface.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://agentlooper.org/skill-scanner/" target="_blank" rel="noopener noreferrer">Open Skill Scanner</a></div>
+        </article>
+
+        <article class="card" id="case-redteam">
+          <div class="card-head"><h4>REDTEAM</h4><span class="badge">Live</span></div>
+          <p class="one-liner">A diagnostic toolkit for probing LLM vulnerability classes from CLI workflows.</p>
+          <p class="story">REDTEAM was built as tooling-first security diagnostics rather than prompt-only testing. The product focuses on repeatable probing, output artifacts, and CI-friendly usage. Its largest operational hurdle in production context was fulfillment correctness inside a shared payment environment, which led to stricter product-gated routing.</p>
+          <p class="outlook">Outlook: maintain reliability and sharper operational boundaries as adoption paths evolve.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://agentlooper.org/redteam/" target="_blank" rel="noopener noreferrer">Open REDTEAM</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="cold-storage">
+      <h3>4) Cold storage</h3>
+      <p class="group-note">These products were shipped and operated, then taken down with backups preserved.</p>
+      <div class="grid">
+        <article class="card" id="case-agentlooper">
+          <div class="card-head"><h4>AgentLooper</h4><span class="badge">Cold storage, backups kept</span></div>
+          <p class="one-liner">A product line that evolved from learning-loop service to security storefront and quote-to-close flow.</p>
+          <p class="story">AgentLooper first appeared as a self-recursive learning loop service, later became the public entry point for security tooling, and then supported local-jobs quote-to-close workflows tied to receipts. It solved different phases of the same operating challenge: coordinating autonomous work with usable commercial rails. The main hurdle was keeping fulfillment and runtime boundaries clean as the product identity shifted across phases.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: preserve AgentLooper as modular infrastructure that can be selectively reactivated by product lane, instead of reviving it as one monolithic surface.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
+        </article>
+
+        <article class="card" id="case-proofchain">
+          <div class="card-head"><h4>ProofChain</h4><span class="badge">Cold storage, backups kept</span></div>
+          <p class="one-liner">An accountability layer for agent identity, receipts, and compliance evidence.</p>
+          <p class="story">ProofChain tackled the "who did what, why, and under what authorization" problem in agent systems. It combined identity, receipt-chain thinking, and compliance-reporting interfaces with an open-core model. The blocker became go-to-market positioning rather than core infrastructure quality, which prompted a validation-first approach before broader expansion.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: relaunch only when a narrowly scoped external validation loop is in place and positioning is crisp.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
+        </article>
+
+        <article class="card" id="case-deadair">
+          <div class="card-head"><h4>Dead Air FM radio</h4><span class="badge">Cold storage, backups kept</span></div>
+          <p class="one-liner">A 24/7 internet-radio stack with AI host segments, requests, and real-time stream metadata.</p>
+          <p class="story">Dead Air FM assembled a complete broadcast chain with scheduling, stream metadata, listener interaction, and generated host breaks. It addressed the challenge of running a continuous station with both editorial and technical control in one stack. The recurring hurdle was keeping now-playing and interaction services in sync with the live stream and maintaining uptime guardrails.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: archive the broadcast architecture as a reusable playbook for future media experiments rather than immediate reactivation.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="frameworks">
+      <h3>5) Open-source agent frameworks</h3>
+      <p class="group-note">Public engineering foundations that power autonomous systems and product experimentation.</p>
+      <div class="grid">
+        <article class="card" id="case-agentsystem"><div class="card-head"><h4>AgentSystem</h4><span class="badge">Open source</span></div><p class="one-liner">Distributed orchestration for edge-ready agent workloads.</p><p class="story">AgentSystem is the operating backbone for multi-worker, multi-provider agent execution patterns. It addresses orchestration and deployment complexity across distributed hardware and service boundaries. The main hurdles are integration depth and keeping deployment workflows maintainable as scope grows.</p><p class="outlook">Outlook: continue improving reliability, operability, and composability for production agent systems.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>EBAIF</h4><span class="badge">Open source</span></div><p class="one-liner">A framework for emergent behavior patterns in AI systems.</p><p class="story">EBAIF explored behavior evolution and consensus mechanisms as first-class primitives. It aimed to solve rigid agent behavior by introducing adaptive patterning mechanics. The challenge was balancing ambitious system design with practical adoption pathways.</p><p class="outlook" data-draft="eddy-review">Outlook: package EBAIF concepts into smaller, composable modules that can be reused by active product lines.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>AgentSDK</h4><span class="badge">Open source</span></div><p class="one-liner">A Python SDK for autonomous agents and benchmarked workflows.</p><p class="story">AgentSDK was built to give agent builders a practical toolbox for orchestration, examples, and testing patterns. It helps solve repeatability and onboarding friction in autonomous workflow development. The challenge is avoiding unverified performance storytelling while retaining technical clarity.</p><p class="outlook">Outlook: keep the SDK grounded in reproducible examples and transparent interfaces.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>AgentSwarm</h4><span class="badge">Open source</span></div><p class="one-liner">Real-time monitoring and alerting patterns for blockchain activity.</p><p class="story">AgentSwarm focused on event-driven agent behavior in high-volume blockchain streams. It addressed the need for structured monitoring and responsive automation under noisy conditions. The challenge was sustaining scope and upkeep as priorities shifted to core product lanes.</p><p class="outlook" data-draft="eddy-review">Outlook: preserve AgentSwarm as a reusable event-ingestion pattern library for future autonomous monitoring products.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card" id="case-syndicate"><div class="card-head"><h4>THE SYNDICATE</h4><span class="badge">Framework</span></div><p class="one-liner">A swarm architecture with hard handoffs between drafting, gating, and execution.</p><p class="story">The architecture was locked in May 2026 as a three-agent chain: SNIPER drafts, AUDITOR gates, and EXO ships. SNIPER handles prospect research, A/B/C DM drafting, and reply-triage drafts, then self-gates through an audit script before staging. AUDITOR enforces outbound gates for audit checks, ICP fit, strategic context, and service health with explicit veto authority, while EXO is the only actor allowed to execute external sends, deploys, and commits.</p><p class="story">Workflow control is run as a state machine of folder moves: research, drafted, staged after audit PASS, sent after AUDITOR SHIP, back to drafted on REVISE, and cold_storage on HOLD. Each staged draft carries the message, an audit record, a fit note, and a verdict. Volume is capped at 3-5 sends per week, and EXO guardrails include never amending commits, never force-pushing main, never skipping git hooks, no Friday-afternoon deploys outside windows, and never echoing .env contents.</p><p class="outlook" data-draft="eddy-review">Outlook: the same separation-of-duties pattern can be generalized as a reusable governance model for high-risk autonomous outreach systems.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>redteam</h4><span class="badge">Open source</span></div><p class="one-liner">The public codebase behind REDTEAM diagnostic workflows.</p><p class="story">The redteam repository captures the tooling-first approach used in the live REDTEAM product lane. It addresses repeatable probe execution, reporting output, and automation hooks. The challenge is maintaining product and open-source alignment without coupling release risk across surfaces.</p><p class="outlook">Outlook: keep tooling parity while preserving stable public interfaces.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>warden</h4><span class="badge">Open source</span></div><p class="one-liner">CLI-based AI code-audit tooling with SARIF-oriented output.</p><p class="story">warden packaged autonomous code-audit flows into a command-line interface suitable for CI contexts. It solved the need to convert analysis into actionable machine-readable artifacts. The hurdle is balancing depth of checks with practical execution speed.</p><p class="outlook">Outlook: extend integration clarity while keeping execution predictable.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>agent-compliance-lora</h4><span class="badge">Open source</span></div><p class="one-liner">A LoRA line targeting approval-first and injection-resistant behavior.</p><p class="story">This project explored lightweight tuning to improve compliance behavior in smaller models. It addressed the challenge of steering model behavior without heavyweight retraining pipelines. The main hurdle is proving reliability under varied adversarial prompts.</p><p class="outlook" data-draft="eddy-review">Outlook: fold this work into broader agent-governance tooling once evaluation harnesses are standardized.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+        <article class="card"><div class="card-head"><h4>fleet kernel</h4><span class="badge">Experiment</span></div><p class="one-liner">A conceptual control layer for registry, trust levels, loop brakes, and kill-switch governance.</p><p class="story" data-draft="eddy-review">fleet kernel is recorded as a system concept spanning agent registry, message-board coordination, trust ladders, and emergency controls. It targets a hard operational problem: how to keep autonomous fleets both useful and governable. The blocker is that this exists in architecture notes rather than a confirmed public repository baseline.</p><p class="outlook" data-draft="eddy-review">Outlook: convert fleet kernel into a documented reference implementation before presenting it as a standalone framework product.</p><div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div></article>
+      </div>
+    </section>
+
+    <section class="group" id="games-experiments">
+      <h3>6) Games &amp; experiments</h3>
+      <p class="group-note">Shipped or published experiment lanes that informed product and framework work.</p>
+      <div class="grid">
+        <article class="card" id="case-solhorse">
+          <div class="card-head"><h4>Sol Horse</h4><span class="badge">Experiment</span></div>
+          <p class="one-liner">A Solana horse-racing game project with genetics, training, and tournament systems.</p>
+          <p class="story">Sol Horse explored game-mechanics composition in a blockchain context, including progression and competition loops. It solved a prototyping need for complex gameplay state under on-chain assumptions. The current blocker is deployment clarity: a live public URL is not recorded in the source facts.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: confirm deployment intent and either relaunch as a playable test lane or archive as a design reference.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
+        </article>
+
+        <article class="card" id="case-deckwizard">
+          <div class="card-head"><h4>DeckWizard</h4><span class="badge">Experiment</span></div>
+          <p class="one-liner">A blackjack probability bot surfaced as a web demo.</p>
+          <p class="story">DeckWizard was built to make decision-support logic visible and interactive in a simple game framing. It provided a compact testbed for probability explanation UX and operator feedback loops. The biggest challenge was deciding how far to evolve a successful utility demo into a larger product line.</p>
+          <p class="outlook" data-draft="eddy-review">Outlook: keep DeckWizard available as a concise experiment while selectively reusing its interaction patterns in other products.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a><a class="btn secondary" href="https://deck-wizard.vercel.app" target="_blank" rel="noopener noreferrer">Open deck-wizard demo</a></div>
+        </article>
+
+        <article class="card" id="case-agentcasino">
+          <div class="card-head"><h4>AgentCasino</h4><span class="badge">Experiment</span></div>
+          <p class="one-liner">A social-casino testnet experiment for AI-agent gameplay loops.</p>
+          <p class="story">AgentCasino explored agent-native game systems with devnet token assumptions and real-time interaction rails. It solved an R&amp;D need around autonomous participants interacting inside constrained game economics. The project remains in experiment territory rather than shipped production service.</p>
+          <p class="outlook">Outlook: preserve as a controlled testbed for autonomous gameplay mechanics and tokenized simulation design.</p>
+          <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
   <footer>
     <span id="year">2026</span> Eddy Woods LLC
     <span aria-hidden="true"> · </span>
@@ -332,100 +562,240 @@
     <span aria-hidden="true"> · </span>
     <a href="/legal/terms">Terms</a>
   </footer>
+
   <script>
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var products = [
-        { display: "DistroBuzz", cta: "Explore DistroBuzz" },
-        { display: "Maestro", cta: "Explore Maestro" },
-        { display: "WaveForge", cta: "Explore WaveForge" },
-        { display: "Lisa", cta: "Explore Lisa" },
-        { display: "Social Forest", cta: "Explore Social Forest" },
-        { display: "The small agentlooper.org tools", cta: "Explore the small agentlooper.org tools" },
-        { display: "HVACFix", cta: "Explore HVACFix" }
+      var featured = [
+        {
+          name: "FixMyY",
+          tagline: "The origin project that proved the workflow in a real facilities context.",
+          line: "\"I remember going to fixmyy.com for the first time and being amazed that I vibecoded a working facility management app.\"",
+          live: "https://fixmyy.com"
+        },
+        {
+          name: "WaveForge",
+          tagline: "A live production music-video generator with dedicated render infrastructure.",
+          line: "Built for release workflows, then hardened through render-memory, conversion, and reliability fixes.",
+          live: "https://waveforge.net"
+        },
+        {
+          name: "Maestro",
+          tagline: "A founder-preview release studio centered on reactive video preview.",
+          line: "Shipped in preview form after scope creep, with a practical no-heavy-backend approach.",
+          live: "https://maestro.agentlooper.org"
+        },
+        {
+          name: "DistroBuzz",
+          tagline: "An open-source distribution pipeline with retry and fallback orchestration.",
+          line: "Demo is live, while integrated rollout paths remain feature-flagged for safe deployment.",
+          live: "https://distro-buzz-web.vercel.app"
+        },
+        {
+          name: "Lisa",
+          tagline: "Your personal AI assistant",
+          line: "A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.",
+          live: ""
+        },
+        {
+          name: "Nightline / HVACFix",
+          tagline: "After-hours automation with safety-first triage design.",
+          line: "Built to route emergency calls responsibly and convert non-emergency flows into next-day work orders.",
+          live: "https://hvacfix.net"
+        },
+        {
+          name: "Clawmo",
+          tagline: "An OSINT suite evolved from Social Forest's username-discovery roots.",
+          line: "Now live as a broader reconnaissance surface with multi-module structure.",
+          live: "https://clawmo.net"
+        },
+        {
+          name: "IronHaven",
+          tagline: "A live browser-first cyberpunk MMO lane.",
+          line: "Sustained through dependency and CI hurdles while continuing active development.",
+          live: "https://agentlooper.org/ironhaven/"
+        },
+        {
+          name: "Agent Defense Kit",
+          tagline: "Live security tooling on agentlooper.org: Skill Scanner and REDTEAM.",
+          line: "Focused on practical diagnostics and scanning workflows with stricter fulfillment boundaries.",
+          live: "https://agentlooper.org/skill-scanner/"
+        }
       ];
+
       var canvas = document.getElementById("scene");
+      if (!canvas) return;
       var ctx = canvas.getContext("2d", { alpha: true });
-      var wrap = document.getElementById("sceneWrap");
-      var nav = document.getElementById("nav");
-      var panel = document.getElementById("panel");
+      var nav = document.getElementById("sceneNav");
       var panelTitle = document.getElementById("panelTitle");
-      var panelCta = document.getElementById("panelCta");
-      var lisaTag = document.getElementById("lisaTag");
-      var lisaLine = document.getElementById("lisaLine");
+      var panelTagline = document.getElementById("panelTagline");
+      var panelLine = document.getElementById("panelLine");
+      var panelLive = document.getElementById("panelLive");
+      var heroBlock = document.getElementById("heroBlock");
+
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var pointer = { x: 0.5, y: 0.5 };
       var pan = { x: 0, y: 0 };
       var camera = { z: 0 };
       var target = { z: 0 };
-      var stars = [];
-      var bokeh = [];
-      var bodies = [];
       var active = 0;
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      var palette = ["#66d9ff", "#8be6ff", "#7fd7f0", "#9fe7ff", "#4dc7ec", "#6bd5ff", "#79ddf2"];
-      var clearZone = { x: 0, y: 0, w: 0, h: 0 };
-      var clearZonePad = { x: 0, y: 0, w: 0, h: 0 };
-      var panelRect = { x: -9999, y: -9999, w: 0, h: 0 };
-      var panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
-      var railZone = { x: -9999, y: -9999, w: 0, h: 0 };
       var rafId = 0;
-      function createStars() {
+      var clearZone = { x: 0, y: 0, w: 0, h: 0 };
+      var panelRect = { x: -9999, y: -9999, w: 0, h: 0 };
+      var railRect = { x: -9999, y: -9999, w: 0, h: 0 };
+
+      var stars = [];
+      var bodies = featured.map(function (p, i) {
+        var angle = (i / featured.length) * Math.PI * 2;
+        return {
+          i: i,
+          z: i * 1.12 + (i % 2 ? 0.34 : 0),
+          x: Math.cos(angle) * (i < 5 ? 0.58 : 0.9),
+          y: Math.sin(angle) * (i < 5 ? 0.43 : 0.68),
+          size: i === 1 ? 1.15 : 1
+        };
+      });
+
+      function makeStars() {
         stars = [];
-        for (var i = 0; i < 430; i++) {
+        for (var i = 0; i < 400; i++) {
           stars.push({
             x: Math.random() * 2 - 1,
             y: Math.random() * 2 - 1,
             z: Math.random() * 1.8 + 0.2,
-            r: Math.random() * 1.05 + 0.18,
-            twinkle: Math.random() * Math.PI * 2,
-            speed: Math.random() * 0.022 + 0.005
-          });
-        }
-        bokeh = [];
-        for (var j = 0; j < 14; j++) {
-          bokeh.push({
-            x: Math.random() * 2 - 1,
-            y: Math.random() * 2 - 1,
-            z: Math.random() * 0.42 + 0.12,
-            r: Math.random() * 5 + 3,
-            drift: Math.random() * Math.PI * 2
+            r: Math.random() * 1 + 0.2,
+            t: Math.random() * Math.PI * 2,
+            s: Math.random() * 0.02 + 0.004
           });
         }
       }
-      function createBodies() {
-        bodies = [];
-        for (var i = 0; i < products.length; i++) {
-          var angle = (i / products.length) * Math.PI * 2;
-          bodies.push({
-            name: products[i].display,
-            i: i,
-            x: Math.cos(angle) * (i < 4 ? 0.6 : 0.92),
-            y: Math.sin(angle) * (i < 4 ? 0.5 : 0.7) * 0.64,
-            z: i * 1.38 + (i % 2 ? 0.44 : 0),
-            size: 1 + (i === 2 ? 0.14 : 0)
-          });
-        }
+
+      function circleIntersectsRect(x, y, r, rect) {
+        if (!rect || rect.w <= 0 || rect.h <= 0) return false;
+        var nx = Math.max(rect.x, Math.min(x, rect.x + rect.w));
+        var ny = Math.max(rect.y, Math.min(y, rect.y + rect.h));
+        var dx = x - nx;
+        var dy = y - ny;
+        return dx * dx + dy * dy < r * r;
       }
-      function setActive(index) {
-        active = Math.max(0, Math.min(products.length - 1, index));
-        target.z = bodies[active].z;
-        panelTitle.textContent = products[active].display;
-        panelCta.textContent = products[active].cta;
-        if (products[active].display === "Lisa") {
-          lisaTag.hidden = false;
-          lisaLine.hidden = false;
+
+      function keepOut(x, y, r, rect, dir) {
+        if (!circleIntersectsRect(x, y, r, rect)) return { x: x, y: y };
+        if (dir === "left") return { x: rect.x - r - 18, y: y };
+        if (dir === "up") return { x: x, y: rect.y - r - 14 };
+        return { x: x, y: rect.y + rect.h + r + 14 };
+      }
+
+      function drawGlyph(x, y, r, idx, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        var glow = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 2.8);
+        glow.addColorStop(0, "rgba(185,244,255,0.46)");
+        glow.addColorStop(1, "rgba(98,212,255,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 2.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        var orb = ctx.createRadialGradient(x - r * 0.18, y - r * 0.2, r * 0.16, x, y, r * 1.2);
+        orb.addColorStop(0, "rgba(232,252,255,0.96)");
+        orb.addColorStop(0.2, "#7be2ff");
+        orb.addColorStop(1, "rgba(24,72,104,0.16)");
+        ctx.fillStyle = orb;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 1.05, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(215,250,255,0.94)";
+        ctx.lineWidth = Math.max(1.3, r * 0.07);
+
+        if (idx === 0) {
+          for (var ring = 1; ring <= 3; ring++) {
+            ctx.beginPath();
+            ctx.arc(x, y, r * (0.24 + ring * 0.2), -Math.PI * 0.72, Math.PI * 0.62);
+            ctx.stroke();
+          }
+        } else if (idx === 1) {
+          for (var l = -2; l <= 2; l++) {
+            var ly = y + l * r * 0.13;
+            ctx.beginPath();
+            ctx.moveTo(x - r * 0.78, ly);
+            ctx.lineTo(x + r * 0.75, ly - Math.sin(l * 0.6) * r * 0.08);
+            ctx.stroke();
+          }
+        } else if (idx === 2) {
+          for (var w = 0; w < 3; w++) {
+            var ys = (w - 1) * r * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(x - r * 0.86, y + ys);
+            ctx.bezierCurveTo(x - r * 0.55, y - r * (0.66 - w * 0.12), x - r * 0.2, y + r * (0.58 - w * 0.08), x + r * 0.04, y + ys);
+            ctx.bezierCurveTo(x + r * 0.3, y - r * (0.64 - w * 0.1), x + r * 0.58, y + r * (0.52 - w * 0.08), x + r * 0.84, y + ys);
+            ctx.stroke();
+          }
+        } else if (idx === 3) {
+          for (var p = 0; p < 5; p++) {
+            var a = (Math.PI * 2 * p) / 5;
+            ctx.beginPath();
+            ctx.ellipse(x + Math.cos(a) * r * 0.1, y + Math.sin(a) * r * 0.1, r * 0.24, r * 0.48, a, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(x, y, r * 0.2, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (idx === 4) {
+          ctx.beginPath();
+          ctx.moveTo(x - r * 0.68, y + r * 0.28);
+          ctx.bezierCurveTo(x - r * 0.88, y - r * 0.15, x - r * 0.34, y - r * 0.72, x, y - r * 0.58);
+          ctx.bezierCurveTo(x + r * 0.36, y - r * 0.74, x + r * 0.9, y - r * 0.1, x + r * 0.68, y + r * 0.28);
+          ctx.closePath();
+          ctx.stroke();
+        } else if (idx === 5) {
+          ctx.beginPath();
+          ctx.ellipse(x - r * 0.2, y - r * 0.05, r * 0.42, r * 0.29, Math.PI * 0.2, 0, Math.PI * 2);
+          ctx.ellipse(x + r * 0.2, y + r * 0.08, r * 0.42, r * 0.29, -Math.PI * 0.15, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (idx === 6) {
+          ctx.beginPath();
+          ctx.arc(x, y, r * 0.62, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (idx === 7) {
+          ctx.beginPath();
+          ctx.moveTo(x - r * 0.34, y + r * 0.4);
+          ctx.lineTo(x + r * 0.4, y - r * 0.35);
+          ctx.moveTo(x - r * 0.16, y + r * 0.16);
+          ctx.lineTo(x + r * 0.18, y + r * 0.16);
+          ctx.stroke();
         } else {
-          lisaTag.hidden = true;
-          lisaLine.hidden = true;
+          ctx.beginPath();
+          ctx.moveTo(x - r * 0.76, y + r * 0.2);
+          ctx.lineTo(x + r * 0.76, y - r * 0.2);
+          ctx.stroke();
         }
-        var buttons = nav.querySelectorAll("button");
-        for (var b = 0; b < buttons.length; b++) {
-          buttons[b].setAttribute("aria-current", b === active ? "true" : "false");
-          if (b === active && window.innerWidth <= 900) {
-            buttons[b].scrollIntoView({ block: "nearest", inline: "nearest", behavior: reduce ? "auto" : "smooth" });
+
+        ctx.restore();
+      }
+
+      function setActive(idx) {
+        active = Math.max(0, Math.min(featured.length - 1, idx));
+        target.z = bodies[active].z;
+        var item = featured[active];
+        panelTitle.textContent = item.name;
+        panelTagline.textContent = item.tagline;
+        panelLine.textContent = item.line;
+        if (item.live) {
+          panelLive.hidden = false;
+          panelLive.href = item.live;
+        } else {
+          panelLive.hidden = true;
+        }
+        var chips = nav.querySelectorAll("button");
+        for (var i = 0; i < chips.length; i++) {
+          chips[i].setAttribute("aria-current", i === active ? "true" : "false");
+          if (i === active && window.innerWidth <= 900) {
+            chips[i].scrollIntoView({ block: "nearest", inline: "nearest", behavior: reduce ? "auto" : "smooth" });
           }
         }
       }
+
       function resize() {
         var w = window.innerWidth;
         var h = window.innerHeight;
@@ -433,354 +803,139 @@
         canvas.height = Math.floor(h * dpr);
         canvas.style.width = w + "px";
         canvas.style.height = h + "px";
-        var headline = document.querySelector(".headline");
-        if (headline) {
-          var rect = headline.getBoundingClientRect();
-          clearZone = {
-            x: rect.left - 28,
-            y: rect.top - 24,
-            w: rect.width + 44,
-            h: rect.height + 32
-          };
-          clearZonePad = {
-            x: clearZone.x - 14,
-            y: clearZone.y - 14,
-            w: clearZone.w + 28,
-            h: clearZone.h + 28
-          };
-        } else {
-          clearZone = { x: 0, y: 0, w: 0, h: 0 };
-          clearZonePad = { x: 0, y: 0, w: 0, h: 0 };
-        }
-        var panelEl = document.querySelector(".detail-panel");
-        if (panelEl) {
-          var pRect = panelEl.getBoundingClientRect();
-          panelRect = {
-            x: pRect.left,
-            y: pRect.top,
-            w: pRect.width,
-            h: pRect.height
-          };
-          panelZone = window.innerWidth > 900 ? {
-            x: pRect.left - 24,
-            y: pRect.top - 18,
-            w: pRect.width + 38,
-            h: pRect.height + 34
-          } : {
-            x: pRect.left - 8,
-            y: pRect.top - 6,
-            w: pRect.width + 16,
-            h: pRect.height + 12
-          };
-        } else {
-          panelRect = { x: -9999, y: -9999, w: 0, h: 0 };
-          panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
-        }
-        var navEl = document.querySelector(".product-nav");
-        if (navEl) {
-          var nRect = navEl.getBoundingClientRect();
-          railZone = {
-            x: nRect.left - 10,
-            y: nRect.top - 8,
-            w: nRect.width + 20,
-            h: nRect.height + 18
-          };
-        } else {
-          railZone = { x: -9999, y: -9999, w: 0, h: 0 };
-        }
+
+        var heroRect = heroBlock.getBoundingClientRect();
+        clearZone = {
+          x: heroRect.left - 24,
+          y: heroRect.top - 22,
+          w: heroRect.width + 40,
+          h: heroRect.height + 26
+        };
+
+        var pRect = document.getElementById("panel").getBoundingClientRect();
+        panelRect = { x: pRect.left, y: pRect.top, w: pRect.width, h: pRect.height };
+
+        var nRect = nav.getBoundingClientRect();
+        railRect = { x: nRect.left - 10, y: nRect.top - 8, w: nRect.width + 20, h: nRect.height + 18 };
+
         if (reduce) renderFrame(performance.now());
       }
-      function circleIntersectsRect(x, y, r, rect) {
-        if (!rect || rect.w <= 0 || rect.h <= 0) return false;
-        var nearestX = Math.max(rect.x, Math.min(x, rect.x + rect.w));
-        var nearestY = Math.max(rect.y, Math.min(y, rect.y + rect.h));
-        var dx = x - nearestX;
-        var dy = y - nearestY;
-        return dx * dx + dy * dy < r * r;
-      }
-      function keepOutOfRect(x, y, r, rect, direction) {
-        if (!circleIntersectsRect(x, y, r, rect)) return { x: x, y: y };
-        if (direction === "down") return { x: x, y: rect.y + rect.h + r + 10 };
-        if (direction === "left") return { x: rect.x - r - 14, y: y };
-        if (direction === "up") return { x: x, y: rect.y - r - 10 };
-        return { x: x, y: y };
-      }
-      function drawBody(screenX, screenY, radius, idx, glow, alpha) {
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        var grad = ctx.createRadialGradient(screenX - radius * 0.2, screenY - radius * 0.2, radius * 0.2, screenX, screenY, radius * 1.3);
-        grad.addColorStop(0, "rgba(220,248,255,0.93)");
-        grad.addColorStop(0.18, palette[idx % palette.length]);
-        grad.addColorStop(1, "rgba(24,72,104,0.16)");
-        ctx.beginPath();
-        ctx.fillStyle = grad;
-        ctx.arc(screenX, screenY, radius * 1.05, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(188,242,255," + (0.62 + glow * 0.3).toFixed(2) + ")";
-        ctx.lineWidth = Math.max(1.2, radius * 0.08);
-        ctx.beginPath();
-        if (idx === 0) {
-          // DistroBuzz: layered broadcast burst + distribution rays
-          for (var ring = 1; ring <= 3; ring++) {
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(186,240,255," + (0.18 + ring * 0.08).toFixed(2) + ")";
-            ctx.lineWidth = Math.max(1, radius * 0.05 / ring);
-            ctx.arc(screenX, screenY, radius * (0.34 + ring * 0.2), -Math.PI * 0.72, Math.PI * 0.62);
-            ctx.stroke();
-          }
-          ctx.beginPath();
-          ctx.moveTo(screenX - radius * 0.92, screenY + radius * 0.12);
-          ctx.lineTo(screenX + radius * 0.95, screenY - radius * 0.42);
-          ctx.lineTo(screenX + radius * 0.86, screenY + radius * 0.52);
-          ctx.closePath();
-          ctx.strokeStyle = "rgba(209,249,255,0.88)";
-          ctx.lineWidth = Math.max(1.2, radius * 0.06);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(screenX + radius * 0.4, screenY - radius * 0.18, radius * 0.12, 0, Math.PI * 2);
-          ctx.stroke();
-        } else if (idx === 1) {
-          // Maestro: baton + orchestration staff and arcs
-          ctx.beginPath();
-          for (var l = -2; l <= 2; l++) {
-            var y = screenY + l * radius * 0.14;
-            ctx.moveTo(screenX - radius * 0.8, y);
-            ctx.lineTo(screenX + radius * 0.78, y - Math.sin(l * 0.6) * radius * 0.08);
-          }
-          ctx.strokeStyle = "rgba(195,245,255,0.7)";
-          ctx.lineWidth = Math.max(1, radius * 0.04);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(screenX - radius * 0.55, screenY + radius * 0.52);
-          ctx.lineTo(screenX + radius * 0.42, screenY - radius * 0.38);
-          ctx.strokeStyle = "rgba(230,252,255,0.95)";
-          ctx.lineWidth = Math.max(1.4, radius * 0.09);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(screenX + radius * 0.5, screenY - radius * 0.46, radius * 0.13, 0, Math.PI * 2);
-        } else if (idx === 2) {
-          // WaveForge: layered visualizer waves + stage beam
-          for (var wave = 0; wave < 3; wave++) {
-            var yShift = (wave - 1) * radius * 0.18;
-            ctx.beginPath();
-            ctx.moveTo(screenX - radius * 0.9, screenY + yShift);
-            ctx.bezierCurveTo(screenX - radius * 0.58, screenY - radius * (0.72 - wave * 0.12), screenX - radius * 0.2, screenY + radius * (0.62 - wave * 0.1), screenX + radius * 0.06, screenY + yShift);
-            ctx.bezierCurveTo(screenX + radius * 0.34, screenY - radius * (0.7 - wave * 0.1), screenX + radius * 0.62, screenY + radius * (0.58 - wave * 0.08), screenX + radius * 0.9, screenY + yShift);
-            ctx.strokeStyle = wave === 1 ? "rgba(226,252,255,0.98)" : "rgba(164,234,252,0.7)";
-            ctx.lineWidth = Math.max(1.4, radius * (wave === 1 ? 0.09 : 0.06));
-            ctx.stroke();
-          }
-          ctx.beginPath();
-          ctx.roundRect(screenX - radius * 0.72, screenY + radius * 0.48, radius * 1.44, radius * 0.18, radius * 0.08);
-          ctx.strokeStyle = "rgba(223,251,255,0.9)";
-          ctx.lineWidth = Math.max(1, radius * 0.05);
-          ctx.stroke();
-        } else if (idx === 3) {
-          // Lisa: abstract voice/presence form with halo petals
-          for (var p = 0; p < 5; p++) {
-            var a = (Math.PI * 2 * p) / 5;
-            ctx.beginPath();
-            ctx.ellipse(
-              screenX + Math.cos(a) * radius * 0.1,
-              screenY + Math.sin(a) * radius * 0.1,
-              radius * 0.24,
-              radius * 0.48,
-              a,
-              0,
-              Math.PI * 2
-            );
-            ctx.strokeStyle = "rgba(189,243,255,0.52)";
-            ctx.lineWidth = Math.max(1, radius * 0.04);
-            ctx.stroke();
-          }
-          ctx.beginPath();
-          ctx.arc(screenX, screenY, radius * 0.18, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(230,252,255,0.98)";
-          ctx.lineWidth = Math.max(1.6, radius * 0.08);
-          ctx.stroke();
-        } else if (idx === 4) {
-          // Social Forest: organic canopy contours + trunk lattice
-          ctx.beginPath();
-          ctx.moveTo(screenX - radius * 0.7, screenY + radius * 0.32);
-          ctx.bezierCurveTo(screenX - radius * 0.9, screenY - radius * 0.16, screenX - radius * 0.36, screenY - radius * 0.74, screenX, screenY - radius * 0.6);
-          ctx.bezierCurveTo(screenX + radius * 0.38, screenY - radius * 0.76, screenX + radius * 0.94, screenY - radius * 0.1, screenX + radius * 0.7, screenY + radius * 0.32);
-          ctx.closePath();
-          ctx.strokeStyle = "rgba(199,247,255,0.9)";
-          ctx.lineWidth = Math.max(1.4, radius * 0.06);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(screenX, screenY - radius * 0.26);
-          ctx.lineTo(screenX, screenY + radius * 0.72);
-          ctx.moveTo(screenX, screenY + radius * 0.05);
-          ctx.lineTo(screenX - radius * 0.24, screenY + radius * 0.34);
-          ctx.moveTo(screenX, screenY + radius * 0.16);
-          ctx.lineTo(screenX + radius * 0.2, screenY + radius * 0.42);
-        } else if (idx === 5) {
-          // Small tools: interlocking loops + utility nodes
-          ctx.beginPath();
-          ctx.ellipse(screenX - radius * 0.2, screenY - radius * 0.05, radius * 0.42, radius * 0.29, Math.PI * 0.2, 0, Math.PI * 2);
-          ctx.ellipse(screenX + radius * 0.2, screenY + radius * 0.08, radius * 0.42, radius * 0.29, -Math.PI * 0.15, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(216,250,255,0.95)";
-          ctx.lineWidth = Math.max(1.5, radius * 0.07);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(screenX - radius * 0.04, screenY - radius * 0.56);
-          ctx.lineTo(screenX - radius * 0.24, screenY - radius * 0.26);
-          ctx.moveTo(screenX + radius * 0.16, screenY + radius * 0.52);
-          ctx.lineTo(screenX + radius * 0.38, screenY + radius * 0.22);
-        } else {
-          // HVACFix: thermal ring + airflow fins
-          ctx.beginPath();
-          ctx.arc(screenX, screenY, radius * 0.62, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(215,250,255,0.95)";
-          ctx.lineWidth = Math.max(1.6, radius * 0.08);
-          ctx.stroke();
-          for (var fin = 0; fin < 4; fin++) {
-            var fa = fin * Math.PI * 0.5 + Math.PI * 0.24;
-            ctx.beginPath();
-            ctx.moveTo(screenX, screenY);
-            ctx.quadraticCurveTo(
-              screenX + Math.cos(fa) * radius * 0.38,
-              screenY + Math.sin(fa) * radius * 0.38,
-              screenX + Math.cos(fa + 0.42) * radius * 0.62,
-              screenY + Math.sin(fa + 0.42) * radius * 0.62
-            );
-            ctx.strokeStyle = "rgba(194,246,255,0.86)";
-            ctx.lineWidth = Math.max(1, radius * 0.05);
-            ctx.stroke();
-          }
-          ctx.beginPath();
-          ctx.arc(screenX, screenY, radius * 0.2, 0, Math.PI * 2);
-        }
-        ctx.stroke();
-        ctx.restore();
-      }
+
       function renderFrame(timeMs) {
         var w = canvas.width;
         var h = canvas.height;
+        var sw = w / dpr;
+        var sh = h / dpr;
+
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, w, h);
         ctx.scale(dpr, dpr);
-        var sw = w / dpr;
-        var sh = h / dpr;
         ctx.fillStyle = "#050b12";
         ctx.fillRect(0, 0, sw, sh);
-        var sky = ctx.createRadialGradient(sw * 0.5, sh * 0.54, sh * 0.1, sw * 0.5, sh * 0.56, sh * 0.84);
-        sky.addColorStop(0, "rgba(67,182,218,0.17)");
-        sky.addColorStop(1, "rgba(6,10,18,0)");
-        ctx.fillStyle = sky;
+
+        var bg = ctx.createRadialGradient(sw * 0.5, sh * 0.56, sh * 0.11, sw * 0.5, sh * 0.56, sh * 0.86);
+        bg.addColorStop(0, "rgba(67,182,218,0.16)");
+        bg.addColorStop(1, "rgba(6,10,18,0)");
+        ctx.fillStyle = bg;
         ctx.fillRect(0, 0, sw, sh);
+
         camera.z += (target.z - camera.z) * (reduce ? 0.3 : 0.09);
-        pan.x += ((pointer.x - 0.5) * 0.4 - pan.x) * (reduce ? 0.3 : 0.08);
-        pan.y += ((pointer.y - 0.5) * 0.32 - pan.y) * (reduce ? 0.3 : 0.08);
+        pan.x += ((pointer.x - 0.5) * 0.36 - pan.x) * (reduce ? 0.3 : 0.08);
+        pan.y += ((pointer.y - 0.5) * 0.3 - pan.y) * (reduce ? 0.3 : 0.08);
+
         var t = (timeMs || performance.now()) * 0.001;
         for (var s = 0; s < stars.length; s++) {
-          var star = stars[s];
-          var depth = 1 / (star.z + camera.z * 0.03);
-          var x = (star.x + pan.x * depth * 0.8) * sw * 0.44 + sw * 0.5;
-          var y = (star.y + pan.y * depth * 0.8) * sh * 0.43 + sh * 0.53;
-          if (x < -4 || y < -4 || x > sw + 4 || y > sh + 4) continue;
-          if (x > clearZone.x && x < clearZone.x + clearZone.w && y > clearZone.y && y < clearZone.y + clearZone.h) continue;
-          var tw = reduce ? 1 : (0.78 + Math.sin(t * (0.8 + star.speed) + star.twinkle) * 0.22);
-          ctx.fillStyle = "rgba(205,242,255," + (0.1 + depth * 0.2 * tw).toFixed(3) + ")";
+          var st = stars[s];
+          var depth = 1 / (st.z + camera.z * 0.03);
+          var sx = (st.x + pan.x * depth * 0.72) * sw * 0.44 + sw * 0.5;
+          var sy = (st.y + pan.y * depth * 0.72) * sh * 0.43 + sh * 0.53;
+          if (sx < -4 || sy < -4 || sx > sw + 4 || sy > sh + 4) continue;
+          if (sx > clearZone.x && sx < clearZone.x + clearZone.w && sy > clearZone.y && sy < clearZone.y + clearZone.h) continue;
+          var tw = reduce ? 1 : (0.78 + Math.sin(t * (0.8 + st.s) + st.t) * 0.22);
+          ctx.fillStyle = "rgba(205,242,255," + (0.08 + depth * 0.19 * tw).toFixed(3) + ")";
           ctx.beginPath();
-          ctx.arc(x, y, star.r * depth * 1.7, 0, Math.PI * 2);
+          ctx.arc(sx, sy, st.r * depth * 1.6, 0, Math.PI * 2);
           ctx.fill();
         }
-        for (var b = 0; b < bokeh.length; b++) {
-          var bk = bokeh[b];
-          var bz = 1 / (bk.z + camera.z * 0.02);
-          var bxh = (bk.x + (reduce ? 0 : Math.sin(t * 0.08 + bk.drift) * 0.02) + pan.x * bz * 0.22) * sw * 0.5 + sw * 0.5;
-          var byh = (bk.y + (reduce ? 0 : Math.cos(t * 0.07 + bk.drift) * 0.02) + pan.y * bz * 0.2) * sh * 0.48 + sh * 0.54;
-          if (bxh > clearZone.x && bxh < clearZone.x + clearZone.w && byh > clearZone.y && byh < clearZone.y + clearZone.h) continue;
-          var br = bk.r * bz * 2.8;
-          if (br > 9) br = 9;
-          if (br < 2) br = 2;
-          var halo = ctx.createRadialGradient(bxh, byh, 0, bxh, byh, br);
-          halo.addColorStop(0, "rgba(186,236,251,0.08)");
-          halo.addColorStop(1, "rgba(98,212,255,0)");
-          ctx.fillStyle = halo;
-          ctx.beginPath();
-          ctx.arc(bxh, byh, br, 0, Math.PI * 2);
-          ctx.fill();
-        }
+
         var activeBody = bodies[active];
         var activeAnchor = null;
         if (activeBody) {
-          var activeZ = activeBody.z - camera.z + 3.45;
-          if (activeZ > 0.2) {
-            var activeDepth = 1 / activeZ;
-            var ax = sw * 0.5 + (activeBody.x + pan.x * 0.5) * sw * 0.54 * activeDepth * 3.2;
-            var ay = sh * 0.55 + (activeBody.y + pan.y * 0.45) * sh * 0.48 * activeDepth * 3.2;
-            var ar = Math.max(14, sw * 0.112 * activeDepth * activeBody.size * 1.42);
+          var az = activeBody.z - camera.z + 3.4;
+          if (az > 0.2) {
+            var ad = 1 / az;
+            var ax = sw * 0.5 + (activeBody.x + pan.x * 0.5) * sw * 0.54 * ad * 3.1;
+            var ay = sh * 0.55 + (activeBody.y + pan.y * 0.45) * sh * 0.48 * ad * 3.1;
+            var ar = Math.max(16, sw * 0.11 * ad * activeBody.size * 1.42);
+            ar = window.innerWidth > 900 ? Math.min(Math.max(ar, 96), 150) : Math.min(Math.max(ar, 70), 120);
+
+            var glowRadius = ar * 3;
+            var keptHead = keepOut(ax, ay, glowRadius, clearZone, "down");
+            ax = keptHead.x;
+            ay = keptHead.y;
+
             if (window.innerWidth > 900) {
-              ar = Math.min(Math.max(ar, 96), 150);
-            } else {
-              ar = Math.min(Math.max(ar, Math.min(110, Math.max(72, sw * 0.18))), 120);
-            }
-            var keepHeadlineActive = keepOutOfRect(ax, ay, ar * 3, clearZonePad, "down");
-            ax = keepHeadlineActive.x;
-            ay = keepHeadlineActive.y;
-            if (window.innerWidth > 900) {
-              var desktopTargetX = panelRect.x > 0 ? panelRect.x - ar - 52 : sw * 0.36;
-              var desktopTargetY = Math.max(clearZone.y + clearZone.h + ar + 20, Math.min(sh * 0.62, sh * 0.56));
-              ax += (desktopTargetX - ax) * 0.3;
-              ay += (desktopTargetY - ay) * 0.24;
-              var keepPanelDesktop = keepOutOfRect(ax, ay, ar, panelZone, "left");
-              ax = keepPanelDesktop.x;
-              ay = keepPanelDesktop.y;
-              var keepRailDesktop = keepOutOfRect(ax, ay, ar, railZone, "up");
-              ax = keepRailDesktop.x;
-              ay = keepRailDesktop.y;
+              var tx = panelRect.x > 0 ? panelRect.x - ar - 54 : sw * 0.37;
+              var ty = Math.max(clearZone.y + clearZone.h + ar + 24, sh * 0.57);
+              ax += (tx - ax) * 0.3;
+              ay += (ty - ay) * 0.23;
+              var keptPanel = keepOut(ax, ay, ar, panelRect, "left");
+              ax = keptPanel.x;
+              ay = keptPanel.y;
+              var keptRail = keepOut(ax, ay, glowRadius, railRect, "up");
+              ax = keptRail.x;
+              ay = keptRail.y;
             } else {
               var panelTop = panelRect.y > 0 ? panelRect.y : sh * 0.72;
-              var mobileTargetX = sw * 0.5;
-              var mobileTargetY = Math.min(panelTop - ar - 30, sh * 0.56);
-              mobileTargetY = Math.max(Math.min(480, sh * 0.57), Math.max(200, sh * 0.32), mobileTargetY);
-              ax += (mobileTargetX - ax) * 0.34;
-              ay += (mobileTargetY - ay) * 0.3;
-              var keepPanelMobile = keepOutOfRect(ax, ay, ar, panelZone, "up");
-              ax = keepPanelMobile.x;
-              ay = keepPanelMobile.y;
-              var keepRailMobile = keepOutOfRect(ax, ay, ar, railZone, "up");
-              ax = keepRailMobile.x;
-              ay = keepRailMobile.y;
+              var my = Math.min(panelTop - ar - 28, sh * 0.56);
+              my = Math.max(my, sh * 0.34);
+              ax += (sw * 0.5 - ax) * 0.34;
+              ay += (my - ay) * 0.3;
+              var keptMobile = keepOut(ax, ay, glowRadius, railRect, "up");
+              ax = keptMobile.x;
+              ay = keptMobile.y;
             }
-            if (circleIntersectsRect(ax, ay, ar * 3, clearZonePad)) {
-              var forceDownActive = keepOutOfRect(ax, ay, ar * 3, clearZonePad, "down");
-              ax = forceDownActive.x;
-              ay = forceDownActive.y;
+
+            if (circleIntersectsRect(ax, ay, glowRadius, clearZone)) {
+              var forced = keepOut(ax, ay, glowRadius, clearZone, "down");
+              ax = forced.x;
+              ay = forced.y;
             }
+
             ax = Math.max(ar + 14, Math.min(sw - ar - 14, ax));
             ay = Math.max(ar + 14, Math.min(sh - ar - 14, ay));
-            activeAnchor = { x: ax, y: ay, r: ar };
+            activeAnchor = { x: ax, y: ay, r: ar, glow: glowRadius };
           }
         }
+
         var activeSlot = activeAnchor ? {
-          x: activeAnchor.x - activeAnchor.r * 2.05,
-          y: activeAnchor.y - activeAnchor.r * 2.05,
-          w: activeAnchor.r * 4.1,
-          h: activeAnchor.r * 4.1
+          x: activeAnchor.x - activeAnchor.glow,
+          y: activeAnchor.y - activeAnchor.glow,
+          w: activeAnchor.glow * 2,
+          h: activeAnchor.glow * 2
         } : null;
+
         for (var i = 0; i < bodies.length; i++) {
           if (i === active) continue;
-          var body = bodies[i];
-          var z = body.z - camera.z + 3.45;
-          if (z <= 0.2 || z < 1.34) {
-            body._sx = undefined; body._sy = undefined; body._sr = undefined;
+          var b = bodies[i];
+          var z = b.z - camera.z + 3.4;
+          if (z <= 0.2 || z < 1.28) {
+            b._sx = undefined;
             continue;
           }
-          var depthScale = 1 / z;
-          var bx = sw * 0.5 + (body.x + pan.x * 0.5) * sw * 0.54 * depthScale * 3.2;
-          var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
-          var r = Math.max(8, sw * 0.112 * depthScale * body.size * 0.82);
-          r = Math.min(r, 52);
-          var keptHeadline = keepOutOfRect(bx, by, r, clearZonePad, "down");
-          bx = keptHeadline.x;
-          by = keptHeadline.y;
-          var nonActiveRail = keepOutOfRect(bx, by, r, railZone, "up");
-          bx = nonActiveRail.x;
-          by = nonActiveRail.y;
+          var d = 1 / z;
+          var bx = sw * 0.5 + (b.x + pan.x * 0.5) * sw * 0.54 * d * 3.1;
+          var by = sh * 0.55 + (b.y + pan.y * 0.45) * sh * 0.48 * d * 3.1;
+          var r = Math.min(Math.max(8, sw * 0.1 * d * 0.8), 50);
+
+          var clearR = i === 5 ? r * 1.3 : r;
+          var keptType = keepOut(bx, by, clearR, clearZone, "down");
+          bx = keptType.x;
+          by = keptType.y;
+          var keptNav = keepOut(bx, by, r * 1.3, railRect, "up");
+          bx = keptNav.x;
+          by = keptNav.y;
+
           if (activeAnchor) {
             var dx = bx - activeAnchor.x;
             var dy = by - activeAnchor.y;
@@ -790,58 +945,55 @@
               bx = activeAnchor.x + (dx / dist) * minDist;
               by = activeAnchor.y + (dy / dist) * minDist;
             }
-            if (activeSlot && circleIntersectsRect(bx, by, r, activeSlot)) {
-              bx = activeAnchor.x + (dx / dist) * (minDist + 18);
-              by = activeAnchor.y + (dy / dist) * (minDist + 18);
-            }
-            var ndx = bx - activeAnchor.x;
-            var ndy = by - activeAnchor.y;
-            if (Math.sqrt(ndx * ndx + ndy * ndy) < minDist) {
-              body._sx = undefined; body._sy = undefined; body._sr = undefined;
+            if (activeSlot && circleIntersectsRect(bx, by, r * 1.3, activeSlot)) {
+              b._sx = undefined;
               continue;
             }
           }
-          if (circleIntersectsRect(bx, by, r, clearZonePad) || circleIntersectsRect(bx, by, r, railZone)) {
-            body._sx = undefined; body._sy = undefined; body._sr = undefined;
+
+          if (circleIntersectsRect(bx, by, clearR, clearZone) || circleIntersectsRect(bx, by, r * 1.3, railRect)) {
+            b._sx = undefined;
             continue;
           }
+
           bx = Math.max(r + 14, Math.min(sw - r - 14, bx));
           by = Math.max(r + 14, Math.min(sh - r - 14, by));
-          drawBody(bx, by, r, i, 0, 0.35);
-          body._sx = bx; body._sy = by; body._sr = r;
+          drawGlyph(bx, by, r, i, 0.35);
+          b._sx = bx;
+          b._sy = by;
+          b._sr = r;
         }
+
         if (activeAnchor) {
-          var halo = ctx.createRadialGradient(activeAnchor.x, activeAnchor.y, activeAnchor.r * 0.2, activeAnchor.x, activeAnchor.y, activeAnchor.r * 3);
-          halo.addColorStop(0, "rgba(126,228,255,0.38)");
-          halo.addColorStop(1, "rgba(98,212,255,0)");
-          ctx.fillStyle = halo;
-          ctx.beginPath();
-          ctx.arc(activeAnchor.x, activeAnchor.y, activeAnchor.r * 3, 0, Math.PI * 2);
-          ctx.fill();
-          drawBody(activeAnchor.x, activeAnchor.y, activeAnchor.r, active, 1, 1);
-          activeBody._sx = activeAnchor.x; activeBody._sy = activeAnchor.y; activeBody._sr = activeAnchor.r;
-        }
-        if (activeAnchor && window.innerWidth > 900 && panelRect.x > -9000) {
-          var tx = panelRect.x;
-          var ty = Math.max(panelRect.y + 22, Math.min(panelRect.y + panelRect.h - 22, activeAnchor.y));
-          var vx = tx - activeAnchor.x;
-          var vy = ty - activeAnchor.y;
-          var vLen = Math.sqrt(vx * vx + vy * vy) || 1;
-          var sx = activeAnchor.x + (vx / vLen) * activeAnchor.r;
-          var sy = activeAnchor.y + (vy / vLen) * activeAnchor.r;
-          ctx.beginPath();
-          ctx.moveTo(sx, sy);
-          ctx.lineTo(tx, ty);
-          ctx.strokeStyle = "rgba(175,240,255,0.74)";
-          ctx.lineWidth = 1.8;
-          ctx.stroke();
+          drawGlyph(activeAnchor.x, activeAnchor.y, activeAnchor.r, active, 1);
+          activeBody._sx = activeAnchor.x;
+          activeBody._sy = activeAnchor.y;
+          activeBody._sr = activeAnchor.r;
+
+          if (window.innerWidth > 900 && panelRect.x > 0) {
+            var tx2 = panelRect.x;
+            var ty2 = Math.max(panelRect.y + 22, Math.min(panelRect.y + panelRect.h - 22, activeAnchor.y));
+            var vx = tx2 - activeAnchor.x;
+            var vy = ty2 - activeAnchor.y;
+            var vl = Math.sqrt(vx * vx + vy * vy) || 1;
+            var sx2 = activeAnchor.x + (vx / vl) * activeAnchor.r;
+            var sy2 = activeAnchor.y + (vy / vl) * activeAnchor.r;
+            ctx.beginPath();
+            ctx.moveTo(sx2, sy2);
+            ctx.lineTo(tx2, ty2);
+            ctx.strokeStyle = "rgba(176,240,255,0.74)";
+            ctx.lineWidth = 1.7;
+            ctx.stroke();
+          }
         }
       }
+
       function render() {
         renderFrame(performance.now());
         rafId = requestAnimationFrame(render);
       }
-      function nearestBody(x, y) {
+
+      function nearest(x, y) {
         var best = null;
         var bestD = Infinity;
         for (var i = 0; i < bodies.length; i++) {
@@ -849,46 +1001,43 @@
           if (typeof b._sx !== "number") continue;
           var dx = b._sx - x;
           var dy = b._sy - y;
-          var d = dx * dx + dy * dy;
-          if (d < bestD) { bestD = d; best = b; }
+          var dist = dx * dx + dy * dy;
+          if (dist < bestD) { bestD = dist; best = b; }
         }
-        if (best && Math.sqrt(bestD) < best._sr * 2.4) return best;
+        if (best && Math.sqrt(bestD) < best._sr * 2.3) return best;
         return null;
       }
-      for (var i = 0; i < products.length; i++) {
-        (function (idx) {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "focus-ring";
-          btn.textContent = products[idx].display;
-          btn.addEventListener("click", function () { setActive(idx); });
-          nav.appendChild(btn);
-        })(i);
-      }
-      wrap.addEventListener("pointermove", function (event) {
-        pointer.x = event.clientX / window.innerWidth;
-        pointer.y = event.clientY / window.innerHeight;
+
+      featured.forEach(function (item, idx) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = item.name;
+        btn.className = "focus-ring";
+        btn.addEventListener("click", function () { setActive(idx); });
+        nav.appendChild(btn);
       });
-      window.addEventListener("deviceorientation", function (event) {
-        if (event.gamma == null || event.beta == null) return;
-        pointer.x = Math.max(0, Math.min(1, 0.5 + event.gamma / 70));
-        pointer.y = Math.max(0, Math.min(1, 0.5 + event.beta / 150));
+
+      document.getElementById("sceneWrap").addEventListener("pointermove", function (e) {
+        pointer.x = e.clientX / window.innerWidth;
+        pointer.y = e.clientY / window.innerHeight;
       });
-      wrap.addEventListener("click", function (event) {
-        var hit = nearestBody(event.clientX, event.clientY);
+
+      document.getElementById("sceneWrap").addEventListener("click", function (e) {
+        var hit = nearest(e.clientX, e.clientY);
         if (hit) setActive(hit.i);
       });
-      window.addEventListener("wheel", function (event) {
-        target.z += event.deltaY * 0.0016;
+
+      window.addEventListener("wheel", function (e) {
+        target.z += e.deltaY * 0.0016;
         target.z = Math.max(0, Math.min(bodies[bodies.length - 1].z, target.z));
       }, { passive: true });
-      window.addEventListener("keydown", function (event) {
-        if (event.key >= "1" && event.key <= "7") {
-          setActive(Number(event.key) - 1);
-        }
-        if (event.key === "ArrowRight") setActive((active + 1) % products.length);
-        if (event.key === "ArrowLeft") setActive((active - 1 + products.length) % products.length);
+
+      window.addEventListener("keydown", function (e) {
+        if (e.key >= "1" && e.key <= "9") setActive(Number(e.key) - 1);
+        if (e.key === "ArrowRight") setActive((active + 1) % featured.length);
+        if (e.key === "ArrowLeft") setActive((active - 1 + featured.length) % featured.length);
       });
+
       window.addEventListener("resize", resize);
       document.addEventListener("visibilitychange", function () {
         if (reduce) return;
@@ -899,8 +1048,8 @@
           render();
         }
       });
-      createStars();
-      createBodies();
+
+      makeStars();
       resize();
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(function () {
@@ -914,7 +1063,7 @@
       } else {
         render();
       }
-      document.getElementById("year").textContent = new Date().getFullYear();
+      document.getElementById("year").textContent = "2026";
     })();
   </script>
 </body>
