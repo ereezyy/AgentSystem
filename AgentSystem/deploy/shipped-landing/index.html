@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Eddy Woods LLC | Shipped Deck</title>
-  <meta name="description" content="A modern shipped-products deck for Eddy Woods LLC with verified live links and lightweight motion.">
+  <meta name="description" content="A modern shipped-products deck for Eddy Woods LLC with lightweight motion and accessible navigation.">
   <meta name="theme-color" content="#070a13">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Eddy Woods LLC | Shipped Deck">
   <meta property="og:description" content="A swipeable, accessible showcase of shipped products and tools.">
   <meta property="og:url" content="https://dead-air.show/">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card" content="summary">
   <script>document.documentElement.classList.add("js");</script>
   <style>
     :root {
@@ -186,15 +186,6 @@
       text-underline-offset: 0.2em;
       text-decoration-thickness: 0.12em;
     }
-    .meta {
-      margin-top: 1rem;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(8, 12, 24, 0.72);
-      padding: 0.9rem 1rem;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
     footer {
       margin-top: 0.9rem;
       text-align: center;
@@ -350,7 +341,13 @@
         </div>
       </div>
     </header>
-    <footer><span id="year"></span> Eddy Woods LLC</footer>
+    <footer>
+      <span id="year"></span> Eddy Woods LLC
+      <span aria-hidden="true"> · </span>
+      <a href="/legal/privacy">Privacy</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/legal/terms">Terms</a>
+    </footer>
   </main>
   <script>
     (function () {
