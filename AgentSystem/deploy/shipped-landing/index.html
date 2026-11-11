@@ -334,6 +334,7 @@
       var palette = ["#66d9ff", "#8be6ff", "#7fd7f0", "#9fe7ff", "#4dc7ec", "#6bd5ff", "#79ddf2"];
       var clearZone = { x: 0, y: 0, w: 0, h: 0 };
       var panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
+      var railZone = { x: -9999, y: -9999, w: 0, h: 0 };
       function createStars() {
         stars = [];
         for (var i = 0; i < 430; i++) {
@@ -417,6 +418,18 @@
         } else {
           panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
         }
+        var navEl = document.querySelector(".product-nav");
+        if (navEl) {
+          var nRect = navEl.getBoundingClientRect();
+          railZone = {
+            x: nRect.left - 10,
+            y: nRect.top - 8,
+            w: nRect.width + 20,
+            h: nRect.height + 18
+          };
+        } else {
+          railZone = { x: -9999, y: -9999, w: 0, h: 0 };
+        }
       }
       function circleIntersectsRect(x, y, r, rect) {
         if (!rect || rect.w <= 0 || rect.h <= 0) return false;
@@ -430,6 +443,7 @@
         if (!circleIntersectsRect(x, y, r, rect)) return { x: x, y: y };
         if (direction === "down") return { x: x, y: rect.y + rect.h + r + 10 };
         if (direction === "left") return { x: rect.x - r - 14, y: y };
+        if (direction === "up") return { x: x, y: rect.y - r - 10 };
         return { x: x, y: y };
       }
       function drawBody(screenX, screenY, radius, idx, glow) {
@@ -630,24 +644,38 @@
         }
         for (var i = 0; i < bodies.length; i++) {
           var body = bodies[i];
-          var z = body.z - camera.z + 2.55;
+          var z = body.z - camera.z + 3.15;
           if (z <= 0.2) continue;
+          if (i !== active && z < 1.18) continue;
           var depthScale = 1 / z;
           var bx = sw * 0.5 + (body.x + pan.x * 0.5) * sw * 0.54 * depthScale * 3.2;
           var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
-          var focusBoost = i === active ? 1.56 : 1;
-          var r = Math.max(10, sw * 0.128 * depthScale * body.size * focusBoost);
+          var focusBoost = i === active ? 1.35 : 0.94;
+          var r = Math.max(9, sw * 0.118 * depthScale * body.size * focusBoost);
+          if (i !== active) r = Math.min(r, 74);
+          if (i === active) r = Math.min(r, 178);
           var keptHeadline = keepOutOfRect(bx, by, r, clearZone, "down");
           bx = keptHeadline.x;
           by = keptHeadline.y;
           if (i === active && window.innerWidth > 900) {
-            var targetX = sw * 0.34;
-            var targetY = sh * 0.62;
+            var targetX = sw * 0.44;
+            var targetY = sh * 0.6;
+            if (panelZone.x < sw * 0.9) {
+              targetX = Math.min(targetX, panelZone.x - r - 34);
+            }
             bx += (targetX - bx) * 0.24;
             by += (targetY - by) * 0.18;
             var keptPanel = keepOutOfRect(bx, by, r, panelZone, "left");
             bx = keptPanel.x;
             by = keptPanel.y;
+            var keptRail = keepOutOfRect(bx, by, r, railZone, "up");
+            bx = keptRail.x;
+            by = keptRail.y;
+          }
+          if (i !== active) {
+            var nonActiveRail = keepOutOfRect(bx, by, r, railZone, "up");
+            bx = nonActiveRail.x;
+            by = nonActiveRail.y;
           }
           bx = Math.max(r + 14, Math.min(sw - r - 14, bx));
           by = Math.max(r + 14, Math.min(sh - r - 14, by));
