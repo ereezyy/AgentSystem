@@ -3,389 +3,526 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Eddy Woods LLC | Product Constellation</title>
-  <meta name="description" content="A living constellation of everything Eddy Woods has shipped, with direct access to every product.">
-  <meta name="theme-color" content="#060b12">
+  <title>Eddy Woods LLC | Immersive Product Constellation</title>
+  <meta name="description" content="Everything Eddy Woods has shipped, in one immersive destination with direct product access.">
+  <meta name="theme-color" content="#060d14">
   <style>
+    @font-face { font-family: "Syne"; src: url("../fonts/syne-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Syne"; src: url("../fonts/syne-800.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Manrope"; src: url("../fonts/manrope-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Manrope"; src: url("../fonts/manrope-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
     :root {
-      --bg: #060b12;
-      --bg-soft: #0e1a29;
-      --ink: #ecf7ff;
-      --muted: #9fb8c8;
-      --line: rgba(124, 216, 246, 0.34);
+      --bg: #050b12;
+      --ink: #ebf8ff;
+      --muted: #97b7c6;
+      --line: rgba(130, 220, 248, 0.34);
       --cyan: #62d4ff;
-      --cyan-soft: #9fe9ff;
-      --focus: #b8f2ff;
-      --scene-size: min(88vw, 760px);
-      --orbit-rotation: 0deg;
-      --spot-x: 50%;
-      --spot-y: 44%;
+      --focus: #baf2ff;
+      --grain: 0.1;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; }
-    body {
-      min-height: 100vh;
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 18% 22%, rgba(98, 212, 255, 0.15), transparent 34%),
-        radial-gradient(circle at 88% 78%, rgba(64, 184, 222, 0.15), transparent 42%),
-        var(--bg);
-      line-height: 1.45;
-    }
-    a { color: inherit; }
+    body { background: var(--bg); color: var(--ink); font-family: "Manrope", "Segoe UI", sans-serif; min-height: 100vh; }
     .skip-link {
       position: absolute;
       top: -3rem;
-      left: 0.75rem;
+      left: 0.7rem;
+      z-index: 40;
       background: #fff;
       color: #000;
-      padding: 0.55rem 0.7rem;
       border-radius: 0.5rem;
-      z-index: 20;
+      padding: 0.54rem 0.7rem;
     }
     .skip-link:focus { top: 0.7rem; }
-    main {
-      width: min(1180px, calc(100% - 1.4rem));
-      margin: 0 auto;
-      padding: 1.1rem 0 2.2rem;
-    }
-    .hero {
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      background: linear-gradient(165deg, rgba(10, 19, 31, 0.9), rgba(6, 13, 22, 0.92));
-      padding: 1.1rem;
-      box-shadow: 0 24px 60px rgba(4, 10, 18, 0.55);
-      overflow: hidden;
+    .scene-wrap {
       position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 20%, rgba(94, 212, 246, 0.15), transparent 42%),
+        radial-gradient(circle at 84% 74%, rgba(62, 181, 213, 0.18), transparent 40%);
     }
-    .hero::before {
-      content: "";
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .grain {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(circle at var(--spot-x) var(--spot-y), rgba(113, 220, 255, 0.2), transparent 34%),
-        radial-gradient(circle at 50% 50%, rgba(98, 212, 255, 0.06), transparent 66%);
+      background-image: radial-gradient(rgba(217, 246, 255, 0.11) 0.7px, transparent 0.7px);
+      background-size: 3px 3px;
+      mix-blend-mode: soft-light;
+      opacity: var(--grain);
     }
-    .kicker {
+    .headline {
+      position: absolute;
+      top: clamp(1rem, 3vw, 2rem);
+      left: clamp(1rem, 4vw, 3.2rem);
+      right: clamp(1rem, 4vw, 3.2rem);
+      z-index: 12;
+      max-width: min(860px, 92vw);
+    }
+    .headline p {
       margin: 0;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
-      font-size: 0.74rem;
-      color: #c5e9f7;
+      font-size: 0.72rem;
+      color: #c6eaf7;
       font-weight: 600;
     }
-    h1 {
-      margin: 0.55rem 0 0;
-      font-size: clamp(1.7rem, 5vw, 3.1rem);
-      line-height: 1.08;
+    .headline h1 {
+      margin: 0.52rem 0 0;
+      font-family: "Syne", "Manrope", sans-serif;
+      font-size: clamp(2.05rem, 7vw, 5.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
       text-wrap: balance;
+      text-shadow: 0 10px 44px rgba(9, 18, 31, 0.82);
     }
-    .lede {
-      margin: 0.8rem 0 1rem;
-      max-width: 62ch;
-      color: var(--muted);
-      font-size: clamp(0.98rem, 2.5vw, 1.06rem);
+    .headline .sub {
+      margin-top: 0.74rem;
+      max-width: 55ch;
+      color: #a6c7d5;
+      font-size: clamp(0.98rem, 2.2vw, 1.18rem);
     }
-    .scene {
-      display: grid;
-      gap: 1rem;
-      align-items: center;
-    }
-    .constellation-shell {
-      width: var(--scene-size);
-      height: var(--scene-size);
-      border-radius: 50%;
-      margin: 0 auto;
-      position: relative;
-      border: 1px solid rgba(110, 214, 247, 0.34);
-      background:
-        radial-gradient(circle at 50% 50%, rgba(120, 224, 255, 0.09), transparent 60%),
-        linear-gradient(180deg, rgba(11, 21, 34, 0.94), rgba(7, 15, 26, 0.94));
-      box-shadow: inset 0 0 30px rgba(98, 212, 255, 0.08), 0 0 46px rgba(7, 18, 31, 0.9);
-      touch-action: pan-y;
-    }
-    .orbit {
+    .product-nav {
       position: absolute;
-      inset: 12%;
-      border: 1px dashed rgba(116, 212, 241, 0.22);
-      border-radius: 50%;
-      transform: rotate(var(--orbit-rotation));
-      will-change: transform;
+      left: clamp(1rem, 4vw, 3rem);
+      bottom: clamp(1rem, 3vw, 2.2rem);
+      z-index: 14;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      max-width: min(850px, 95vw);
     }
-    .orbit::before,
-    .orbit::after {
-      content: "";
-      position: absolute;
-      inset: 15%;
-      border-radius: 50%;
-      border: 1px solid rgba(114, 206, 236, 0.16);
-    }
-    .orbit::after { inset: 30%; }
-    .core {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: min(34vw, 240px);
-      aspect-ratio: 1/1;
-      border-radius: 24px;
-      border: 1px solid rgba(130, 225, 251, 0.42);
-      background: linear-gradient(150deg, rgba(26, 48, 72, 0.95), rgba(12, 23, 36, 0.94));
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 0.8rem;
-      z-index: 2;
-    }
-    .core b { display: block; font-size: clamp(1.1rem, 3vw, 1.5rem); }
-    .core span { color: var(--muted); font-size: 0.9rem; }
-    .nodes {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      position: absolute;
-      inset: 0;
-    }
-    .nodes li {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform:
-        rotate(calc(var(--i) * 51.428deg))
-        translateY(calc(var(--scene-size) * -0.38))
-        rotate(calc(var(--i) * -51.428deg));
-      transform-origin: center;
-    }
-    .node-link {
-      width: clamp(106px, 18vw, 148px);
+    .product-nav button {
+      border: 1px solid rgba(132, 221, 250, 0.35);
+      background: rgba(9, 21, 34, 0.82);
+      color: #d9f5ff;
       min-height: 44px;
-      padding: 0.55rem 0.55rem 0.62rem;
-      border-radius: 16px;
-      border: 1px solid rgba(131, 224, 251, 0.38);
-      text-decoration: none;
-      background: linear-gradient(180deg, rgba(14, 26, 40, 0.95), rgba(8, 18, 30, 0.96));
-      display: grid;
-      justify-items: center;
-      align-content: center;
-      gap: 0.3rem;
-      box-shadow: 0 10px 24px rgba(3, 8, 16, 0.56);
-      transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
-    }
-    .node-link span { font-size: 0.78rem; text-align: center; color: #d8f4ff; line-height: 1.2; }
-    .node-link:hover,
-    .node-link:focus-visible {
-      transform: translateY(-3px) scale(1.02);
-      border-color: rgba(170, 236, 255, 0.92);
-      background: linear-gradient(180deg, rgba(20, 39, 57, 0.98), rgba(10, 22, 35, 0.98));
-      outline: none;
-    }
-    .node-icon { width: 30px; height: 30px; display: block; }
-    .controls {
-      display: grid;
-      gap: 0.6rem;
-      justify-items: center;
-    }
-    .controls label {
-      font-size: 0.87rem;
-      color: #c2e8f6;
-    }
-    .dial {
-      width: min(620px, 94%);
-      appearance: none;
-      height: 44px;
       border-radius: 999px;
-      border: 1px solid rgba(120, 214, 242, 0.4);
-      background: rgba(8, 18, 30, 0.9);
-      padding: 0 0.65rem;
+      padding: 0.46rem 0.84rem;
+      font: 600 0.84rem/1 "Manrope", sans-serif;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
     }
-    .dial::-webkit-slider-thumb {
-      appearance: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 1px solid #a9ecff;
-      background: radial-gradient(circle at 30% 30%, #dff7ff, #62d4ff);
-      box-shadow: 0 0 0 6px rgba(98, 212, 255, 0.24);
+    .product-nav button[aria-current="true"] {
+      border-color: rgba(194, 244, 255, 0.95);
+      background: linear-gradient(180deg, rgba(34, 67, 94, 0.96), rgba(14, 31, 48, 0.96));
+      transform: translateY(-2px);
     }
-    .dial::-moz-range-thumb {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 1px solid #a9ecff;
-      background: radial-gradient(circle at 30% 30%, #dff7ff, #62d4ff);
-      box-shadow: 0 0 0 6px rgba(98, 212, 255, 0.24);
+    .product-nav button:hover,
+    .product-nav button:focus-visible {
+      outline: none;
+      border-color: rgba(187, 241, 255, 0.92);
+      transform: translateY(-2px);
     }
-    .products-fallback {
-      margin: 1rem 0 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 0.6rem;
+    .detail-panel {
+      position: absolute;
+      right: clamp(1rem, 4vw, 3rem);
+      top: 50%;
+      transform: translateY(-50%);
+      width: min(430px, calc(100vw - 2rem));
+      border: 1px solid rgba(142, 227, 252, 0.3);
+      border-radius: 22px;
+      background: linear-gradient(170deg, rgba(8, 17, 29, 0.9), rgba(6, 12, 22, 0.92));
+      box-shadow: 0 26px 70px rgba(3, 9, 17, 0.67), inset 0 0 0 1px rgba(130, 221, 249, 0.12);
+      padding: 1rem 1rem 1.05rem;
+      z-index: 13;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 240ms ease, transform 320ms cubic-bezier(.2,.65,.2,1);
     }
-    .products-fallback a {
+    .detail-panel[data-open="true"] {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(-50%) translateX(0);
+    }
+    .detail-panel h2 {
+      margin: 0;
+      font-family: "Syne", "Manrope", sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: clamp(1.4rem, 4vw, 2.5rem);
+    }
+    .detail-panel .lisa-tag,
+    .detail-panel .lisa-line {
+      margin: 0.58rem 0 0;
+      color: #cbeef9;
+    }
+    .detail-panel .cta {
+      margin-top: 0.9rem;
       min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(166, 233, 253, 0.5);
+      color: #def7ff;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      border: 1px solid rgba(133, 222, 249, 0.35);
+      justify-content: center;
+      padding: 0.65rem 0.9rem;
+      font-weight: 600;
+      background: linear-gradient(180deg, rgba(16, 36, 53, 0.95), rgba(11, 25, 38, 0.95));
+    }
+    .detail-panel .cta:hover,
+    .detail-panel .cta:focus-visible {
+      outline: none;
+      border-color: rgba(199, 245, 255, 0.98);
+      transform: translateY(-2px);
+    }
+    .hint {
+      margin-top: 0.62rem;
+      color: #92b5c4;
+      font-size: 0.84rem;
+    }
+    .fallback {
+      padding: 1rem;
+      background: #071018;
+      border-top: 1px solid rgba(131, 220, 248, 0.28);
+    }
+    .fallback ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.55rem;
+    }
+    .fallback a {
+      min-height: 44px;
+      border: 1px solid rgba(129, 217, 245, 0.36);
       border-radius: 12px;
-      padding: 0.62rem 0.76rem;
+      display: inline-flex;
+      align-items: center;
+      padding: 0.63rem 0.77rem;
       text-decoration: none;
-      color: #d9f3ff;
-      background: rgba(11, 23, 35, 0.72);
+      color: #d7f4ff;
+      background: rgba(11, 23, 35, 0.74);
     }
     footer {
-      margin-top: 0.95rem;
+      margin: 1rem;
       text-align: center;
+      color: #a6c8d5;
       font-size: 0.88rem;
-      color: #acd3e1;
     }
     footer a, footer a:visited {
       color: #88e4ff;
       min-height: 44px;
-      padding: 0 0.54rem;
       display: inline-flex;
       align-items: center;
+      padding: 0 0.54rem;
       text-decoration: underline;
       text-underline-offset: 0.18em;
       border-radius: 8px;
     }
-    footer a:hover,
-    footer a:focus-visible {
-      color: #c6f5ff;
-      background: rgba(89, 205, 238, 0.14);
+    footer a:hover, footer a:focus-visible {
+      color: #c8f5ff;
+      background: rgba(83, 196, 227, 0.16);
       outline: none;
     }
-    .focus-ring:focus-visible {
-      outline: 3px solid var(--focus);
-      outline-offset: 2px;
-    }
-    @media (max-width: 840px) {
-      .hero { padding: 1rem 0.8rem; }
-      .node-link { width: clamp(94px, 23vw, 118px); }
-      .node-link span { font-size: 0.73rem; }
+    .focus-ring:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+    @media (max-width: 900px) {
+      .detail-panel {
+        top: auto;
+        right: 0.7rem;
+        left: 0.7rem;
+        bottom: 7.7rem;
+        width: auto;
+        transform: none;
+      }
+      .detail-panel[data-open="true"] { transform: none; }
+      .product-nav { right: 0.7rem; left: 0.7rem; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .orbit, .node-link { transition: none; }
+      .detail-panel, .product-nav button { transition: none; }
+      .scene-wrap { scroll-behavior: auto; }
     }
   </style>
 </head>
 <body>
-  <a class="skip-link focus-ring" href="#products">Skip to products</a>
-  <main>
-    <section class="hero" aria-labelledby="title">
-      <p class="kicker">Eddy Woods LLC</p>
-      <h1 id="title">Everything shipped, mapped as a living constellation.</h1>
-      <p class="lede">Drag the orbit, swipe across the dial, or tap a node to jump straight to each product.</p>
-      <div class="scene">
-        <div class="constellation-shell" id="scene">
-          <div class="orbit" id="orbit">
-            <ul class="nodes" id="products" aria-label="Shipped products in order">
-              <li style="--i:0"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="20" fill="none" stroke="#62d4ff" stroke-width="4"/><circle cx="40" cy="24" r="5" fill="#9cecff"/></svg><span>DistroBuzz<br>Open WaveForge</span></a></li>
-              <li style="--i:1"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><rect x="13" y="13" width="38" height="38" rx="12" fill="none" stroke="#62d4ff" stroke-width="4"/><path d="M20 39L29 22L35 35L44 20" fill="none" stroke="#c9f4ff" stroke-width="3"/></svg><span>Maestro<br>Open WaveForge</span></a></li>
-              <li style="--i:2"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M10 36C18 18 22 54 30 36C38 18 42 54 50 36" fill="none" stroke="#62d4ff" stroke-width="4" stroke-linecap="round"/><rect x="12" y="42" width="40" height="6" rx="3" fill="#d6f6ff"/></svg><span>WaveForge<br>Open WaveForge</span></a></li>
-              <li style="--i:3"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="8" fill="none" stroke="#62d4ff" stroke-width="4"/><path d="M17 49C20 38 25 35 32 35C39 35 44 38 47 49" fill="none" stroke="#dff9ff" stroke-width="4" stroke-linecap="round"/></svg><span>Lisa<br>Your personal AI assistant<br>A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</span></a></li>
-              <li style="--i:4"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10L47 35H17L32 10Z" fill="none" stroke="#62d4ff" stroke-width="4"/><path d="M32 24V50" stroke="#dcf8ff" stroke-width="4" stroke-linecap="round"/></svg><span>Social Forest<br>Open WaveForge</span></a></li>
-              <li style="--i:5"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="27" cy="27" r="12" fill="none" stroke="#62d4ff" stroke-width="4"/><path d="M36 36L50 50" stroke="#d9f7ff" stroke-width="4" stroke-linecap="round"/></svg><span>Small agentlooper.org tools<br>Open WaveForge</span></a></li>
-              <li style="--i:6"><a class="node-link focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer"><svg class="node-icon" viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="12" width="40" height="40" rx="11" fill="none" stroke="#62d4ff" stroke-width="4"/><path d="M22 32H42M32 22V42" stroke="#def8ff" stroke-width="4" stroke-linecap="round"/></svg><span>HVACFix<br>Open WaveForge</span></a></li>
-            </ul>
-          </div>
-          <div class="core">
-            <b>Eddy Woods</b>
-            <span>Shipped Product Atlas</span>
-          </div>
-        </div>
-        <div class="controls">
-          <label for="dial">Orbit dial</label>
-          <input class="dial focus-ring" id="dial" type="range" min="0" max="360" value="0">
-        </div>
-      </div>
-      <noscript>
-        <ul class="products-fallback">
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">DistroBuzz — Open WaveForge</a></li>
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Maestro — Open WaveForge</a></li>
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">WaveForge — Open WaveForge</a></li>
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Lisa<br>Your personal AI assistant<br>A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</a></li>
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Social Forest — Open WaveForge</a></li>
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Small agentlooper.org tools — Open WaveForge</a></li>
-          <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">HVACFix — Open WaveForge</a></li>
-        </ul>
-      </noscript>
-    </section>
-    <footer>
-      <span id="year"></span> Eddy Woods LLC
-      <span aria-hidden="true"> · </span>
-      <a href="/legal/privacy">Privacy</a>
-      <span aria-hidden="true"> · </span>
-      <a href="/legal/terms">Terms</a>
-    </footer>
-  </main>
+  <a class="skip-link focus-ring" href="#fallback-products">Skip to products</a>
+  <div class="scene-wrap" id="sceneWrap">
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <header class="headline">
+      <p>Eddy Woods LLC</p>
+      <h1>Everything Eddy Woods has shipped, in one place.</h1>
+      <p class="sub">Tap any body in the field or use the product rail to focus and explore immediately.</p>
+    </header>
+    <nav class="product-nav" id="nav" aria-label="Shipped products in order"></nav>
+    <aside class="detail-panel" id="panel" data-open="true">
+      <h2 id="panelTitle">DistroBuzz</h2>
+      <p id="lisaTag" class="lisa-tag" hidden><strong>Your personal AI assistant</strong></p>
+      <p id="lisaLine" class="lisa-line" hidden>A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</p>
+      <a id="panelCta" class="cta focus-ring" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore DistroBuzz</a>
+      <p class="hint">Drag to orbit. Scroll to drift. Press 1-7 to jump.</p>
+    </aside>
+  </div>
+  <section id="fallback-products" class="fallback">
+    <ul>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore DistroBuzz</a></li>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore Maestro</a></li>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore WaveForge</a></li>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Lisa<br>Your personal AI assistant<br>A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</a></li>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore Social Forest</a></li>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore the small agentlooper.org tools</a></li>
+      <li><a href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore HVACFix</a></li>
+    </ul>
+  </section>
+  <footer>
+    <span id="year"></span> Eddy Woods LLC
+    <span aria-hidden="true"> · </span>
+    <a href="/legal/privacy">Privacy</a>
+    <span aria-hidden="true"> · </span>
+    <a href="/legal/terms">Terms</a>
+  </footer>
   <script>
     (function () {
-      var root = document.documentElement;
-      var orbit = document.getElementById("orbit");
-      var dial = document.getElementById("dial");
-      var scene = document.getElementById("scene");
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var angle = Number(new URLSearchParams(window.location.search).get("step")) || 0;
-      angle = ((angle % 360) + 360) % 360;
-      dial.value = angle;
-      function paint() {
-        root.style.setProperty("--orbit-rotation", angle + "deg");
-      }
-      function setFromClientX(clientX) {
-        var rect = scene.getBoundingClientRect();
-        var cx = rect.left + rect.width / 2;
-        var cy = rect.top + rect.height / 2;
-        var radians = Math.atan2(clientX - cx, cy - (rect.top + rect.height / 2));
-        angle = (radians * (180 / Math.PI) + 360) % 360;
-        dial.value = angle;
-        paint();
-      }
-      dial.addEventListener("input", function () {
-        angle = Number(dial.value);
-        paint();
-      });
-      scene.addEventListener("pointermove", function (event) {
-        var rect = scene.getBoundingClientRect();
-        var x = ((event.clientX - rect.left) / rect.width) * 100;
-        var y = ((event.clientY - rect.top) / rect.height) * 100;
-        root.style.setProperty("--spot-x", Math.max(0, Math.min(100, x)) + "%");
-        root.style.setProperty("--spot-y", Math.max(0, Math.min(100, y)) + "%");
-      });
-      var dragging = false;
-      scene.addEventListener("pointerdown", function (event) {
-        dragging = true;
-        scene.setPointerCapture(event.pointerId);
-        setFromClientX(event.clientX);
-      });
-      scene.addEventListener("pointermove", function (event) {
-        if (dragging) setFromClientX(event.clientX);
-      });
-      scene.addEventListener("pointerup", function () { dragging = false; });
-      scene.addEventListener("wheel", function (event) {
-        event.preventDefault();
-        angle += event.deltaY * 0.1;
-        angle = ((angle % 360) + 360) % 360;
-        dial.value = angle;
-        paint();
-      }, { passive: false });
-      paint();
-      if (!reduce) {
-        var last = performance.now();
-        function tick(now) {
-          var dt = now - last;
-          last = now;
-          angle = (angle + dt * 0.0026) % 360;
-          dial.value = angle;
-          paint();
-          requestAnimationFrame(tick);
+      var names = [
+        "DistroBuzz",
+        "Maestro",
+        "WaveForge",
+        "Lisa",
+        "Social Forest",
+        "the small agentlooper.org tools",
+        "HVACFix"
+      ];
+      var canvas = document.getElementById("scene");
+      var ctx = canvas.getContext("2d", { alpha: true });
+      var wrap = document.getElementById("sceneWrap");
+      var nav = document.getElementById("nav");
+      var panel = document.getElementById("panel");
+      var panelTitle = document.getElementById("panelTitle");
+      var panelCta = document.getElementById("panelCta");
+      var lisaTag = document.getElementById("lisaTag");
+      var lisaLine = document.getElementById("lisaLine");
+      var pointer = { x: 0.5, y: 0.5 };
+      var pan = { x: 0, y: 0 };
+      var camera = { z: 0 };
+      var target = { z: 0 };
+      var stars = [];
+      var bodies = [];
+      var active = 0;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var palette = ["#66d9ff", "#8be6ff", "#7fd7f0", "#9fe7ff", "#4dc7ec", "#6bd5ff", "#79ddf2"];
+      function createStars() {
+        stars = [];
+        for (var i = 0; i < 240; i++) {
+          stars.push({
+            x: Math.random() * 2 - 1,
+            y: Math.random() * 2 - 1,
+            z: Math.random() * 1.2 + 0.15,
+            r: Math.random() * 1.8 + 0.35
+          });
         }
-        requestAnimationFrame(tick);
       }
+      function createBodies() {
+        bodies = [];
+        for (var i = 0; i < names.length; i++) {
+          var angle = (i / names.length) * Math.PI * 2;
+          bodies.push({
+            name: names[i],
+            i: i,
+            x: Math.cos(angle) * (i < 4 ? 0.6 : 0.92),
+            y: Math.sin(angle) * (i < 4 ? 0.5 : 0.7) * 0.64,
+            z: i * 1.38 + (i % 2 ? 0.44 : 0),
+            size: 1 + (i === 2 ? 0.14 : 0)
+          });
+        }
+      }
+      function setActive(index) {
+        active = Math.max(0, Math.min(names.length - 1, index));
+        target.z = bodies[active].z;
+        panelTitle.textContent = names[active];
+        panelCta.textContent = "Explore " + names[active];
+        if (names[active] === "Lisa") {
+          lisaTag.hidden = false;
+          lisaLine.hidden = false;
+        } else {
+          lisaTag.hidden = true;
+          lisaLine.hidden = true;
+        }
+        var buttons = nav.querySelectorAll("button");
+        for (var b = 0; b < buttons.length; b++) {
+          buttons[b].setAttribute("aria-current", b === active ? "true" : "false");
+        }
+      }
+      function resize() {
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
+      }
+      function drawBody(screenX, screenY, radius, idx, glow) {
+        var grad = ctx.createRadialGradient(screenX - radius * 0.2, screenY - radius * 0.2, radius * 0.2, screenX, screenY, radius * 1.3);
+        grad.addColorStop(0, "rgba(220,248,255,0.93)");
+        grad.addColorStop(0.18, palette[idx % palette.length]);
+        grad.addColorStop(1, "rgba(24,72,104,0.16)");
+        ctx.beginPath();
+        ctx.fillStyle = grad;
+        ctx.arc(screenX, screenY, radius * 1.05, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(188,242,255," + (0.62 + glow * 0.3).toFixed(2) + ")";
+        ctx.lineWidth = Math.max(1.2, radius * 0.08);
+        ctx.beginPath();
+        if (idx === 0) {
+          ctx.ellipse(screenX, screenY, radius * 0.88, radius * 0.64, Math.PI * 0.2, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(screenX + radius * 0.32, screenY - radius * 0.2, radius * 0.18, 0, Math.PI * 2);
+        } else if (idx === 1) {
+          var side = radius * 1.28;
+          ctx.roundRect(screenX - side / 2, screenY - side / 2, side, side, radius * 0.28);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(screenX - radius * 0.42, screenY + radius * 0.24);
+          ctx.lineTo(screenX - radius * 0.16, screenY - radius * 0.36);
+          ctx.lineTo(screenX + radius * 0.06, screenY + radius * 0.07);
+          ctx.lineTo(screenX + radius * 0.33, screenY - radius * 0.44);
+        } else if (idx === 2) {
+          ctx.moveTo(screenX - radius * 0.82, screenY + radius * 0.16);
+          ctx.bezierCurveTo(screenX - radius * 0.42, screenY - radius * 0.68, screenX - radius * 0.1, screenY + radius * 0.72, screenX + radius * 0.2, screenY + radius * 0.1);
+          ctx.bezierCurveTo(screenX + radius * 0.48, screenY - radius * 0.64, screenX + radius * 0.66, screenY + radius * 0.48, screenX + radius * 0.82, screenY + radius * 0.08);
+        } else if (idx === 3) {
+          ctx.arc(screenX, screenY - radius * 0.36, radius * 0.3, 0, Math.PI * 2);
+          ctx.moveTo(screenX - radius * 0.52, screenY + radius * 0.58);
+          ctx.quadraticCurveTo(screenX, screenY - radius * 0.08, screenX + radius * 0.52, screenY + radius * 0.58);
+        } else if (idx === 4) {
+          ctx.moveTo(screenX, screenY - radius * 0.78);
+          ctx.lineTo(screenX + radius * 0.62, screenY + radius * 0.42);
+          ctx.lineTo(screenX - radius * 0.62, screenY + radius * 0.42);
+          ctx.closePath();
+          ctx.moveTo(screenX, screenY - radius * 0.24);
+          ctx.lineTo(screenX, screenY + radius * 0.72);
+        } else if (idx === 5) {
+          ctx.arc(screenX - radius * 0.18, screenY - radius * 0.1, radius * 0.46, 0, Math.PI * 2);
+          ctx.moveTo(screenX + radius * 0.14, screenY + radius * 0.22);
+          ctx.lineTo(screenX + radius * 0.62, screenY + radius * 0.7);
+        } else {
+          var s = radius * 1.16;
+          ctx.roundRect(screenX - s / 2, screenY - s / 2, s, s, radius * 0.24);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(screenX - radius * 0.32, screenY);
+          ctx.lineTo(screenX + radius * 0.32, screenY);
+          ctx.moveTo(screenX, screenY - radius * 0.32);
+          ctx.lineTo(screenX, screenY + radius * 0.32);
+        }
+        ctx.stroke();
+      }
+      function render() {
+        var w = canvas.width;
+        var h = canvas.height;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        ctx.scale(dpr, dpr);
+        var sw = w / dpr;
+        var sh = h / dpr;
+        ctx.fillStyle = "#050b12";
+        ctx.fillRect(0, 0, sw, sh);
+        var sky = ctx.createRadialGradient(sw * 0.5, sh * 0.54, sh * 0.1, sw * 0.5, sh * 0.56, sh * 0.84);
+        sky.addColorStop(0, "rgba(67,182,218,0.17)");
+        sky.addColorStop(1, "rgba(6,10,18,0)");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, sw, sh);
+        camera.z += (target.z - camera.z) * (reduce ? 0.25 : 0.09);
+        pan.x += ((pointer.x - 0.5) * 0.4 - pan.x) * 0.08;
+        pan.y += ((pointer.y - 0.5) * 0.32 - pan.y) * 0.08;
+        for (var s = 0; s < stars.length; s++) {
+          var star = stars[s];
+          var depth = 1 / (star.z + camera.z * 0.03);
+          var x = (star.x + pan.x * depth * 0.8) * sw * 0.44 + sw * 0.5;
+          var y = (star.y + pan.y * depth * 0.8) * sh * 0.43 + sh * 0.53;
+          if (x < -4 || y < -4 || x > sw + 4 || y > sh + 4) continue;
+          ctx.fillStyle = "rgba(200,241,255," + (0.22 + depth * 0.32).toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.arc(x, y, star.r * depth * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        for (var i = 0; i < bodies.length; i++) {
+          var body = bodies[i];
+          var z = body.z - camera.z + 4;
+          if (z <= 0.2) continue;
+          var depthScale = 1 / z;
+          var bx = sw * 0.5 + (body.x + pan.x * 0.5) * sw * 0.54 * depthScale * 3.2;
+          var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
+          var r = Math.max(9, sw * 0.12 * depthScale * body.size);
+          var glow = i === active ? 1 : 0;
+          if (glow) {
+            var halo = ctx.createRadialGradient(bx, by, r * 0.2, bx, by, r * 3);
+            halo.addColorStop(0, "rgba(126,228,255,0.38)");
+            halo.addColorStop(1, "rgba(98,212,255,0)");
+            ctx.fillStyle = halo;
+            ctx.beginPath();
+            ctx.arc(bx, by, r * 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          drawBody(bx, by, r, i, glow);
+          body._sx = bx; body._sy = by; body._sr = r;
+        }
+        requestAnimationFrame(render);
+      }
+      function nearestBody(x, y) {
+        var best = null;
+        var bestD = Infinity;
+        for (var i = 0; i < bodies.length; i++) {
+          var b = bodies[i];
+          if (typeof b._sx !== "number") continue;
+          var dx = b._sx - x;
+          var dy = b._sy - y;
+          var d = dx * dx + dy * dy;
+          if (d < bestD) { bestD = d; best = b; }
+        }
+        if (best && Math.sqrt(bestD) < best._sr * 2.4) return best;
+        return null;
+      }
+      for (var i = 0; i < names.length; i++) {
+        (function (idx) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "focus-ring";
+          btn.textContent = names[idx];
+          btn.addEventListener("click", function () { setActive(idx); });
+          nav.appendChild(btn);
+        })(i);
+      }
+      wrap.addEventListener("pointermove", function (event) {
+        pointer.x = event.clientX / window.innerWidth;
+        pointer.y = event.clientY / window.innerHeight;
+      });
+      window.addEventListener("deviceorientation", function (event) {
+        if (event.gamma == null || event.beta == null) return;
+        pointer.x = Math.max(0, Math.min(1, 0.5 + event.gamma / 70));
+        pointer.y = Math.max(0, Math.min(1, 0.5 + event.beta / 150));
+      });
+      wrap.addEventListener("click", function (event) {
+        var hit = nearestBody(event.clientX, event.clientY);
+        if (hit) setActive(hit.i);
+      });
+      window.addEventListener("wheel", function (event) {
+        target.z += event.deltaY * 0.0016;
+        target.z = Math.max(0, Math.min(bodies[bodies.length - 1].z, target.z));
+      }, { passive: true });
+      window.addEventListener("keydown", function (event) {
+        if (event.key >= "1" && event.key <= "7") {
+          setActive(Number(event.key) - 1);
+        }
+        if (event.key === "ArrowRight") setActive((active + 1) % names.length);
+        if (event.key === "ArrowLeft") setActive((active - 1 + names.length) % names.length);
+      });
+      window.addEventListener("resize", resize);
+      createStars();
+      createBodies();
+      resize();
+      setActive(Number(new URLSearchParams(window.location.search).get("focus")) || 0);
+      render();
+      document.getElementById("year").textContent = new Date().getFullYear();
     })();
-    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
