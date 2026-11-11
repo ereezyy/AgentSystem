@@ -6,6 +6,7 @@
   <title>Eddy Woods LLC | Kinetic Forge Sequence</title>
   <meta name="description" content="A cinematic full-bleed sequence of everything Eddy Woods has shipped, with direct product entry points.">
   <meta name="theme-color" content="#050d15">
+  <script>document.documentElement.classList.add("js");</script>
   <style>
     @font-face { font-family: "Syne"; src: url("../fonts/syne-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
     @font-face { font-family: "Syne"; src: url("../fonts/syne-800.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
@@ -124,22 +125,7 @@
       right: clamp(1rem, 4vw, 3rem);
       bottom: clamp(1rem, 3vw, 2.1rem);
       z-index: 12;
-      display: grid;
-      gap: 0.48rem;
-    }
-    .progress {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(132, 221, 249, 0.4);
-      background: rgba(9, 21, 34, 0.83);
-      overflow: hidden;
-    }
-    .progress span {
       display: block;
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #62d4ff, #9ae8ff);
     }
     .scrubber {
       width: 100%;
@@ -168,6 +154,7 @@
       border-top: 1px solid rgba(132, 219, 247, 0.28);
       background: #061018;
     }
+    .js .fallback { display: none; }
     .fallback ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.56rem; }
     .fallback a {
       min-height: 44px;
@@ -225,7 +212,7 @@
     <div class="grain" aria-hidden="true"></div>
     <header class="headline">
       <p>Eddy Woods LLC</p>
-      <h1>A single cinematic sequence of shipped work.</h1>
+      <h1>Explore everything Eddy Woods has shipped.</h1>
       <p class="sub">Move through the line from first release to latest, then explore any product directly.</p>
     </header>
     <aside class="hud">
@@ -236,7 +223,6 @@
       <p class="step" id="step">1 / 7</p>
     </aside>
     <div class="rail">
-      <div class="progress" aria-hidden="true"><span id="bar"></span></div>
       <input id="scrubber" class="scrubber focus-ring" type="range" min="0" max="6" step="0.01" value="0" aria-label="Product timeline">
     </div>
   </div>
@@ -261,14 +247,14 @@
   <script>
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var names = [
-        "DistroBuzz",
-        "Maestro",
-        "WaveForge",
-        "Lisa",
-        "Social Forest",
-        "the small agentlooper.org tools",
-        "HVACFix"
+      var products = [
+        { display: "DistroBuzz", cta: "Explore DistroBuzz" },
+        { display: "Maestro", cta: "Explore Maestro" },
+        { display: "WaveForge", cta: "Explore WaveForge" },
+        { display: "Lisa", cta: "Explore Lisa" },
+        { display: "Social Forest", cta: "Explore Social Forest" },
+        { display: "The small agentlooper.org tools", cta: "Explore the small agentlooper.org tools" },
+        { display: "HVACFix", cta: "Explore HVACFix" }
       ];
       var canvas = document.getElementById("scene");
       var ctx = canvas.getContext("2d", { alpha: true });
@@ -276,7 +262,6 @@
       var nameEl = document.getElementById("name");
       var stepEl = document.getElementById("step");
       var cta = document.getElementById("cta");
-      var bar = document.getElementById("bar");
       var lisaTag = document.getElementById("lisaTag");
       var lisaLine = document.getElementById("lisaLine");
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -306,11 +291,10 @@
       function updateMeta(value) {
         var idx = Math.round(value);
         idx = Math.max(0, Math.min(6, idx));
-        nameEl.textContent = names[idx];
-        cta.textContent = "Explore " + names[idx];
+        nameEl.textContent = products[idx].display;
+        cta.textContent = products[idx].cta;
         stepEl.textContent = String(idx + 1) + " / 7";
-        bar.style.width = (value / 6 * 100).toFixed(2) + "%";
-        if (names[idx] === "Lisa") {
+        if (products[idx].display === "Lisa") {
           lisaTag.hidden = false;
           lisaLine.hidden = false;
         } else {
@@ -323,47 +307,127 @@
         ctx.strokeStyle = "rgba(203,246,255,0.95)";
         ctx.beginPath();
         if (idx === 0) {
-          ctx.ellipse(cx, cy, r * 0.82, r * 0.58, Math.PI * 0.26, 0, Math.PI * 2);
-          ctx.stroke();
+          for (var rr = 1; rr <= 3; rr++) {
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(195,245,255," + (0.18 + rr * 0.08).toFixed(2) + ")";
+            ctx.lineWidth = Math.max(1, r * 0.045 / rr);
+            ctx.arc(cx, cy, r * (0.34 + rr * 0.21), -Math.PI * 0.72, Math.PI * 0.62);
+            ctx.stroke();
+          }
           ctx.beginPath();
-          ctx.arc(cx + r * 0.3, cy - r * 0.2, r * 0.16, 0, Math.PI * 2);
-        } else if (idx === 1) {
-          var side = r * 1.2;
-          ctx.roundRect(cx - side / 2, cy - side / 2, side, side, r * 0.23);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(cx - r * 0.44, cy + r * 0.22);
-          ctx.lineTo(cx - r * 0.18, cy - r * 0.35);
-          ctx.lineTo(cx + r * 0.06, cy + r * 0.06);
-          ctx.lineTo(cx + r * 0.35, cy - r * 0.46);
-        } else if (idx === 2) {
-          ctx.moveTo(cx - r * 0.84, cy + r * 0.14);
-          ctx.bezierCurveTo(cx - r * 0.44, cy - r * 0.66, cx - r * 0.1, cy + r * 0.68, cx + r * 0.22, cy + r * 0.08);
-          ctx.bezierCurveTo(cx + r * 0.5, cy - r * 0.62, cx + r * 0.66, cy + r * 0.46, cx + r * 0.84, cy + r * 0.06);
-        } else if (idx === 3) {
-          ctx.arc(cx, cy - r * 0.33, r * 0.29, 0, Math.PI * 2);
-          ctx.moveTo(cx - r * 0.5, cy + r * 0.56);
-          ctx.quadraticCurveTo(cx, cy - r * 0.08, cx + r * 0.5, cy + r * 0.56);
-        } else if (idx === 4) {
-          ctx.moveTo(cx, cy - r * 0.75);
-          ctx.lineTo(cx + r * 0.6, cy + r * 0.39);
-          ctx.lineTo(cx - r * 0.6, cy + r * 0.39);
+          ctx.moveTo(cx - r * 0.9, cy + r * 0.12);
+          ctx.lineTo(cx + r * 0.95, cy - r * 0.42);
+          ctx.lineTo(cx + r * 0.84, cy + r * 0.5);
           ctx.closePath();
-          ctx.moveTo(cx, cy - r * 0.22);
-          ctx.lineTo(cx, cy + r * 0.7);
-        } else if (idx === 5) {
-          ctx.arc(cx - r * 0.17, cy - r * 0.08, r * 0.45, 0, Math.PI * 2);
-          ctx.moveTo(cx + r * 0.16, cy + r * 0.23);
-          ctx.lineTo(cx + r * 0.6, cy + r * 0.66);
-        } else {
-          var s = r * 1.12;
-          ctx.roundRect(cx - s / 2, cy - s / 2, s, s, r * 0.23);
+          ctx.strokeStyle = "rgba(216,250,255,0.9)";
+          ctx.lineWidth = Math.max(1.2, r * 0.06);
+          ctx.stroke();
+        } else if (idx === 1) {
+          ctx.beginPath();
+          for (var l = -2; l <= 2; l++) {
+            var yy = cy + l * r * 0.14;
+            ctx.moveTo(cx - r * 0.82, yy);
+            ctx.lineTo(cx + r * 0.78, yy - Math.sin(l * 0.7) * r * 0.08);
+          }
+          ctx.strokeStyle = "rgba(195,245,255,0.72)";
+          ctx.lineWidth = Math.max(1, r * 0.04);
           ctx.stroke();
           ctx.beginPath();
-          ctx.moveTo(cx - r * 0.31, cy);
-          ctx.lineTo(cx + r * 0.31, cy);
-          ctx.moveTo(cx, cy - r * 0.31);
-          ctx.lineTo(cx, cy + r * 0.31);
+          ctx.moveTo(cx - r * 0.56, cy + r * 0.5);
+          ctx.lineTo(cx + r * 0.42, cy - r * 0.36);
+          ctx.strokeStyle = "rgba(228,252,255,0.95)";
+          ctx.lineWidth = Math.max(1.4, r * 0.09);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(cx + r * 0.5, cy - r * 0.44, r * 0.13, 0, Math.PI * 2);
+        } else if (idx === 2) {
+          for (var wave = 0; wave < 3; wave++) {
+            var yShift = (wave - 1) * r * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.9, cy + yShift);
+            ctx.bezierCurveTo(cx - r * 0.58, cy - r * (0.7 - wave * 0.1), cx - r * 0.2, cy + r * (0.62 - wave * 0.08), cx + r * 0.06, cy + yShift);
+            ctx.bezierCurveTo(cx + r * 0.34, cy - r * (0.7 - wave * 0.1), cx + r * 0.62, cy + r * (0.58 - wave * 0.08), cx + r * 0.9, cy + yShift);
+            ctx.strokeStyle = wave === 1 ? "rgba(225,252,255,0.98)" : "rgba(165,235,252,0.72)";
+            ctx.lineWidth = Math.max(1.4, r * (wave === 1 ? 0.09 : 0.06));
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.roundRect(cx - r * 0.72, cy + r * 0.48, r * 1.44, r * 0.18, r * 0.08);
+          ctx.strokeStyle = "rgba(223,251,255,0.9)";
+          ctx.lineWidth = Math.max(1, r * 0.05);
+          ctx.stroke();
+        } else if (idx === 3) {
+          for (var p = 0; p < 5; p++) {
+            var a = (Math.PI * 2 * p) / 5;
+            ctx.beginPath();
+            ctx.ellipse(
+              cx + Math.cos(a) * r * 0.1,
+              cy + Math.sin(a) * r * 0.1,
+              r * 0.24,
+              r * 0.48,
+              a,
+              0,
+              Math.PI * 2
+            );
+            ctx.strokeStyle = "rgba(189,243,255,0.52)";
+            ctx.lineWidth = Math.max(1, r * 0.04);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 0.18, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(230,252,255,0.98)";
+          ctx.lineWidth = Math.max(1.6, r * 0.08);
+          ctx.stroke();
+        } else if (idx === 4) {
+          ctx.beginPath();
+          ctx.moveTo(cx - r * 0.7, cy + r * 0.32);
+          ctx.bezierCurveTo(cx - r * 0.9, cy - r * 0.16, cx - r * 0.36, cy - r * 0.74, cx, cy - r * 0.6);
+          ctx.bezierCurveTo(cx + r * 0.38, cy - r * 0.76, cx + r * 0.94, cy - r * 0.1, cx + r * 0.7, cy + r * 0.32);
+          ctx.closePath();
+          ctx.strokeStyle = "rgba(199,247,255,0.9)";
+          ctx.lineWidth = Math.max(1.4, r * 0.06);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - r * 0.26);
+          ctx.lineTo(cx, cy + r * 0.72);
+          ctx.moveTo(cx, cy + r * 0.05);
+          ctx.lineTo(cx - r * 0.24, cy + r * 0.34);
+          ctx.moveTo(cx, cy + r * 0.16);
+          ctx.lineTo(cx + r * 0.2, cy + r * 0.42);
+        } else if (idx === 5) {
+          ctx.beginPath();
+          ctx.ellipse(cx - r * 0.2, cy - r * 0.05, r * 0.42, r * 0.29, Math.PI * 0.2, 0, Math.PI * 2);
+          ctx.ellipse(cx + r * 0.2, cy + r * 0.08, r * 0.42, r * 0.29, -Math.PI * 0.15, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(216,250,255,0.95)";
+          ctx.lineWidth = Math.max(1.5, r * 0.07);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx - r * 0.04, cy - r * 0.56);
+          ctx.lineTo(cx - r * 0.24, cy - r * 0.26);
+          ctx.moveTo(cx + r * 0.16, cy + r * 0.52);
+          ctx.lineTo(cx + r * 0.38, cy + r * 0.22);
+        } else {
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(215,250,255,0.95)";
+          ctx.lineWidth = Math.max(1.6, r * 0.08);
+          ctx.stroke();
+          for (var fin = 0; fin < 4; fin++) {
+            var fa = fin * Math.PI * 0.5 + Math.PI * 0.24;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.quadraticCurveTo(
+              cx + Math.cos(fa) * r * 0.38,
+              cy + Math.sin(fa) * r * 0.38,
+              cx + Math.cos(fa + 0.42) * r * 0.62,
+              cy + Math.sin(fa + 0.42) * r * 0.62
+            );
+            ctx.strokeStyle = "rgba(194,246,255,0.86)";
+            ctx.lineWidth = Math.max(1, r * 0.05);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 0.2, 0, Math.PI * 2);
         }
         ctx.stroke();
       }
@@ -392,7 +456,8 @@
           var depth = 1 / (star.z + index * 0.09);
           var x = (star.x + tiltX * depth * 0.5) * w * 0.45 + w * 0.5;
           var y = (star.y + tiltY * depth * 0.5) * h * 0.42 + h * 0.55;
-          ctx.fillStyle = "rgba(201,242,255," + (0.2 + depth * 0.28).toFixed(3) + ")";
+          if (y < h * 0.34 && x < w * 0.74) continue;
+          ctx.fillStyle = "rgba(201,242,255," + (0.17 + depth * 0.24).toFixed(3) + ")";
           ctx.beginPath();
           ctx.arc(x, y, star.r * depth * 2.1, 0, Math.PI * 2);
           ctx.fill();

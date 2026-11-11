@@ -6,6 +6,7 @@
   <title>Eddy Woods LLC | Immersive Product Constellation</title>
   <meta name="description" content="Everything Eddy Woods has shipped, in one immersive destination with direct product access.">
   <meta name="theme-color" content="#060d14">
+  <script>document.documentElement.classList.add("js");</script>
   <style>
     @font-face { font-family: "Syne"; src: url("../fonts/syne-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
     @font-face { font-family: "Syne"; src: url("../fonts/syne-800.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
@@ -146,7 +147,9 @@
       font-family: "Syne", "Manrope", sans-serif;
       font-weight: 800;
       letter-spacing: -0.02em;
-      font-size: clamp(1.4rem, 4vw, 2.5rem);
+      font-size: clamp(1.18rem, 3.15vw, 2.3rem);
+      line-height: 1.04;
+      overflow-wrap: anywhere;
     }
     .detail-panel .lisa-tag,
     .detail-panel .lisa-line {
@@ -183,6 +186,7 @@
       background: #071018;
       border-top: 1px solid rgba(131, 220, 248, 0.28);
     }
+    .js .fallback { display: none; }
     .fallback ul {
       margin: 0;
       padding: 0;
@@ -281,14 +285,14 @@
   <script>
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var names = [
-        "DistroBuzz",
-        "Maestro",
-        "WaveForge",
-        "Lisa",
-        "Social Forest",
-        "the small agentlooper.org tools",
-        "HVACFix"
+      var products = [
+        { display: "DistroBuzz", cta: "Explore DistroBuzz" },
+        { display: "Maestro", cta: "Explore Maestro" },
+        { display: "WaveForge", cta: "Explore WaveForge" },
+        { display: "Lisa", cta: "Explore Lisa" },
+        { display: "Social Forest", cta: "Explore Social Forest" },
+        { display: "The small agentlooper.org tools", cta: "Explore the small agentlooper.org tools" },
+        { display: "HVACFix", cta: "Explore HVACFix" }
       ];
       var canvas = document.getElementById("scene");
       var ctx = canvas.getContext("2d", { alpha: true });
@@ -321,10 +325,10 @@
       }
       function createBodies() {
         bodies = [];
-        for (var i = 0; i < names.length; i++) {
-          var angle = (i / names.length) * Math.PI * 2;
+        for (var i = 0; i < products.length; i++) {
+          var angle = (i / products.length) * Math.PI * 2;
           bodies.push({
-            name: names[i],
+            name: products[i].display,
             i: i,
             x: Math.cos(angle) * (i < 4 ? 0.6 : 0.92),
             y: Math.sin(angle) * (i < 4 ? 0.5 : 0.7) * 0.64,
@@ -334,11 +338,11 @@
         }
       }
       function setActive(index) {
-        active = Math.max(0, Math.min(names.length - 1, index));
+        active = Math.max(0, Math.min(products.length - 1, index));
         target.z = bodies[active].z;
-        panelTitle.textContent = names[active];
-        panelCta.textContent = "Explore " + names[active];
-        if (names[active] === "Lisa") {
+        panelTitle.textContent = products[active].display;
+        panelCta.textContent = products[active].cta;
+        if (products[active].display === "Lisa") {
           lisaTag.hidden = false;
           lisaLine.hidden = false;
         } else {
@@ -371,47 +375,137 @@
         ctx.lineWidth = Math.max(1.2, radius * 0.08);
         ctx.beginPath();
         if (idx === 0) {
-          ctx.ellipse(screenX, screenY, radius * 0.88, radius * 0.64, Math.PI * 0.2, 0, Math.PI * 2);
-          ctx.stroke();
+          // DistroBuzz: layered broadcast burst + distribution rays
+          for (var ring = 1; ring <= 3; ring++) {
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(186,240,255," + (0.18 + ring * 0.08).toFixed(2) + ")";
+            ctx.lineWidth = Math.max(1, radius * 0.05 / ring);
+            ctx.arc(screenX, screenY, radius * (0.34 + ring * 0.2), -Math.PI * 0.72, Math.PI * 0.62);
+            ctx.stroke();
+          }
           ctx.beginPath();
-          ctx.arc(screenX + radius * 0.32, screenY - radius * 0.2, radius * 0.18, 0, Math.PI * 2);
-        } else if (idx === 1) {
-          var side = radius * 1.28;
-          ctx.roundRect(screenX - side / 2, screenY - side / 2, side, side, radius * 0.28);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(screenX - radius * 0.42, screenY + radius * 0.24);
-          ctx.lineTo(screenX - radius * 0.16, screenY - radius * 0.36);
-          ctx.lineTo(screenX + radius * 0.06, screenY + radius * 0.07);
-          ctx.lineTo(screenX + radius * 0.33, screenY - radius * 0.44);
-        } else if (idx === 2) {
-          ctx.moveTo(screenX - radius * 0.82, screenY + radius * 0.16);
-          ctx.bezierCurveTo(screenX - radius * 0.42, screenY - radius * 0.68, screenX - radius * 0.1, screenY + radius * 0.72, screenX + radius * 0.2, screenY + radius * 0.1);
-          ctx.bezierCurveTo(screenX + radius * 0.48, screenY - radius * 0.64, screenX + radius * 0.66, screenY + radius * 0.48, screenX + radius * 0.82, screenY + radius * 0.08);
-        } else if (idx === 3) {
-          ctx.arc(screenX, screenY - radius * 0.36, radius * 0.3, 0, Math.PI * 2);
-          ctx.moveTo(screenX - radius * 0.52, screenY + radius * 0.58);
-          ctx.quadraticCurveTo(screenX, screenY - radius * 0.08, screenX + radius * 0.52, screenY + radius * 0.58);
-        } else if (idx === 4) {
-          ctx.moveTo(screenX, screenY - radius * 0.78);
-          ctx.lineTo(screenX + radius * 0.62, screenY + radius * 0.42);
-          ctx.lineTo(screenX - radius * 0.62, screenY + radius * 0.42);
+          ctx.moveTo(screenX - radius * 0.92, screenY + radius * 0.12);
+          ctx.lineTo(screenX + radius * 0.95, screenY - radius * 0.42);
+          ctx.lineTo(screenX + radius * 0.86, screenY + radius * 0.52);
           ctx.closePath();
-          ctx.moveTo(screenX, screenY - radius * 0.24);
-          ctx.lineTo(screenX, screenY + radius * 0.72);
-        } else if (idx === 5) {
-          ctx.arc(screenX - radius * 0.18, screenY - radius * 0.1, radius * 0.46, 0, Math.PI * 2);
-          ctx.moveTo(screenX + radius * 0.14, screenY + radius * 0.22);
-          ctx.lineTo(screenX + radius * 0.62, screenY + radius * 0.7);
-        } else {
-          var s = radius * 1.16;
-          ctx.roundRect(screenX - s / 2, screenY - s / 2, s, s, radius * 0.24);
+          ctx.strokeStyle = "rgba(209,249,255,0.88)";
+          ctx.lineWidth = Math.max(1.2, radius * 0.06);
           ctx.stroke();
           ctx.beginPath();
-          ctx.moveTo(screenX - radius * 0.32, screenY);
-          ctx.lineTo(screenX + radius * 0.32, screenY);
-          ctx.moveTo(screenX, screenY - radius * 0.32);
-          ctx.lineTo(screenX, screenY + radius * 0.32);
+          ctx.arc(screenX + radius * 0.4, screenY - radius * 0.18, radius * 0.12, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (idx === 1) {
+          // Maestro: baton + orchestration staff and arcs
+          ctx.beginPath();
+          for (var l = -2; l <= 2; l++) {
+            var y = screenY + l * radius * 0.14;
+            ctx.moveTo(screenX - radius * 0.8, y);
+            ctx.lineTo(screenX + radius * 0.78, y - Math.sin(l * 0.6) * radius * 0.08);
+          }
+          ctx.strokeStyle = "rgba(195,245,255,0.7)";
+          ctx.lineWidth = Math.max(1, radius * 0.04);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(screenX - radius * 0.55, screenY + radius * 0.52);
+          ctx.lineTo(screenX + radius * 0.42, screenY - radius * 0.38);
+          ctx.strokeStyle = "rgba(230,252,255,0.95)";
+          ctx.lineWidth = Math.max(1.4, radius * 0.09);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(screenX + radius * 0.5, screenY - radius * 0.46, radius * 0.13, 0, Math.PI * 2);
+        } else if (idx === 2) {
+          // WaveForge: layered visualizer waves + stage beam
+          for (var wave = 0; wave < 3; wave++) {
+            var yShift = (wave - 1) * radius * 0.18;
+            ctx.beginPath();
+            ctx.moveTo(screenX - radius * 0.9, screenY + yShift);
+            ctx.bezierCurveTo(screenX - radius * 0.58, screenY - radius * (0.72 - wave * 0.12), screenX - radius * 0.2, screenY + radius * (0.62 - wave * 0.1), screenX + radius * 0.06, screenY + yShift);
+            ctx.bezierCurveTo(screenX + radius * 0.34, screenY - radius * (0.7 - wave * 0.1), screenX + radius * 0.62, screenY + radius * (0.58 - wave * 0.08), screenX + radius * 0.9, screenY + yShift);
+            ctx.strokeStyle = wave === 1 ? "rgba(226,252,255,0.98)" : "rgba(164,234,252,0.7)";
+            ctx.lineWidth = Math.max(1.4, radius * (wave === 1 ? 0.09 : 0.06));
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.roundRect(screenX - radius * 0.72, screenY + radius * 0.48, radius * 1.44, radius * 0.18, radius * 0.08);
+          ctx.strokeStyle = "rgba(223,251,255,0.9)";
+          ctx.lineWidth = Math.max(1, radius * 0.05);
+          ctx.stroke();
+        } else if (idx === 3) {
+          // Lisa: abstract voice/presence form with halo petals
+          for (var p = 0; p < 5; p++) {
+            var a = (Math.PI * 2 * p) / 5;
+            ctx.beginPath();
+            ctx.ellipse(
+              screenX + Math.cos(a) * radius * 0.1,
+              screenY + Math.sin(a) * radius * 0.1,
+              radius * 0.24,
+              radius * 0.48,
+              a,
+              0,
+              Math.PI * 2
+            );
+            ctx.strokeStyle = "rgba(189,243,255,0.52)";
+            ctx.lineWidth = Math.max(1, radius * 0.04);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, radius * 0.18, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(230,252,255,0.98)";
+          ctx.lineWidth = Math.max(1.6, radius * 0.08);
+          ctx.stroke();
+        } else if (idx === 4) {
+          // Social Forest: organic canopy contours + trunk lattice
+          ctx.beginPath();
+          ctx.moveTo(screenX - radius * 0.7, screenY + radius * 0.32);
+          ctx.bezierCurveTo(screenX - radius * 0.9, screenY - radius * 0.16, screenX - radius * 0.36, screenY - radius * 0.74, screenX, screenY - radius * 0.6);
+          ctx.bezierCurveTo(screenX + radius * 0.38, screenY - radius * 0.76, screenX + radius * 0.94, screenY - radius * 0.1, screenX + radius * 0.7, screenY + radius * 0.32);
+          ctx.closePath();
+          ctx.strokeStyle = "rgba(199,247,255,0.9)";
+          ctx.lineWidth = Math.max(1.4, radius * 0.06);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(screenX, screenY - radius * 0.26);
+          ctx.lineTo(screenX, screenY + radius * 0.72);
+          ctx.moveTo(screenX, screenY + radius * 0.05);
+          ctx.lineTo(screenX - radius * 0.24, screenY + radius * 0.34);
+          ctx.moveTo(screenX, screenY + radius * 0.16);
+          ctx.lineTo(screenX + radius * 0.2, screenY + radius * 0.42);
+        } else if (idx === 5) {
+          // Small tools: interlocking loops + utility nodes
+          ctx.beginPath();
+          ctx.ellipse(screenX - radius * 0.2, screenY - radius * 0.05, radius * 0.42, radius * 0.29, Math.PI * 0.2, 0, Math.PI * 2);
+          ctx.ellipse(screenX + radius * 0.2, screenY + radius * 0.08, radius * 0.42, radius * 0.29, -Math.PI * 0.15, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(216,250,255,0.95)";
+          ctx.lineWidth = Math.max(1.5, radius * 0.07);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(screenX - radius * 0.04, screenY - radius * 0.56);
+          ctx.lineTo(screenX - radius * 0.24, screenY - radius * 0.26);
+          ctx.moveTo(screenX + radius * 0.16, screenY + radius * 0.52);
+          ctx.lineTo(screenX + radius * 0.38, screenY + radius * 0.22);
+        } else {
+          // HVACFix: thermal ring + airflow fins
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, radius * 0.62, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(215,250,255,0.95)";
+          ctx.lineWidth = Math.max(1.6, radius * 0.08);
+          ctx.stroke();
+          for (var fin = 0; fin < 4; fin++) {
+            var fa = fin * Math.PI * 0.5 + Math.PI * 0.24;
+            ctx.beginPath();
+            ctx.moveTo(screenX, screenY);
+            ctx.quadraticCurveTo(
+              screenX + Math.cos(fa) * radius * 0.38,
+              screenY + Math.sin(fa) * radius * 0.38,
+              screenX + Math.cos(fa + 0.42) * radius * 0.62,
+              screenY + Math.sin(fa + 0.42) * radius * 0.62
+            );
+            ctx.strokeStyle = "rgba(194,246,255,0.86)";
+            ctx.lineWidth = Math.max(1, radius * 0.05);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, radius * 0.2, 0, Math.PI * 2);
         }
         ctx.stroke();
       }
@@ -439,7 +533,8 @@
           var x = (star.x + pan.x * depth * 0.8) * sw * 0.44 + sw * 0.5;
           var y = (star.y + pan.y * depth * 0.8) * sh * 0.43 + sh * 0.53;
           if (x < -4 || y < -4 || x > sw + 4 || y > sh + 4) continue;
-          ctx.fillStyle = "rgba(200,241,255," + (0.22 + depth * 0.32).toFixed(3) + ")";
+          if (y < sh * 0.34 && x < sw * 0.76) continue;
+          ctx.fillStyle = "rgba(200,241,255," + (0.18 + depth * 0.25).toFixed(3) + ")";
           ctx.beginPath();
           ctx.arc(x, y, star.r * depth * 2, 0, Math.PI * 2);
           ctx.fill();
@@ -453,6 +548,9 @@
           var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
           var r = Math.max(9, sw * 0.12 * depthScale * body.size);
           var glow = i === active ? 1 : 0;
+          if (by < sh * 0.34 && bx < sw * 0.72) {
+            glow = 0;
+          }
           if (glow) {
             var halo = ctx.createRadialGradient(bx, by, r * 0.2, bx, by, r * 3);
             halo.addColorStop(0, "rgba(126,228,255,0.38)");
@@ -481,12 +579,12 @@
         if (best && Math.sqrt(bestD) < best._sr * 2.4) return best;
         return null;
       }
-      for (var i = 0; i < names.length; i++) {
+      for (var i = 0; i < products.length; i++) {
         (function (idx) {
           var btn = document.createElement("button");
           btn.type = "button";
           btn.className = "focus-ring";
-          btn.textContent = names[idx];
+          btn.textContent = products[idx].display;
           btn.addEventListener("click", function () { setActive(idx); });
           nav.appendChild(btn);
         })(i);
@@ -512,8 +610,8 @@
         if (event.key >= "1" && event.key <= "7") {
           setActive(Number(event.key) - 1);
         }
-        if (event.key === "ArrowRight") setActive((active + 1) % names.length);
-        if (event.key === "ArrowLeft") setActive((active - 1 + names.length) % names.length);
+        if (event.key === "ArrowRight") setActive((active + 1) % products.length);
+        if (event.key === "ArrowLeft") setActive((active - 1 + products.length) % products.length);
       });
       window.addEventListener("resize", resize);
       createStars();
