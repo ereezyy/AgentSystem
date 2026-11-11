@@ -33,7 +33,7 @@
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; }
+    html, body { margin: 0; overflow-x: clip; }
     body { background: var(--bg); color: var(--ink); font-family: "Manrope", "Segoe UI", sans-serif; }
     [hidden] { display: none !important; }
 
@@ -331,24 +331,36 @@
     }
 
     @media (max-width: 900px) {
+      .scene-ui {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 0.7rem;
+        padding: 0.7rem;
+        padding-bottom: calc(0.7rem + env(safe-area-inset-bottom));
+      }
       .panel {
+        position: relative;
+        order: 1;
         top: auto;
-        right: 0.7rem;
-        left: 0.7rem;
-        bottom: calc(4.9rem + env(safe-area-inset-bottom));
+        right: auto;
+        left: auto;
+        bottom: auto;
         max-height: min(44vh, 340px);
         overflow: auto;
         width: auto;
         transform: none;
       }
       .scene-nav {
-        right: 0.7rem;
-        left: 0.7rem;
-        bottom: calc(0.7rem + env(safe-area-inset-bottom));
+        position: relative;
+        order: 2;
+        right: auto;
+        left: auto;
+        bottom: auto;
         flex-wrap: wrap;
         justify-content: center;
         overflow: visible;
-        padding-inline: 0.2rem;
+        padding-inline: 0;
         max-width: none;
       }
     }
