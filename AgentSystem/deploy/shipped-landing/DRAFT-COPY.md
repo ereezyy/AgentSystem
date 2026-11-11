@@ -3,52 +3,52 @@
 Lines marked `data-draft="eddy-review"` in `deploy/shipped-landing/index.html`.
 
 ## FixMyY — Outlook
-Outlook: this foundation can be refreshed into a modern operations console for service-heavy organizations while preserving the practical maintenance-first workflow that made it useful.
+Outlook: FixMyY stands as the operating blueprint for future field-service products that need practical, maintenance-first workflow control.
 
 ## Maestro — Outlook
-Outlook: if validated against real release workflows, Maestro can be positioned as a focused release front-end alongside WaveForge production infrastructure.
+Outlook: Maestro can mature into a dedicated release front-end that complements WaveForge’s production render stack.
 
 ## DistroBuzz — Outlook
-Outlook: align DistroBuzz and Maestro framing into one clear public narrative before wider rollout decisions.
+Outlook: DistroBuzz is set up to become the dependable distribution layer behind future WaveForge release pipelines.
 
 ## Lisa — Story
 Lisa is a voice-first AI assistant built on Twilio and modern realtime voice AI so she can answer the phone directly. She introduces herself as AI up front, then keeps the conversation warm, brief, and confident. Her public interaction style avoids hard-selling, fake urgency, and outcome promises.
 
 ## Clawmo (formerly Social Forest) — Outlook
-Outlook: clarify the long-term Clawmo scope around repeatable investigation workflows instead of feature sprawl.
+Outlook: Clawmo can keep growing as a unified OSINT workspace with deeper cross-module investigation flow.
 
 ## IronHaven — Outlook
-Outlook: stabilize direct-domain delivery and continue playability iteration while preserving rapid build cadence.
+Outlook: IronHaven is ready to keep expanding its world systems while stabilizing direct-domain player access.
 
 ## AgentLooper — Outlook
-Outlook: preserve AgentLooper as modular infrastructure that can be selectively reactivated by product lane, instead of reviving it as one monolithic surface.
+Outlook: AgentLooper’s architecture remains a strong relaunch base for modular autonomous-service products.
 
 ## ProofChain — Outlook
-Outlook: relaunch only when a narrowly scoped external validation loop is in place and positioning is crisp.
+Outlook: ProofChain’s verifiable receipt architecture is ready to power future accountability features in active agent products.
 
 ## Dead Air FM radio — Outlook
-Outlook: archive the broadcast architecture as a reusable playbook for future media experiments rather than immediate reactivation.
+Outlook: Dead Air’s broadcast engineering can be carried directly into the next live audio project when that channel returns.
 
 ## EBAIF — Outlook
-Outlook: package EBAIF concepts into smaller, composable modules that can be reused by active product lines.
+Outlook: EBAIF can become the adaptive-behavior layer plugged into future autonomous game and agent systems.
 
 ## AgentSwarm — Outlook
-Outlook: preserve AgentSwarm as a reusable event-ingestion pattern library for future autonomous monitoring products.
+Outlook: AgentSwarm’s event-ingestion architecture can continue as a reusable foundation for future monitoring products.
 
 ## THE SYNDICATE — Outlook
-Outlook: the same separation-of-duties pattern can be generalized as a reusable governance model for high-risk autonomous outreach systems.
+Outlook: THE SYNDICATE is poised to become a reference operating model for governed autonomous outbound systems.
 
 ## agent-compliance-lora — Outlook
-Outlook: fold this work into broader agent-governance tooling once evaluation harnesses are standardized.
+Outlook: this LoRA work can become a reusable safety component across future agent governance stacks.
 
 ## fleet kernel — Story
-fleet kernel is recorded as a system concept spanning agent registry, message-board coordination, trust ladders, and emergency controls. It targets a hard operational problem: how to keep autonomous fleets both useful and governable. The blocker is that this exists in architecture notes rather than a confirmed public repository baseline.
+As autonomous fleets grow, operators need hard controls over identity, trust progression, and emergency shutdown behavior. fleet kernel addresses that problem as an architecture concept spanning registry, message board, ledger, trust laddering, loop brakes, and kill-switch controls. The hurdle was designing a governance model strict enough for real incidents while preserving enough flexibility for normal autonomous operation.
 
 ## fleet kernel — Outlook
-Outlook: convert fleet kernel into a documented reference implementation before presenting it as a standalone framework product.
+Outlook: fleet kernel can graduate into a concrete control-plane implementation that anchors safe multi-agent operations.
 
 ## Sol Horse — Outlook
-Outlook: confirm deployment intent and either relaunch as a playable test lane or archive as a design reference.
+Outlook: Sol Horse remains a strong foundation for a future on-chain racing relaunch.
 
 ## DeckWizard — Outlook
-Outlook: keep DeckWizard available as a concise experiment while selectively reusing its interaction patterns in other products.
+Outlook: DeckWizard will continue as a polished utility demo and design reference for future interactive assistants.
