@@ -74,7 +74,15 @@
         radial-gradient(circle at 84% 74%, rgba(62, 181, 213, 0.18), transparent 40%);
     }
     .js .scene-wrap { min-height: min(100vh, 920px); }
-    #scene { display: none; width: 100%; height: 100%; }
+    #scene {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
     .js #scene { display: block; }
 
     .scene-ui {
@@ -332,16 +340,28 @@
 
     @media (max-width: 900px) {
       .scene-ui {
+        position: relative;
+        inset: auto;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
+        justify-content: flex-start;
         gap: 0.7rem;
         padding: 0.7rem;
         padding-bottom: calc(0.7rem + env(safe-area-inset-bottom));
+        pointer-events: auto;
+        z-index: 4;
+      }
+      .hero-block {
+        position: relative;
+        order: 1;
+        top: auto;
+        right: auto;
+        left: auto;
+        max-width: none;
       }
       .panel {
         position: relative;
-        order: 1;
+        order: 2;
         top: auto;
         right: auto;
         left: auto;
@@ -353,7 +373,7 @@
       }
       .scene-nav {
         position: relative;
-        order: 2;
+        order: 3;
         right: auto;
         left: auto;
         bottom: auto;
