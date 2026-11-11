@@ -7,8 +7,10 @@
   <meta name="description" content="Everything Eddy Woods has shipped, in one immersive destination with direct product access.">
   <meta property="og:title" content="Everything Eddy Woods has shipped, in one place.">
   <meta property="og:description" content="Tap a product to take a closer look.">
+  <meta property="og:url" content="https://dead-air.show/">
   <meta name="twitter:title" content="Everything Eddy Woods has shipped, in one place.">
   <meta name="twitter:description" content="Tap a product to take a closer look.">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#060d14">
   <script>document.documentElement.classList.add("js");</script>
   <style>
@@ -52,6 +54,14 @@
       height: 100%;
       display: block;
     }
+    .scene-wrap > canvas,
+    .scene-wrap > .grain {
+      display: none;
+    }
+    .js .scene-wrap > canvas,
+    .js .scene-wrap > .grain {
+      display: block;
+    }
     .grain {
       position: absolute;
       inset: 0;
@@ -62,12 +72,23 @@
       opacity: var(--grain);
     }
     .headline {
+      display: none;
       position: absolute;
       top: clamp(1rem, 3vw, 2rem);
       left: clamp(1rem, 4vw, 3.2rem);
       right: clamp(1rem, 4vw, 3.2rem);
       z-index: 12;
       max-width: min(860px, 92vw);
+    }
+    .js .headline { display: block; }
+    .headline::before {
+      content: "";
+      position: absolute;
+      inset: -0.74rem -0.92rem -0.56rem -0.92rem;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(5, 11, 18, 0.84), rgba(5, 11, 18, 0.54));
+      pointer-events: none;
+      z-index: -1;
     }
     .headline p {
       margin: 0;
@@ -92,15 +113,16 @@
       font-size: clamp(0.98rem, 2.2vw, 1.18rem);
     }
     .product-nav {
+      display: none;
       position: absolute;
       left: clamp(1rem, 4vw, 3rem);
       bottom: clamp(1rem, 3vw, 2.2rem);
       z-index: 14;
-      display: flex;
       flex-wrap: wrap;
       gap: 0.55rem;
       max-width: min(850px, 95vw);
     }
+    .js .product-nav { display: flex; }
     .product-nav button {
       border: 1px solid rgba(132, 221, 250, 0.35);
       background: rgba(9, 21, 34, 0.82);
@@ -126,6 +148,7 @@
       transform: translateY(-2px);
     }
     .detail-panel {
+      display: none;
       position: absolute;
       right: clamp(1rem, 4vw, 3rem);
       top: 50%;
@@ -141,6 +164,7 @@
       pointer-events: none;
       transition: opacity 240ms ease, transform 320ms cubic-bezier(.2,.65,.2,1);
     }
+    .js .detail-panel { display: block; }
     .detail-panel[data-open="true"] {
       opacity: 1;
       pointer-events: auto;
@@ -302,7 +326,7 @@
     </ul>
   </section>
   <footer>
-    <span id="year"></span> Eddy Woods LLC
+    <span id="year">2026</span> Eddy Woods LLC
     <span aria-hidden="true"> · </span>
     <a href="/legal/privacy">Privacy</a>
     <span aria-hidden="true"> · </span>
@@ -340,6 +364,7 @@
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var palette = ["#66d9ff", "#8be6ff", "#7fd7f0", "#9fe7ff", "#4dc7ec", "#6bd5ff", "#79ddf2"];
       var clearZone = { x: 0, y: 0, w: 0, h: 0 };
+      var clearZonePad = { x: 0, y: 0, w: 0, h: 0 };
       var panelRect = { x: -9999, y: -9999, w: 0, h: 0 };
       var panelZone = { x: -9999, y: -9999, w: 0, h: 0 };
       var railZone = { x: -9999, y: -9999, w: 0, h: 0 };
@@ -396,6 +421,9 @@
         var buttons = nav.querySelectorAll("button");
         for (var b = 0; b < buttons.length; b++) {
           buttons[b].setAttribute("aria-current", b === active ? "true" : "false");
+          if (b === active && window.innerWidth <= 900) {
+            buttons[b].scrollIntoView({ block: "nearest", inline: "nearest", behavior: reduce ? "auto" : "smooth" });
+          }
         }
       }
       function resize() {
@@ -414,6 +442,15 @@
             w: rect.width + 44,
             h: rect.height + 32
           };
+          clearZonePad = {
+            x: clearZone.x - 14,
+            y: clearZone.y - 14,
+            w: clearZone.w + 28,
+            h: clearZone.h + 28
+          };
+        } else {
+          clearZone = { x: 0, y: 0, w: 0, h: 0 };
+          clearZonePad = { x: 0, y: 0, w: 0, h: 0 };
         }
         var panelEl = document.querySelector(".detail-panel");
         if (panelEl) {
@@ -451,6 +488,7 @@
         } else {
           railZone = { x: -9999, y: -9999, w: 0, h: 0 };
         }
+        if (reduce) renderFrame(performance.now());
       }
       function circleIntersectsRect(x, y, r, rect) {
         if (!rect || rect.w <= 0 || rect.h <= 0) return false;
@@ -680,7 +718,7 @@
             } else {
               ar = Math.min(Math.max(ar, Math.min(110, Math.max(72, sw * 0.18))), 120);
             }
-            var keepHeadlineActive = keepOutOfRect(ax, ay, ar, clearZone, "down");
+            var keepHeadlineActive = keepOutOfRect(ax, ay, ar * 3, clearZonePad, "down");
             ax = keepHeadlineActive.x;
             ay = keepHeadlineActive.y;
             if (window.innerWidth > 900) {
@@ -708,8 +746,8 @@
               ax = keepRailMobile.x;
               ay = keepRailMobile.y;
             }
-            if (circleIntersectsRect(ax, ay, ar, clearZone)) {
-              var forceDownActive = keepOutOfRect(ax, ay, ar, clearZone, "down");
+            if (circleIntersectsRect(ax, ay, ar * 3, clearZonePad)) {
+              var forceDownActive = keepOutOfRect(ax, ay, ar * 3, clearZonePad, "down");
               ax = forceDownActive.x;
               ay = forceDownActive.y;
             }
@@ -737,7 +775,7 @@
           var by = sh * 0.55 + (body.y + pan.y * 0.45) * sh * 0.48 * depthScale * 3.2;
           var r = Math.max(8, sw * 0.112 * depthScale * body.size * 0.82);
           r = Math.min(r, 52);
-          var keptHeadline = keepOutOfRect(bx, by, r, clearZone, "down");
+          var keptHeadline = keepOutOfRect(bx, by, r, clearZonePad, "down");
           bx = keptHeadline.x;
           by = keptHeadline.y;
           var nonActiveRail = keepOutOfRect(bx, by, r, railZone, "up");
@@ -763,7 +801,7 @@
               continue;
             }
           }
-          if (circleIntersectsRect(bx, by, r, clearZone) || circleIntersectsRect(bx, by, r, railZone)) {
+          if (circleIntersectsRect(bx, by, r, clearZonePad) || circleIntersectsRect(bx, by, r, railZone)) {
             body._sx = undefined; body._sy = undefined; body._sr = undefined;
             continue;
           }
@@ -864,6 +902,12 @@
       createStars();
       createBodies();
       resize();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () {
+          resize();
+          if (reduce) renderFrame(performance.now());
+        });
+      }
       setActive(Number(new URLSearchParams(window.location.search).get("focus")) || 0);
       if (reduce) {
         renderFrame(performance.now());
