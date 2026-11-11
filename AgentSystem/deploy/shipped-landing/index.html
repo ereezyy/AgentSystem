@@ -146,6 +146,7 @@
       padding: 0.46rem 0.84rem;
       font: 600 0.84rem/1 "Manrope", sans-serif;
       cursor: pointer;
+      white-space: nowrap;
       transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
     }
     .scene-nav button[aria-current="true"] {
@@ -344,17 +345,11 @@
         right: 0.7rem;
         left: 0.7rem;
         bottom: calc(0.7rem + env(safe-area-inset-bottom));
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        scroll-padding-inline: calc(1.1rem + env(safe-area-inset-left));
-        padding-inline: calc(1.1rem + env(safe-area-inset-left)) calc(1.1rem + env(safe-area-inset-right));
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow: visible;
+        padding-inline: 0.2rem;
         max-width: none;
-      }
-      .scene-nav button {
-        scroll-snap-align: center;
-        scroll-snap-stop: always;
       }
     }
 
@@ -409,7 +404,7 @@
           <div class="card-head"><h4>FixMyY</h4><span class="badge">Live</span></div>
           <p class="one-liner">A facilities-management app built from real YMCA maintenance work.</p>
           <p class="story">The problem was simple and immediate: keep work orders, PM schedules, and equipment records usable in one working system. FixMyY solved it with a React + Supabase app and AI-assisted work-order intake tied to day-to-day maintenance operations. One major hurdle was a recursive RLS policy issue in org membership that had to be fixed in migration history before the system stabilized.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: FixMyY stands as the operating blueprint for future field-service products that need practical, maintenance-first workflow control.</p>
+          <p class="outlook">Outlook: FixMyY stands as the operating blueprint for future field-service products that need practical, maintenance-first workflow control.</p>
           <div class="cta-row"><a class="btn secondary" href="https://fixmyy.com" target="_blank" rel="noopener noreferrer">Open fixmyy.com</a></div>
         </article>
       </div>
@@ -422,7 +417,7 @@
         <article class="card" id="case-waveforge">
           <div class="card-head"><h4>WaveForge</h4><span class="badge">Live</span></div>
           <p class="one-liner">A music-video generator built for release workflows.</p>
-          <p class="story">Musicians needed a way to move from finished audio to release-ready visuals without building a video team. WaveForge solved that with a web product and a dedicated render worker tuned for reliable output at scale. A key hurdle was render memory stability under heavy jobs, which required infrastructure-level tuning to keep output consistent.</p>
+          <p class="story">Musicians needed a way to move from finished audio to release-ready visuals without building a video team. WaveForge solved that with a web product and a dedicated render worker tuned for consistent output. A key hurdle was render memory stability under heavy jobs, which required infrastructure-level tuning to keep output consistent.</p>
           <p class="outlook">Outlook: WaveForge is expanding from release-video production into broader partner-led media workflow delivery.</p>
           <div class="cta-row"><a class="btn" href="https://waveforge.net" target="_blank" rel="noopener noreferrer">Explore on WaveForge</a></div>
         </article>
@@ -431,7 +426,7 @@
           <div class="card-head"><h4>Maestro</h4><span class="badge">Preview</span></div>
           <p class="one-liner">A release studio for reactive video packaging.</p>
           <p class="story">The project set out to reduce release friction from upload to visual preview. Maestro solved that by shipping a focused Next.js preview surface with clear style output and export behavior. Its central hurdle was balancing broad release ideas with a focused first product that users could run immediately.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: Maestro can mature into a dedicated release front-end that complements WaveForge’s production render stack.</p>
+          <p class="outlook">Outlook: Maestro can mature into a dedicated release front-end that complements WaveForge’s production render stack.</p>
           <div class="cta-row"><a class="btn secondary" href="https://maestro.agentlooper.org" target="_blank" rel="noopener noreferrer">Open maestro preview</a></div>
         </article>
 
@@ -439,7 +434,7 @@
           <div class="card-head"><h4>DistroBuzz</h4><span class="badge">Preview</span></div>
           <p class="one-liner">An open-source distribution platform with status, retries, and fallback logic.</p>
           <p class="story">Independent artists needed a clearer way to track multi-platform distribution flow from one upload. DistroBuzz solved that with explicit per-platform states, retry orchestration, fallback handling, and a public demo path. The hardest hurdle was integrating into larger production systems without destabilizing them during rollout.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: DistroBuzz is set up to become the dependable distribution layer behind future WaveForge release pipelines.</p>
+          <p class="outlook">Outlook: DistroBuzz is set up to become the dependable distribution layer behind future WaveForge release pipelines.</p>
           <div class="cta-row"><a class="btn secondary" href="https://distro-buzz-web.vercel.app" target="_blank" rel="noopener noreferrer">Open distro-buzz demo</a></div>
         </article>
 
@@ -447,7 +442,7 @@
           <div class="card-head"><h4>Lisa</h4><span class="badge">Live</span></div>
           <p class="one-liner">Your personal AI assistant</p>
           <p class="story">A genuinely helpful assistant with lots of awesome integrations and modern AI under the hood.</p>
-          <p class="story" data-draft="eddy-review">Lisa started as a voice assistant that picks up when you can't and grew into a general-purpose helper.</p>
+          <p class="story">Lisa started as a voice assistant that picks up when you can't and grew into a general-purpose helper.</p>
           
         </article>
 
@@ -455,7 +450,7 @@
           <div class="card-head"><h4>Nightline / HVACFix</h4><span class="badge">Live</span></div>
           <p class="one-liner">After-hours call automation with safety-first triage.</p>
           <p class="story">After-hours service teams needed emergency triage without waking on-call technicians for every routine issue. Nightline solved that with a voice stack, severity tiers, and strict safety routing that separates emergencies from next-day work orders. A key hurdle was unclear speech in high-risk scenarios, which led to a global safety design for ambiguous inputs.</p>
-          <p class="outlook">Outlook: Nightline is growing into a trusted after-hours operations layer for service companies.</p>
+          <p class="outlook">Outlook: Nightline continues as a practical after-hours operations layer for service companies.</p>
           <div class="cta-row"><a class="btn secondary" href="https://hvacfix.net" target="_blank" rel="noopener noreferrer">Open hvacfix.net</a></div>
         </article>
 
@@ -463,7 +458,7 @@
           <div class="card-head"><h4>Clawmo (formerly Social Forest)</h4><span class="badge">Live</span></div>
           <p class="one-liner">An OSINT suite that expanded from username search into broader intelligence modules.</p>
           <p class="story">Investigators needed a faster way to gather account and infrastructure signals without juggling multiple separate tools. Clawmo solved that by evolving Social Forest into a larger multi-module surface while keeping one consistent interface. Its biggest hurdle was carrying a live rebrand without breaking continuity as capabilities expanded.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: Clawmo can keep growing as a unified OSINT workspace with deeper cross-module investigation flow.</p>
+          <p class="outlook">Outlook: Clawmo can keep growing as a unified OSINT workspace with deeper cross-module investigation flow.</p>
           <div class="cta-row"><a class="btn secondary" href="https://clawmo.net" target="_blank" rel="noopener noreferrer">Open clawmo.net</a></div>
         </article>
 
@@ -471,7 +466,7 @@
           <div class="card-head"><h4>IronHaven</h4><span class="badge">Live</span></div>
           <p class="one-liner">A browser-first cyberpunk MMO with AI-driven world systems.</p>
           <p class="story">The goal was to ship a persistent browser MMO with procedural systems and AI-driven NPC behavior. IronHaven solved that with a TypeScript + React + Three.js stack tuned for real-time gameplay and active iteration. A concrete hurdle was dependency conflict in the rendering stack, resolved through version pinning and CI-aligned refactors.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: IronHaven is entering its next build cycle with deeper world systems and steadier player onboarding.</p>
+          <p class="outlook">Outlook: IronHaven is entering its next build cycle with deeper world systems and steadier player onboarding.</p>
           <div class="cta-row"><a class="btn secondary" href="https://agentlooper.org/ironhaven/" target="_blank" rel="noopener noreferrer">Open IronHaven</a></div>
         </article>
       </div>
@@ -484,7 +479,7 @@
         <article class="card" id="case-skill-scanner">
           <div class="card-head"><h4>Skill Scanner</h4><span class="badge">Live</span></div>
           <p class="one-liner">Scans AI skill files for hidden backdoors and instruction-layer attacks.</p>
-          <p class="story">The problem was that seemingly simple skill files can hide malicious logic and data exfiltration behavior. Skill Scanner solved it with a public scan service focused on high-risk patterns in skill and script payloads. A major hurdle was ensuring every scan and license flow stayed clean and reliable as usage scaled.</p>
+          <p class="story">The problem was that seemingly simple skill files can hide malicious logic and data exfiltration behavior. Skill Scanner solved it with a public scan service focused on high-risk patterns in skill and script payloads. A major hurdle was turning deep analysis into a workflow teams could run quickly and repeatedly.</p>
           <p class="outlook">Outlook: Skill Scanner is set to remain the front-line scanning surface in the Agent Defense Kit stack.</p>
           <div class="cta-row"><a class="btn secondary" href="https://agentlooper.org/skill-scanner/" target="_blank" rel="noopener noreferrer">Open Skill Scanner</a></div>
         </article>
@@ -492,7 +487,7 @@
         <article class="card" id="case-redteam">
           <div class="card-head"><h4>REDTEAM</h4><span class="badge">Live</span></div>
           <p class="one-liner">A diagnostic toolkit for probing LLM vulnerability classes from CLI workflows.</p>
-          <p class="story">Security teams needed repeatable diagnostics, not one-off prompt tests, to evaluate model risk. REDTEAM solved that with CLI-based probes, structured outputs, and CI-ready reporting flow. The hardest hurdle was keeping delivery and licensing accurate under real purchase traffic.</p>
+          <p class="story">Security teams needed repeatable diagnostics, not one-off prompt tests, to evaluate model risk. REDTEAM solved that with CLI-based probes, structured outputs, and CI-ready reporting flow. The hardest hurdle was shaping specialist test techniques into a repeatable day-to-day team workflow.</p>
           <p class="outlook">Outlook: REDTEAM is built to keep scaling as the executable diagnostics layer of the Agent Defense Kit.</p>
           <div class="cta-row"><a class="btn secondary" href="https://agentlooper.org/redteam/" target="_blank" rel="noopener noreferrer">Open REDTEAM</a></div>
         </article>
@@ -507,7 +502,7 @@
           <div class="card-head"><h4>AgentLooper</h4><span class="badge">Cold storage, backups kept</span></div>
           <p class="one-liner">A platform that evolved from learning-loop service to storefront and local-jobs flow.</p>
           <p class="story">AgentLooper had to support changing needs across multiple phases: recursive learning service, security-tool commerce, and quote-to-close workflow support. It solved that by adapting one platform to several product jobs over time. Its biggest hurdle was preserving operational safety as product identity shifted, especially across payments and fulfillment boundaries.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: AgentLooper’s architecture remains a strong relaunch base for modular autonomous-service products.</p>
+          <p class="outlook">Outlook: AgentLooper’s architecture remains a strong relaunch base for modular autonomous-service products.</p>
           
         </article>
 
@@ -515,7 +510,7 @@
           <div class="card-head"><h4>ProofChain</h4><span class="badge">Cold storage, backups kept</span></div>
           <p class="one-liner">A trust layer for agent identity, receipts, and compliance evidence.</p>
           <p class="story">Autonomous systems needed a clear way to prove who acted, what changed, and whether it was authorized. ProofChain solved that with identity primitives, verifiable receipt flow, and compliance-facing interfaces built as an open-core stack. Its hardest hurdle was market timing and positioning, not technical execution, leading to a controlled pause with full backups retained.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: ProofChain’s verifiable receipt architecture is ready to power future accountability features in active agent products.</p>
+          <p class="outlook">Outlook: ProofChain’s verifiable receipt architecture is ready to power future accountability features in active agent products.</p>
           
         </article>
 
@@ -523,7 +518,7 @@
           <div class="card-head"><h4>Dead Air FM radio</h4><span class="badge">Cold storage, backups kept</span></div>
           <p class="one-liner">An internet radio stack with automation, interaction, and generated host segments.</p>
           <p class="story">Running an always-on station required scheduling, stream metadata, listener requests, and generated break content working in one coordinated pipeline. Dead Air solved that with a full broadcast pipeline including stream engine, metadata flow, and interaction APIs. The recurring hurdle was keeping now-playing and vote/request state in sync with live output under constant uptime pressure.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: Dead Air’s broadcast engineering can be carried directly into the next live audio project when that channel returns.</p>
+          <p class="outlook">Outlook: Dead Air’s broadcast engineering can be carried directly into the next live audio project when that channel returns.</p>
           
         </article>
       </div>
@@ -545,7 +540,7 @@
           <div class="card-head"><h4>EBAIF</h4><span class="badge">Open source</span></div>
           <p class="one-liner">A framework for emergent behavior patterns in AI systems.</p>
           <p class="story">Static behavior models often break when environments change quickly. EBAIF solved that by exploring behavior genomes, consensus mechanics, and adaptive evolution paths in one framework. Its core hurdle was translating ambitious emergent-behavior design into reusable modules others can adopt directly.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: EBAIF can become the adaptive-behavior layer plugged into future autonomous game and agent systems.</p>
+          <p class="outlook">Outlook: EBAIF can become the adaptive-behavior layer plugged into future autonomous game and agent systems.</p>
           <div class="cta-row"><a class="btn secondary" href="https://github.com/ereezyy/EBAIF" target="_blank" rel="noopener noreferrer">Open GitHub repo</a></div>
         </article>
 
@@ -560,15 +555,15 @@
           <div class="card-head"><h4>AgentSwarm</h4><span class="badge">Open source</span></div>
           <p class="one-liner">Real-time monitoring and alerting patterns for live data feeds.</p>
           <p class="story">High-volume live feeds need fast filtering before they become useful action. AgentSwarm solved that with event-driven monitoring and alert logic tuned for autonomous response patterns. Its hurdle was maintaining broad scope while core product priorities shifted elsewhere.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: AgentSwarm’s event-ingestion architecture can continue as a reusable foundation for future monitoring products.</p>
+          <p class="outlook">Outlook: AgentSwarm’s event-ingestion architecture can continue as a reusable foundation for future monitoring products.</p>
         </article>
 
         <article class="card" id="case-syndicate">
           <div class="card-head"><h4>THE SYNDICATE</h4><span class="badge">Framework</span></div>
           <p class="one-liner">A swarm architecture with hard handoffs between drafting, gating, and execution.</p>
           <p class="story">Autonomous outreach systems fail fast when one agent can draft, approve, and send without control points. THE SYNDICATE solved that by splitting responsibilities across SNIPER drafts, AUDITOR gates with veto authority, and EXO ships. The hardest hurdle was preventing unsafe or low-quality outbound behavior, solved through auditable state-machine flow and explicit pass/fail gates.</p>
-          <p class="story">Each staged draft carries a message, audit record, fit note, and verdict before anything can ship, so every outbound action can be traced from intent to release.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: THE SYNDICATE is poised to become a reference operating model for governed autonomous outbound systems.</p>
+          <p class="story">Drafts are checked and approved before anything ships, so outbound actions stay deliberate, reviewable, and controlled.</p>
+          <p class="outlook">Outlook: THE SYNDICATE is poised to become a reference operating model for governed autonomous outbound systems.</p>
           
         </article>
 
@@ -592,7 +587,7 @@
           <div class="card-head"><h4>agent-compliance-lora</h4><span class="badge">Open source</span></div>
           <p class="one-liner">A LoRA line targeting approval-first and injection-resistant behavior.</p>
           <p class="story">Small models often need better guard behavior when handling risky instructions. agent-compliance-lora solved that by focusing tuning toward approval-first response patterns and injection resistance. The core hurdle was proving robust behavior across varied adversarial prompts, which requires disciplined evaluation loops.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: this LoRA work can become a reusable safety component across future agent governance stacks.</p>
+          <p class="outlook">Outlook: this LoRA work can become a reusable safety component across future agent governance stacks.</p>
           <div class="cta-row"><a class="btn secondary" href="https://github.com/ereezyy/agent-compliance-lora" target="_blank" rel="noopener noreferrer">Open GitHub repo</a></div>
         </article>
 
@@ -601,20 +596,20 @@
 
     <section class="group" id="games-experiments">
       <h3>6) Experiments and concepts</h3>
-      <p class="group-note">Published game and experiment tracks that informed product craft.</p>
+      <p class="group-note">Games and experiments.</p>
       <div class="grid">
         <article class="card">
           <div class="card-head"><h4>fleet kernel</h4><span class="badge">Experiment</span></div>
           <p class="one-liner">A governance concept for registry, trust levels, loop brakes, and kill-switch control.</p>
-          <p class="story" data-draft="eddy-review">As autonomous fleets grow, operators need hard controls over identity, trust progression, and emergency shutdown behavior. fleet kernel addresses that problem as an architecture concept spanning registry, message board, ledger, trust laddering, loop brakes, and kill-switch controls. The hurdle was designing a governance model strict enough for real incidents while preserving enough flexibility for normal autonomous operation.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: fleet kernel can graduate into a concrete control-plane implementation that anchors safe multi-agent operations.</p>
+          <p class="story">As autonomous fleets grow, operators need hard controls over identity, trust progression, and emergency shutdown behavior. fleet kernel addresses that problem as an architecture concept spanning registry, message board, ledger, trust laddering, loop brakes, and kill-switch controls. The hurdle was designing a governance model strict enough for real incidents while preserving enough flexibility for normal autonomous operation.</p>
+          <p class="outlook">Outlook: fleet kernel can graduate into a concrete control-plane implementation that anchors safe multi-agent operations.</p>
         </article>
 
         <article class="card" id="case-solhorse">
           <div class="card-head"><h4>Sol Horse</h4><span class="badge">Experiment</span></div>
           <p class="one-liner">A horse-racing sim game project with genetics, training, and tournament systems.</p>
           <p class="story">The project aimed to combine progression gameplay with simulation depth in one racing experience. Sol Horse solved that by connecting breeding, training, and competitive loops in a playable architecture. A clear hurdle was deployment continuity, since public release status changed while core game systems continued evolving.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: Sol Horse remains a strong foundation for a future racing-sim relaunch.</p>
+          <p class="outlook">Outlook: Sol Horse remains a strong foundation for a future racing-sim relaunch.</p>
           
         </article>
 
@@ -622,7 +617,7 @@
           <div class="card-head"><h4>DeckWizard</h4><span class="badge">Experiment</span></div>
           <p class="one-liner">A blackjack probability bot surfaced as a live web demo.</p>
           <p class="story">Players needed fast, understandable probability guidance without digging through strategy tables. DeckWizard solved that with an interactive decision-support interface tied to live demo usage. The hurdle was deciding how to keep the tool lightweight and useful while preserving room to reuse its interaction patterns in larger products.</p>
-          <p class="outlook" data-draft="eddy-review">Outlook: DeckWizard will continue as a polished utility demo and design reference for future interactive assistants.</p>
+          <p class="outlook">Outlook: DeckWizard will continue as a polished utility demo and design reference for future interactive assistants.</p>
           <div class="cta-row"><a class="btn secondary" href="https://deck-wizard.vercel.app" target="_blank" rel="noopener noreferrer">Open deck-wizard demo</a></div>
         </article>
 
@@ -703,7 +698,7 @@
         {
           name: "Agent Defense Kit",
           tagline: "Live security tooling on agentlooper.org: Skill Scanner and REDTEAM.",
-          line: "Focused on practical diagnostics and scanning workflows with stricter fulfillment boundaries.",
+          line: "Focused on practical diagnostics and scanning workflows built for consistent day-to-day use.",
           live: "https://agentlooper.org/skill-scanner/"
         }
       ];
@@ -876,9 +871,6 @@
         var chips = nav.querySelectorAll("button");
         for (var i = 0; i < chips.length; i++) {
           chips[i].setAttribute("aria-current", i === active ? "true" : "false");
-          if (i === active && window.innerWidth <= 900) {
-            chips[i].scrollIntoView({ block: "nearest", inline: "center", behavior: reduce ? "auto" : "smooth" });
-          }
         }
         if (reduce) renderFrame(performance.now());
       }
@@ -1110,6 +1102,7 @@
       });
 
       document.getElementById("sceneWrap").addEventListener("click", function (e) {
+        if (e.target.closest("#sceneNav, #panel, a, button")) return;
         var hit = nearest(e.clientX, e.clientY);
         if (hit) setActive(hit.i);
       });
