@@ -51,7 +51,7 @@ If `nginx -t` fails, do not reload.
 
 1. Restore the original enabled vhost file:
    ```bash
-   cp -a "$BACKUP_DIR/dead-air.show" /etc/nginx/sites-enabled/dead-air.show && nginx -t && systemctl reload nginx
+   sudo cp -a "$BACKUP_DIR/dead-air.show" /etc/nginx/sites-enabled/dead-air.show && sudo nginx -t && sudo systemctl reload nginx
    ```
 2. If the one-liner above is split, run:
    ```bash
@@ -64,9 +64,9 @@ If `nginx -t` fails, do not reload.
 
 ## Notes
 
-- `/legal/` alias is included as `alias /opt/legal/;`.
-- `/robots.txt` alias is included with a clearly marked placeholder path; copy the exact path from the backed-up live file before apply.
-- `/rss`, `/podcast/`, and `/episodes/` redirects to `https://agentlooper.org/radio/` are included.
+- `/legal/` alias is included as `alias /opt/legal/;` with `try_files $uri $uri.html $uri/ =404;`.
+- `/robots.txt` is explicitly aliased to `/opt/legal/robots.txt` with a one-day public cache header.
+- `/rss`, `/podcast/`, and `/episodes/` return `410` because the old Dead Air radio destination was intentionally removed.
 - Certbot renewal on this host uses the nginx authenticator flow, not the ACME webroot path in this file.
 - Rollback does not remove `/var/www/shipped` or `/var/www/acme-dead-air`; leaving those directories in place is harmless.
 - Out of scope for this claim: Lisa implementation changes, WaveForge/HVACFix product changes, iptables, and rizz.
