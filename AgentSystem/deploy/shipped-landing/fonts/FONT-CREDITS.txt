@@ -1,0 +1,17 @@
+Font credits for deployed shipped-landing page
+
+This directory contains locally hosted webfonts used by deploy/shipped-landing/index.html.
+
+1) Syne
+- Family: Syne
+- Copyright: Copyright 2017 The Syne Project Authors
+- License: SIL Open Font License, Version 1.1
+- Source package used in this repo workflow: @fontsource/syne
+
+2) Manrope
+- Family: Manrope
+- Copyright: Copyright 2018 The Manrope Project Authors
+- License: SIL Open Font License, Version 1.1
+- Source package used in this repo workflow: @fontsource/manrope
+
+See OFL-1.1.txt for the full license text.
