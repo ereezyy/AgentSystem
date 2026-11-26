@@ -224,10 +224,10 @@ nano /home/pi/AgentSystem/.env
 ### 5.2 Environment Configuration
 ```env
 # AI Provider API Keys
-GEMINI_API_KEY=AIzaSyClEDbUL2W4BawoYBvwbF9E8ejbPsXw3qc
-OPENROUTER_API_KEY=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
-OPENROUTER_FALLBACK_API_KEY=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
-XAI_API_KEY=xai-hI30Sx8voDdgwC7dfRYlBwrkAGJF1JwPfr0hvbUtKMArGdaCbT9acyKFpl6qMgx4gh6YmN7IpZH5QkhE
+# Put the real values in a local .env that is not committed. Do not paste keys into this guide.
+GEMINI_API_KEY=${GEMINI_API_KEY}
+OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+XAI_API_KEY=${XAI_API_KEY}
 
 # Celery Configuration
 CELERY_BROKER_URL=redis://localhost:6379/0
